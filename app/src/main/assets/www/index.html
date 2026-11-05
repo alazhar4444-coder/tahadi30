@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>تحدي ٣٠ يوم</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <main id="view"></main>
+  <nav class="tabs" id="tabs">
+    <button data-tab="today" class="on">
+      <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg><span>اليوم</span></button>
+    <button data-tab="challenge">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>التحدي</span></button>
+    <button data-tab="prayer">
+      <svg viewBox="0 0 24 24"><path d="M15.5 3.5a8.5 8.5 0 1 0 5 15.4A7 7 0 0 1 15.5 3.5z"/></svg><span>الصلاة</span></button>
+    <button data-tab="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.2 6.5l2.6 1.5M17.2 16l2.6 1.5M4.2 17.5l2.6-1.5M17.2 8l2.6-1.5"/></svg><span>الإعدادات</span></button>
+  </nav>
+  <div id="sheet" class="sheet" hidden><div class="sheet-bg" data-act="closeSheet"></div><div class="sheet-card" id="sheetBody"></div></div>
+  <div id="toast" class="toast"></div>
+</div>
+<script src="content.js"></script>
+<script src="praytime.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

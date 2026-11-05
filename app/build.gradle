@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+def runNumber = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger()
+
+android {
+    namespace 'com.tahadi.thalathin'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.tahadi.thalathin'
+        minSdk 26
+        targetSdk 34
+        versionCode runNumber
+        versionName "1.0.${runNumber}"
+    }
+
+    // مفتاح توقيع ثابت حتى تُثبَّت التحديثات فوق النسخة القديمة دون حذف البيانات
+    signingConfigs {
+        release {
+            storeFile file('tahadi.keystore')
+            storePassword 'tahadi30pass'
+            keyAlias 'tahadi'
+            keyPassword 'tahadi30pass'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
