@@ -218,6 +218,49 @@
   }
 
   /* ---------- أيقونات ---------- */
+  const SL = '<path d="M4 4l16 16"/>'; // خط النفي
+  const P = {
+    fajr: '<path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 7.5V4M5.6 11.2 4 9.8M18.4 11.2 20 9.8M9 21h6"/>',
+    sunrise: '<path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 3.5v5M9.5 6l2.5-2.5L14.5 6"/>',
+    dhuhr: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    asr: '<circle cx="15.5" cy="8.5" r="3.5"/><path d="M15.5 2.5v1.3M21.5 8.5h-1.3M19.7 4.3l-.9.9M11.3 4.3l.9.9M3 20h18M6 20l4.5-5.5"/>',
+    maghrib: '<path d="M3 15h18M6.5 15a5.5 5.5 0 0 1 11 0M12 3v6.5M9.5 7l2.5 2.5L14.5 7M7 19h10"/>',
+    isha: '<path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.3 6.3 0 0 0 10 10z"/><path d="M17.5 3.5l.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5-1.5-.6 1.5-.6z"/>',
+    moon: '<path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.3 6.3 0 0 0 10 10z"/>',
+    book: '<path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13"/>',
+    walk: '<path d="M8 3.5c1.6 0 2.5 1.8 2.5 4s-.9 4-2.5 4-2.5-1.8-2.5-4 .9-4 2.5-4zM5.8 14.5h4.4v1.7a2.2 2.2 0 0 1-4.4 0zM16 7c1.6 0 2.5 1.8 2.5 4s-.9 4-2.5 4-2.5-1.8-2.5-4 .9-4 2.5-4zM13.8 18h4.4v.3a2.2 2.2 0 0 1-4.4 0z"/>',
+    dumbbell: '<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>',
+    candy: '<circle cx="12" cy="12" r="3.6"/><path d="M8.6 10.6 4.5 8v8l4.1-2.6M15.4 10.6 19.5 8v8l-4.1-2.6"/>' + SL,
+    bread: '<path d="M5.5 11.5a3.8 3.8 0 0 1 1.3-7.2h10.4a3.8 3.8 0 0 1 1.3 7.2V19a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5.5 19z"/>' + SL,
+    shield: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.2-4.4"/>',
+    beads: '<circle cx="12" cy="4.8" r="1.5"/><circle cx="16.8" cy="7" r="1.5"/><circle cx="18.4" cy="12" r="1.5"/><circle cx="15.8" cy="16.4" r="1.5"/><circle cx="8.2" cy="16.4" r="1.5"/><circle cx="5.6" cy="12" r="1.5"/><circle cx="7.2" cy="7" r="1.5"/><path d="M12 17.5v4M10.5 21.5h3"/>',
+    beadsMoon: '<circle cx="12" cy="4.8" r="1.5"/><circle cx="16.8" cy="7" r="1.5"/><circle cx="7.2" cy="7" r="1.5"/><circle cx="5.6" cy="12" r="1.5"/><circle cx="8.2" cy="16.4" r="1.5"/><path d="M12 17.5v4M10.5 21.5h3M20 14.5a3.2 3.2 0 1 1-3.5-4 2.6 2.6 0 0 0 3.5 4z"/>',
+    mihrab: '<path d="M5 21V10a7 7 0 0 1 14 0v11M9 21v-6.5a3 3 0 0 1 6 0V21M3 21h18"/>',
+    sunSmall: '<circle cx="12" cy="13" r="3.5"/><path d="M12 5.5v1.5M5.5 13H4M20 13h-1.5M7.2 8.2l1 1M16.8 8.2l-1 1M3 20h18"/>',
+    hand: '<path d="M3 13.5h3l3.4 2H14a1.5 1.5 0 0 1 0 3H9.6M14.2 17l4.6-2.2a1.6 1.6 0 0 1 1.7 2.7L15 21H3"/><path d="M15 10.5 12.3 8a1.8 1.8 0 0 1 2.7-2.4 1.8 1.8 0 0 1 2.7 2.4z"/>',
+    heart: '<path d="M12 20s-7.5-4.5-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.5-7.5 10-7.5 10z"/>',
+    plate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3.5"/>' + SL,
+    drop: '<path d="M12 3.5c3.5 4.2 6 7.6 6 10.7a6 6 0 0 1-12 0c0-3.1 2.5-6.5 6-10.7z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
+    bed: '<path d="M3 19.5V7M3 15.5h18v4M21 15.5V13a3 3 0 0 0-3-3h-7.5v5.5"/><circle cx="6.8" cy="12.3" r="1.8"/><path d="M15 3.5h3l-3 3h3"/>',
+    leaf: '<path d="M5 19.5C5 11 10 5 19.5 4.5 19.5 14 14 19 5.5 19.5M5 19.5l7-7"/>',
+    cupNo: '<path d="M6.5 8h11l-1.4 12.5H7.9zM12 8l1-4.5h3"/>' + SL,
+    phoneNo: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>' + SL,
+    flame: '<path d="M12 21c4 0 6.5-2.6 6.5-6.3 0-4-3.3-6.6-4.3-10.7-2.2 1.6-3.2 4-3 6.5C10 9.5 9.2 8.4 9 7c-2 1.8-3.5 4.4-3.5 7.7C5.5 18.4 8 21 12 21z"/>',
+    star: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/>',
+    pencil: '<path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5zM13.5 7l3 3"/>',
+    quote: '<path d="M10 7H6.5A1.5 1.5 0 0 0 5 8.5V12h5V7zM10 12c0 3-1.5 4.5-4 5M19 7h-3.5A1.5 1.5 0 0 0 14 8.5V12h5V7zM19 12c0 3-1.5 4.5-4 5"/>',
+    pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+    compass: '<circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5 13.3 13.3 8.5 15.5l2.2-4.8z"/>',
+    bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15zM10 20.5h4"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/>',
+    x: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+    check2: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    dash: '<circle cx="12" cy="12" r="7.5" stroke-dasharray="2.6 2.6"/>'
+  };
+  const svg = name => `<svg viewBox="0 0 24 24">${P[name] || ''}</svg>`;
+  const ic = (name, cls) => `<span class="ico ${cls || ''}">${svg(name)}</span>`;
+
   const I = {
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
@@ -262,9 +305,8 @@
 
     const prayerRows = C.prayers.map(pr => {
       const v = D.p[pr.id] || 0;
-      const lbl = v === 2 ? I.check + 'في وقتها' : v === 1 ? 'متأخرة' : 'سجّل';
-      return `<div class="row"><div class="grow"><div class="t">${pr.name}</div><div class="h">${fmtTime(t[pr.id])}</div></div>
-        <button class="pbtn ${v === 2 ? 'ok' : v === 1 ? 'late' : ''}" data-act="prayer" data-id="${pr.id}">${lbl}</button></div>`;
+      return `<div class="row">${ic(pr.id)}<div class="grow"><div class="t">${pr.name}</div><div class="h">${fmtTime(t[pr.id])}</div></div>
+        <button class="ib wide ${v === 2 ? 'ok' : v === 1 ? 'late' : ''}" data-act="prayer" data-id="${pr.id}" aria-label="تسجيل ${pr.name}">${svg(v === 2 ? 'check2' : v === 1 ? 'clock' : 'dash')}</button></div>`;
     }).join('');
 
     const km = walkKmOf(k), kmPct = Math.min(km / S.walkKm * 100, 100);
@@ -272,28 +314,28 @@
       : !STEP_STATE.available ? 'جهازك لا يدعم عدّاد الخطوات — أضف المسافة يدويًا'
       : !STEP_STATE.permitted ? '' : `${n((STEPS[k] || 0).toLocaleString('en'))} خطوة`;
 
-    const avoid = (id, name, hint, extra) => {
-      const v = D[id];
-      return `<div class="row"><div class="grow"><div class="t">${name}</div><div class="h">${hint}</div>${extra || ''}</div>
-        <div class="seg"><button class="${v === true ? 'yes' : ''}" data-act="avoid" data-id="${id}" data-v="1">التزمت</button>
-        <button class="${v === false ? 'no' : ''}" data-act="avoid" data-id="${id}" data-v="0">لا</button></div></div>`;
-    };
+    const yesNo = (act, id, v) => `<div class="ibs"><button class="ib ${v === true ? 'ok' : ''}" data-act="${act}" data-id="${id}" data-v="1" aria-label="التزمت">${svg('check2')}</button>
+        <button class="ib ${v === false ? 'no' : ''}" data-act="${act}" data-id="${id}" data-v="0" aria-label="لم ألتزم">${svg('x')}</button></div>`;
+    const avoid = (id, icon, name, hint, extra) => `<div class="row">${ic(icon, id === 'chastity' ? '' : 'r')}<div class="grow"><div class="t">${name}</div><div class="h">${hint}</div>${extra || ''}</div>${yesNo('avoid', id, D[id])}</div>`;
 
     const ex = extrasFor(k);
     const exRows = ex.map(e => {
       const v = D.x[e.id];
       if (e.type === 'count') {
         const g = S[e.goalKey];
-        return `<div class="row"><div class="grow"><div class="t">${e.name}</div><div class="h">${n(v || 0)} من ${n(g)} ${e.unit}</div>
+        return `<div class="row">${ic(e.icon, 'b')}<div class="grow"><div class="t">${e.name}</div><div class="h">${n(v || 0)} من ${n(g)} ${e.unit}</div>
           <div class="bar mt" style="height:6px"><i style="width:${Math.min((v || 0) / g * 100, 100)}%"></i></div></div>
           <div class="stepper"><button data-act="xcount" data-id="${e.id}" data-d="-1">−</button><button data-act="xcount" data-id="${e.id}" data-d="1" style="background:var(--green);color:#fff">+</button></div></div>`;
       }
-      if (e.type === 'avoid') return `<div class="row"><div class="grow"><div class="t">${e.name}</div></div>
-        <div class="seg"><button class="${v === true ? 'yes' : ''}" data-act="xavoid" data-id="${e.id}" data-v="1">التزمت</button><button class="${v === false ? 'no' : ''}" data-act="xavoid" data-id="${e.id}" data-v="0">لا</button></div></div>`;
-      return `<div class="row" data-act="xcheck" data-id="${e.id}"><div class="grow"><div class="t">${e.name}</div><div class="h">${e.hint || ''}</div></div>
+      if (e.type === 'avoid') return `<div class="row">${ic(e.icon, 'r')}<div class="grow"><div class="t">${e.name}</div></div>${yesNo('xavoid', e.id, v)}</div>`;
+      return `<div class="row" data-act="xcheck" data-id="${e.id}">${ic(e.icon, e.group === 'health' ? 'h' : '')}<div class="grow"><div class="t">${e.name}</div><div class="h">${e.hint || ''}</div></div>
         <div class="check ${v ? 'on' : ''}">${I.check}</div></div>`;
     }).join('');
 
+    const gl = (icon, ok, label, act) => `<button class="gi ${ok ? 'on' : ''}" ${act ? `data-act="${act}"` : ''} aria-label="${label}">${svg(icon)}</button>`;
+    const goals = C.prayers.map(pr => gl(pr.id, D.p[pr.id] === 2, pr.name)).join('')
+      + gl('book', (D.quran || 0) >= S.quranGoal, 'القرآن') + gl('walk', walkDone(k), 'المشي')
+      + gl('candy', D.noSugar === true, 'بدون سكر') + gl('bread', D.noBread === true, 'بدون خبز') + gl('shield', D.chastity === true, 'العفّة');
     const slipMsg = D.chastity === false ? `<div class="slip">لا تيأس. قال تعالى: «لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ». استغفر، توضأ، وابدأ من جديد — تحدّيك مستمر، والمهم ألّا تتوقف.</div>` : '';
 
     return `
@@ -308,49 +350,49 @@
     <div class="card hero">
       <div class="ring">${ring(sc.pct)}<div class="lbl"><div class="pct">${n(sc.pct)}٪</div><div class="of">${isToday ? 'اليوم' : 'إنجاز'}</div></div></div>
       <div><h3>${dayLabel}</h3><p>${sc.core ? 'أكملت كل الأهداف الأساسية ✓' : cheer}</p>
-        <div class="chips"><span class="chip">أيام كاملة متتالية <b>${n(perfect)}</b></span><span class="chip">أيام العفّة <b>${n(purity)}</b></span></div></div>
+        <div class="chips"><span class="chip" title="أيام كاملة متتالية">${svg('flame')}<b>${n(perfect)}</b></span><span class="chip" title="أيام العفّة">${svg('shield')}<b>${n(purity)}</b></span></div></div>
     </div>
+    <div class="card goals">${goals}</div>
     ${nextCard}
     ${!isToday ? `<div class="card center muted" style="padding:10px">تعدّل يوم ${greg(d)} — <button class="link" data-act="goToday">العودة لليوم</button></div>` : ''}
 
-    <div class="sec-h"><h2>الصلوات الخمس</h2><span class="meta">${n(C.prayers.filter(p => D.p[p.id] === 2).length)}/٥ في وقتها</span></div>
+    <div class="sec-h"><h2>${svg('mihrab')}الصلوات</h2><span class="meta legend-i">${svg('check2')}في وقتها ${svg('clock')}متأخرة</span></div>
     <div class="card list">${prayerRows}</div>
 
-    <div class="sec-h"><h2>القرآن الكريم</h2><span class="meta">الهدف ${n(S.quranGoal)} ${S.quranGoal <= 2 ? (S.quranGoal === 1 ? 'صفحة' : 'صفحتان') : 'صفحات'}</span></div>
+    <div class="sec-h"><h2>${svg('book')}القرآن</h2><span class="meta">${svg('target')}${n(S.quranGoal)}</span></div>
     <div class="card">
-      <div class="row" style="padding-top:0"><div class="grow"><div class="t">صفحات اليوم</div><div class="h">${(D.quran || 0) >= S.quranGoal ? 'أحسنت، حققت وِردك' : 'ولو صفحة واحدة'}</div></div>
-        <div class="stepper"><button data-act="quran" data-d="-1">−</button><span class="v">${n(D.quran || 0)}</span><button data-act="quran" data-d="1" style="background:var(--green);color:#fff">+</button></div></div>
-      <div class="walk-meta" style="margin-top:4px"><span>وصلت إلى صفحة <b>${n(BOOK)}</b> من ٦٠٤</span><button class="link" data-act="setBook">تعديل</button></div>
+      <div class="row" style="padding-top:0">${ic('book')}<div class="grow"><div class="t">${n(D.quran || 0)} <span class="muted">/ ${n(S.quranGoal)}</span></div><div class="h">${(D.quran || 0) >= S.quranGoal ? 'حققت وِردك ✓' : 'صفحات اليوم'}</div></div>
+        <div class="stepper"><button data-act="quran" data-d="-1">−</button><button data-act="quran" data-d="1" style="background:var(--green);color:#fff">+</button></div></div>
+      <div class="walk-meta" style="margin-top:4px;align-items:center"><span class="legend-i">${svg('pin')}صفحة <b>${n(BOOK)}</b> / ٦٠٤</span><button class="ib sm" data-act="setBook" aria-label="تعديل">${svg('pencil')}</button></div>
       <div class="bar gold mt" style="height:6px"><i style="width:${BOOK / 604 * 100}%"></i></div>
     </div>
 
-    <div class="sec-h"><h2>الرياضة والمشي</h2><span class="meta">${walkDone(k) ? '<span class="badge">تحقق ✓</span>' : `${n(S.walkKm)} كم أو ${n(S.workoutMin)} دقيقة تمرين`}</span></div>
+    <div class="sec-h"><h2>${svg('walk')}المشي والرياضة</h2><span class="meta">${walkDone(k) ? '<span class="badge">✓</span>' : `${svg('target')}${n(S.walkKm)} كم`}</span></div>
     <div class="card">
-      <div class="walk-top"><div class="km">${n(round1(km))} <small>/ ${n(S.walkKm)} كم</small></div><div class="muted">${stepsLine}</div></div>
+      <div class="walk-top">${ic('walk', 'h')}<div class="km grow" style="margin-inline-start:10px">${n(round1(km))} <small>/ ${n(S.walkKm)} كم</small></div><div class="muted">${stepsLine}</div></div>
       <div class="bar"><i style="width:${kmPct}%"></i></div>
-      ${NATIVE && STEP_STATE.available && !STEP_STATE.permitted ? `<button class="btn primary block mt" data-act="stepPerm">تفعيل عدّاد الخطوات</button>` : ''}
-      ${WEB ? `<button class="link mt" data-act="shortcutHelp">${STEPS[todayKey()] ? 'خطواتك من تطبيق الصحة ✓ — كيف تعمل؟' : 'اربط خطوات الآيفون تلقائيًا'}</button>` : ''}
-      <div class="walk-meta"><span>${D.walkKm ? `منها ${n(round1(D.walkKm))} كم يدويًا` : WEB ? 'أو أضف المسافة يدويًا' : 'يُحسب المشي تلقائيًا من خطواتك'}</span><span>${n(Math.round(S.strideCm))} سم/خطوة</span></div>
+      ${NATIVE && STEP_STATE.available && !STEP_STATE.permitted ? `<button class="btn primary block mt" data-act="stepPerm">${svg('walk')}تفعيل عدّاد الخطوات</button>` : ''}
+      ${WEB ? `<button class="link mt" data-act="shortcutHelp">${STEPS[todayKey()] ? 'خطواتك من تطبيق الصحة ✓' : 'اربط خطوات الآيفون تلقائيًا'}</button>` : ''}
       <div class="inline-actions">
-        <button class="btn" data-act="addKm">+ إضافة مسافة</button>
-        <button class="btn" data-act="workout">تمرين: ${n(D.workout || 0)} د</button>
+        <button class="btn" data-act="addKm">${svg('walk')}+ كم${D.walkKm ? ` (${n(round1(D.walkKm))})` : ''}</button>
+        <button class="btn" data-act="workout">${svg('dumbbell')}${n(D.workout || 0)} د</button>
       </div>
     </div>
 
-    <div class="sec-h"><h2>الانضباط والصحة</h2><span class="meta">سجّلها آخر اليوم</span></div>
+    <div class="sec-h"><h2>${svg('shield')}الانضباط</h2><span class="meta">آخر اليوم</span></div>
     <div class="card list">
-      ${avoid('noSugar', 'بدون سكر', 'الحلويات والعصائر والمشروبات المحلّاة')}
-      ${avoid('noBread', 'بدون خبز', 'الخبز والمعجنات')}
-      ${avoid('chastity', 'حفظ النفس (العفّة)', 'الامتناع عن العادة السرية وغضّ البصر', slipMsg + `<button class="link" data-act="urge" style="margin-top:6px">أحتاج مساعدة الآن</button>`)}
+      ${avoid('noSugar', 'candy', 'بدون سكر', 'حلويات، عصائر، مشروبات محلّاة')}
+      ${avoid('noBread', 'bread', 'بدون خبز', 'خبز ومعجنات')}
+      ${avoid('chastity', 'shield', 'حفظ النفس', 'العفّة وغضّ البصر', slipMsg + `<button class="link sos" data-act="urge">${svg('heart')}أحتاج مساعدة الآن</button>`)}
     </div>
 
-    ${ex.length ? `<div class="sec-h"><h2>عادات إضافية</h2><button class="link" data-act="tab" data-tab="settings">تعديل</button></div><div class="card list">${exRows}</div>` : ''}
+    ${ex.length ? `<div class="sec-h"><h2>${svg('star')}إضافية</h2><button class="ib sm" data-act="tab" data-tab="settings" aria-label="تعديل">${svg('pencil')}</button></div><div class="card list">${exRows}</div>` : ''}
 
-    <div class="sec-h"><h2>تأمّل اليوم</h2></div>
+    <div class="sec-h"><h2>${svg('quote')}تأمّل اليوم</h2></div>
     <div class="card quote"><div class="qt">${q.t}</div><div class="qs">${q.s}</div></div>
     <div class="card tip">${I.bulb}<div>${tip}</div></div>
 
-    <div class="sec-h"><h2>ملاحظة اليوم</h2></div>
+    <div class="sec-h"><h2>${svg('pencil')}ملاحظة اليوم</h2></div>
     <div class="card"><textarea id="note" placeholder="ما الذي ساعدك اليوم؟ وما الذي صعّب عليك؟">${(D.note || '').replace(/</g, '&lt;')}</textarea></div>
     `;
   }
@@ -379,8 +421,8 @@
     let best = 0, run = 0;
     for (let i = 0; i < S.length; i++) { const k = keyOf(addDays(start(), i)); if (isTrue('chastity')(k)) { run++; best = Math.max(best, run); } else run = 0; }
 
-    const hb = (name, val, max) => `<div class="hbar"><div class="hl"><span>${name}</span><span>${n(val)} / ${n(max)}</span></div><div class="bar"><i style="width:${max ? Math.min(val / max * 100, 100) : 0}%"></i></div></div>`;
-    const miles = [7, 14, 21, 30].map(m => `<div class="mile ${full >= m ? 'got' : ''}"><div class="mv">${n(m)}</div>${full >= m ? 'تحقق' : 'يوم كامل'}</div>`).join('');
+    const hb = (icon, name, val, max) => `<div class="hbar"><div class="hl"><span class="legend-i">${svg(icon)}${name}</span><span>${n(val)} / ${n(max)}</span></div><div class="bar"><i style="width:${max ? Math.min(val / max * 100, 100) : 0}%"></i></div></div>`;
+    const miles = [7, 14, 21, 30].map(m => `<div class="mile ${full >= m ? 'got' : ''}">${svg(full >= m ? 'star' : 'target')}<div class="mv">${n(m)}</div>يوم</div>`).join('');
 
     return `
     <div class="top"><div><h1>تحدي ${n(S.length)} يوم</h1><div class="sub">${elapsed ? `مضى ${n(elapsed)} من ${n(S.length)} يوم` : `يبدأ ${greg(start())}`}</div></div></div>
@@ -390,22 +432,22 @@
     </div>
 
     <div class="stats">
-      <div class="stat feature"><div><div class="k">أيام العفّة المتتالية</div><div class="muted">أطول سلسلة: ${n(best)} يوم</div></div><div class="v">${n(purity)}</div></div>
-      <div class="stat"><div class="v">${n(onTime)} <small>/ ${n(elapsed * 5)}</small></div><div class="k">صلاة في وقتها</div></div>
-      <div class="stat"><div class="v">${n(full)}</div><div class="k">أيام كاملة ★</div></div>
-      <div class="stat"><div class="v">${n(pages)} <small>صفحة</small></div><div class="k">قرأتها من القرآن</div></div>
-      <div class="stat"><div class="v">${n(round1(kms))} <small>كم</small></div><div class="k">مشيتها${workout ? ` + ${n(workout)} د تمرين` : ''}</div></div>
+      <div class="stat feature">${ic('shield', 'h')}<div class="grow" style="margin-inline-start:12px"><div class="k">أيام العفّة المتتالية</div><div class="muted">أطول سلسلة: ${n(best)} يوم</div></div><div class="v">${n(purity)}</div></div>
+      <div class="stat">${ic('mihrab')}<div class="v">${n(onTime)} <small>/ ${n(elapsed * 5)}</small></div><div class="k">صلاة في وقتها</div></div>
+      <div class="stat">${ic('star', 'h')}<div class="v">${n(full)}</div><div class="k">أيام كاملة</div></div>
+      <div class="stat">${ic('book')}<div class="v">${n(pages)} <small>صفحة</small></div><div class="k">قرأتها من القرآن</div></div>
+      <div class="stat">${ic('walk', 'h')}<div class="v">${n(round1(kms))} <small>كم</small></div><div class="k">مشيتها${workout ? ` + ${n(workout)} د تمرين` : ''}</div></div>
     </div>
 
-    <div class="sec-h"><h2>الالتزام</h2><span class="meta">من الأيام المنقضية</span></div>
+    <div class="sec-h"><h2>${svg('target')}الالتزام</h2><span class="meta">من الأيام المنقضية</span></div>
     <div class="card">
-      ${hb('الصلاة في وقتها', onTime, elapsed * 5)}
-      ${hb('بدون سكر', sugar, elapsed)}
-      ${hb('بدون خبز', bread, elapsed)}
-      ${hb('أيام سُجّلت', logged, elapsed)}
+      ${hb('mihrab', 'الصلاة في وقتها', onTime, elapsed * 5)}
+      ${hb('candy', 'بدون سكر', sugar, elapsed)}
+      ${hb('bread', 'بدون خبز', bread, elapsed)}
+      ${hb('pencil', 'أيام سُجّلت', logged, elapsed)}
     </div>
 
-    <div class="sec-h"><h2>المحطات</h2></div>
+    <div class="sec-h"><h2>${svg('flame')}المحطات</h2></div>
     <div class="miles">${miles}</div>
     <p class="muted center mt">اضغط على أي يوم في الشبكة لفتحه وتعديله.</p>`;
   }
@@ -415,7 +457,7 @@
     const now = new Date(), t = ptimes(now), np = nextPrayer(now), cur = currentPrayerId(now);
     const tomorrow = ptimes(addDays(now, 1));
     const rows = [['fajr', 'الفجر'], ['sunrise', 'الشروق'], ['dhuhr', 'الظهر'], ['asr', 'العصر'], ['maghrib', 'المغرب'], ['isha', 'العشاء']]
-      .map(([id, nm]) => `<div class="row ${id === cur ? 'cur' : ''}"><div class="grow t">${nm}</div><div class="tm">${fmtTime(t[id])}</div></div>`).join('');
+      .map(([id, nm]) => `<div class="row ${id === cur ? 'cur' : ''}">${ic(id, id === 'sunrise' ? 'h' : '')}<div class="grow t">${nm}</div><div class="tm">${fmtTime(t[id])}</div></div>`).join('');
     const methodOpts = Object.entries(PrayTime.METHODS).map(([k, m]) => `<option value="${k}" ${S.method === k ? 'selected' : ''}>${m.name}</option>`).join('');
     const cityOpts = CITIES.map(c => `<option value="${c[0]}" ${S.city === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('') + (S.city === 'gps' ? '<option value="gps" selected>موقعي الحالي</option>' : '');
     const adj = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map(id => {
@@ -431,7 +473,8 @@
       <div class="l">${np ? fmtTime(np.at) : ''}</div>
     </div>
     <div class="card list ptimes">${rows}</div>
-    <div class="card muted">فجر الغد: ${fmtTime(tomorrow.fajr)} · اتجاه القبلة: ${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}° من الشمال</div>
+    <div class="stats"><div class="stat ic-stat">${ic('fajr')}<div><div class="v" style="font-size:20px">${fmtTime(tomorrow.fajr)}</div><div class="k">فجر الغد</div></div></div>
+      <div class="stat ic-stat">${ic('compass', 'h')}<div><div class="v" style="font-size:20px">${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}°</div><div class="k">القبلة من الشمال</div></div></div></div>
 
     <div class="sec-h"><h2>الموقع وطريقة الحساب</h2></div>
     <div class="card">

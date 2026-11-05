@@ -10,20 +10,20 @@ window.CONTENT = {
 
   /* type: check = إنجاز، avoid = امتناع (✓ التزمت / ✗ لم ألتزم)، count = عدّاد */
   extras: [
-    { id: 'adhkarAM', name: 'أذكار الصباح', group: 'deen', type: 'check', on: true, hint: 'بعد الفجر حتى الشروق' },
-    { id: 'adhkarPM', name: 'أذكار المساء', group: 'deen', type: 'check', on: true, hint: 'بعد العصر حتى المغرب' },
-    { id: 'witr', name: 'صلاة الوتر', group: 'deen', type: 'check', on: true, hint: 'ولو ركعة واحدة قبل النوم' },
-    { id: 'rawatib', name: 'السنن الرواتب', group: 'deen', type: 'check', on: false, hint: '١٢ ركعة: بيت في الجنة' },
-    { id: 'duha', name: 'صلاة الضحى', group: 'deen', type: 'check', on: false, hint: 'ركعتان بعد ارتفاع الشمس' },
-    { id: 'istighfar', name: 'استغفار ١٠٠ مرة', group: 'deen', type: 'check', on: false, hint: 'أستغفر الله وأتوب إليه' },
-    { id: 'sadaqa', name: 'صدقة ولو قليلة', group: 'deen', type: 'check', on: false, hint: 'اتقوا النار ولو بشق تمرة' },
-    { id: 'birr', name: 'برّ الوالدين / صلة رحم', group: 'deen', type: 'check', on: false, hint: 'اتصال أو زيارة' },
-    { id: 'fasting', name: 'صيام الاثنين والخميس', group: 'deen', type: 'check', on: false, hint: 'يظهر يومي الاثنين والخميس فقط', days: [1, 4] },
-    { id: 'water', name: 'شرب الماء', group: 'health', type: 'count', on: true, unit: 'كوب', goalKey: 'waterGoal' },
-    { id: 'sleep', name: 'النوم قبل ١١ مساءً', group: 'health', type: 'check', on: true, hint: '٧ ساعات نوم تعين على الفجر' },
-    { id: 'veggies', name: 'خضار وفاكهة', group: 'health', type: 'check', on: false, hint: 'حصتان على الأقل' },
-    { id: 'noSoda', name: 'بدون مشروبات غازية', group: 'health', type: 'avoid', on: false },
-    { id: 'noPhoneBed', name: 'بدون جوال قبل النوم بساعة', group: 'health', type: 'avoid', on: false }
+    { id: 'adhkarAM', icon: 'beads', name: 'أذكار الصباح', group: 'deen', type: 'check', on: true, hint: 'بعد الفجر حتى الشروق' },
+    { id: 'adhkarPM', icon: 'beadsMoon', name: 'أذكار المساء', group: 'deen', type: 'check', on: true, hint: 'بعد العصر حتى المغرب' },
+    { id: 'witr', icon: 'moon', name: 'صلاة الوتر', group: 'deen', type: 'check', on: true, hint: 'ولو ركعة واحدة قبل النوم' },
+    { id: 'rawatib', icon: 'mihrab', name: 'السنن الرواتب', group: 'deen', type: 'check', on: false, hint: '١٢ ركعة: بيت في الجنة' },
+    { id: 'duha', icon: 'sunSmall', name: 'صلاة الضحى', group: 'deen', type: 'check', on: false, hint: 'ركعتان بعد ارتفاع الشمس' },
+    { id: 'istighfar', icon: 'beads', name: 'استغفار ١٠٠ مرة', group: 'deen', type: 'check', on: false, hint: 'أستغفر الله وأتوب إليه' },
+    { id: 'sadaqa', icon: 'hand', name: 'صدقة ولو قليلة', group: 'deen', type: 'check', on: false, hint: 'اتقوا النار ولو بشق تمرة' },
+    { id: 'birr', icon: 'heart', name: 'برّ الوالدين / صلة رحم', group: 'deen', type: 'check', on: false, hint: 'اتصال أو زيارة' },
+    { id: 'fasting', icon: 'plate', name: 'صيام الاثنين والخميس', group: 'deen', type: 'check', on: false, hint: 'يظهر يومي الاثنين والخميس فقط', days: [1, 4] },
+    { id: 'water', icon: 'drop', name: 'شرب الماء', group: 'health', type: 'count', on: true, unit: 'كوب', goalKey: 'waterGoal' },
+    { id: 'sleep', icon: 'bed', name: 'النوم قبل ١١ مساءً', group: 'health', type: 'check', on: true, hint: '٧ ساعات نوم تعين على الفجر' },
+    { id: 'veggies', icon: 'leaf', name: 'خضار وفاكهة', group: 'health', type: 'check', on: false, hint: 'حصتان على الأقل' },
+    { id: 'noSoda', icon: 'cupNo', name: 'بدون مشروبات غازية', group: 'health', type: 'avoid', on: false },
+    { id: 'noPhoneBed', icon: 'phoneNo', name: 'بدون جوال قبل النوم بساعة', group: 'health', type: 'avoid', on: false }
   ],
 
   quotes: [

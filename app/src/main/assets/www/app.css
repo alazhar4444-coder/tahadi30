@@ -239,3 +239,51 @@ textarea { width: 100%; min-height: 80px; resize: vertical; border: 1.5px solid 
 .center { text-align: center; }
 .mt { margin-top: 12px; }
 .ltr { direction: ltr; display: inline-block; }
+
+/* ===== icons ===== */
+.ico { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; flex: none;
+  background: var(--green-soft); color: var(--green); }
+.ico.h { background: var(--gold-soft); color: var(--gold); }
+.ico.r { background: var(--red-soft); color: var(--red); }
+.ico.b { background: #DCE8F2; color: #2D6A9A; }
+:root[data-theme="dark"] .ico.b { background: #1C2E3B; color: #8CC0E8; }
+.ico svg, .ib svg, .gi svg, .sec-h h2 svg, .sec-h .meta svg, .legend-i svg, .btn svg, .chip svg, .mile svg, .link svg {
+  fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ico svg { width: 23px; height: 23px; }
+
+.ib { width: 46px; height: 42px; border-radius: 12px; background: var(--track); color: var(--ink-3);
+  display: grid; place-items: center; flex: none; transition: transform .12s, background .15s; }
+.ib.wide { width: 58px; }
+.ib svg { width: 23px; height: 23px; stroke-width: 2.3; }
+.ib:active { transform: scale(.92); }
+.ib.ok { background: var(--green); color: #fff; }
+.ib.late { background: var(--gold); color: #fff; }
+.ib.no { background: var(--red); color: #fff; }
+.ib.sm { width: 36px; height: 34px; border-radius: 10px; background: transparent; color: var(--green); }
+.ib.sm svg { width: 19px; height: 19px; stroke-width: 2; }
+.ibs { display: flex; gap: 6px; flex: none; }
+
+.sec-h h2 { display: flex; align-items: center; gap: 8px; }
+.sec-h h2 svg { width: 21px; height: 21px; color: var(--green); }
+.legend-i { display: inline-flex; align-items: center; gap: 4px; }
+.legend-i svg, .sec-h .meta svg { width: 15px; height: 15px; stroke-width: 2.3; vertical-align: -2px; }
+.sec-h .meta { display: inline-flex; align-items: center; gap: 4px; }
+.btn svg { width: 19px; height: 19px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 15px; padding: 4px 11px; }
+.chip svg { width: 17px; height: 17px; color: #F3C97A; }
+.link.sos { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; color: var(--red); }
+.link.sos svg { width: 16px; height: 16px; }
+.walk-top { align-items: center; }
+
+/* شريط أهداف اليوم */
+.goals { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding: 12px; }
+.gi { aspect-ratio: 1; border-radius: 14px; display: grid; place-items: center; background: var(--track); color: var(--ink-3); transition: all .2s; }
+.gi svg { width: 26px; height: 26px; }
+.gi.on { background: var(--green); color: #fff; }
+
+.stat .ico { margin-bottom: 8px; width: 36px; height: 36px; border-radius: 11px; }
+.stat .ico svg { width: 20px; height: 20px; }
+.stat.feature .ico { margin: 0; }
+.ic-stat { display: flex; align-items: center; gap: 10px; }
+.ic-stat .ico { margin: 0; }
+.mile svg { width: 20px; height: 20px; margin: 0 auto 2px; }
