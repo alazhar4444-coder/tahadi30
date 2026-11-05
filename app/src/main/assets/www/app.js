@@ -65,6 +65,22 @@
   const dur = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; };
   const round1 = x => Math.round(x * 10) / 10;
 
+  /* ---------- نسخة الآيفون (الويب): الخطوات تأتي من اختصار يقرأ تطبيق الصحة ---------- */
+  const WEB = !NATIVE;
+  const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const STANDALONE = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const appUrl = () => location.origin + location.pathname;
+  function intakeWebSteps() {
+    if (!WEB) return false;
+    const q = new URLSearchParams(location.search), s = q.get('steps');
+    if (s == null || isNaN(parseFloat(s))) return false;
+    const ws = Store.get('webSteps', {});
+    ws[todayKey()] = Math.round(parseFloat(s));
+    Store.set('webSteps', ws);
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    return true;
+  }
+
   const start = () => fromKey(S.startDate);
   const dayNum = k => diffDays(fromKey(k), start()) + 1;        // ١..٣٠ داخل التحدي
   const inChallenge = k => { const d = dayNum(k); return d >= 1 && d <= S.length; };
@@ -147,9 +163,45 @@
     try { NATIVE.schedule(JSON.stringify(list)); } catch (e) {}
   }
 
+  /* ---------- ملف تقويم (ics) لتنبيهات الآيفون ---------- */
+  function buildIcs(from, count) {
+    const f = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+    const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tahadi30//AR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:تحدي ٣٠ يوم'];
+    const ev = (uid, at, mins, title, body) => {
+      L.push('BEGIN:VEVENT', `UID:${uid}@tahadi30`, `DTSTAMP:${stamp}`, `DTSTART:${f(at)}`, `DTEND:${f(new Date(at.getTime() + mins * 60000))}`,
+        `SUMMARY:${title}`, `DESCRIPTION:${body}`, 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT');
+    };
+    for (let i = 0; i < count; i++) {
+      const d = addDays(from, i), t = ptimes(d), k = keyOf(d).replace(/-/g, '');
+      C.prayers.forEach(pr => { if (t[pr.id]) ev(`${k}-${pr.id}`, t[pr.id], 15, `🕌 صلاة ${pr.name}`, 'الصلاة على وقتها — سجّلها في التحدي'); });
+      if (S.notifEvening) {
+        const [h, m] = S.eveningTime.split(':').map(Number);
+        ev(`${k}-review`, new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m), 10, '✅ سجّل إنجازات اليوم', 'تحدي ٣٠ يوم: أكمل ما تبقّى قبل النوم');
+      }
+    }
+    L.push('END:VCALENDAR');
+    // طيّ الأسطر الطويلة (٧٥ بايت) حسب معيار iCalendar
+    const enc = new TextEncoder();
+    const fold = line => {
+      if (enc.encode(line).length <= 74) return line;
+      const out = []; let cur = '', limit = 74;
+      for (const ch of line) {
+        if (enc.encode(cur + ch).length > limit) { out.push(cur); cur = ''; limit = 73; }
+        cur += ch;
+      }
+      out.push(cur);
+      return out.join('\r\n ');
+    };
+    return L.map(fold).join('\r\n') + '\r\n';
+  }
+  window.__buildIcs = (from, count) => buildIcs(from ? fromKey(from) : start(), count || S.length);
+
   /* ---------- الخطوات ---------- */
   function refreshSteps() {
-    if (!NATIVE || !NATIVE.getStepsJson) return;
+    if (WEB) { STEPS = Store.get('webSteps', {}); STEP_STATE = { available: true, permitted: true }; return; }
+    if (!NATIVE.getStepsJson) return;
     try {
       const r = JSON.parse(NATIVE.getStepsJson());
       STEPS = r.history || {}; STEP_STATE = { available: !!r.available, permitted: !!r.permitted };
@@ -216,7 +268,7 @@
     }).join('');
 
     const km = walkKmOf(k), kmPct = Math.min(km / S.walkKm * 100, 100);
-    const stepsLine = !NATIVE ? 'عدّاد الخطوات يعمل داخل تطبيق أندرويد'
+    const stepsLine = WEB ? (STEPS[k] ? `${n((STEPS[k]).toLocaleString('en'))} خطوة` : '')
       : !STEP_STATE.available ? 'جهازك لا يدعم عدّاد الخطوات — أضف المسافة يدويًا'
       : !STEP_STATE.permitted ? '' : `${n((STEPS[k] || 0).toLocaleString('en'))} خطوة`;
 
@@ -277,7 +329,8 @@
       <div class="walk-top"><div class="km">${n(round1(km))} <small>/ ${n(S.walkKm)} كم</small></div><div class="muted">${stepsLine}</div></div>
       <div class="bar"><i style="width:${kmPct}%"></i></div>
       ${NATIVE && STEP_STATE.available && !STEP_STATE.permitted ? `<button class="btn primary block mt" data-act="stepPerm">تفعيل عدّاد الخطوات</button>` : ''}
-      <div class="walk-meta"><span>${D.walkKm ? `منها ${n(round1(D.walkKm))} كم يدويًا` : 'يُحسب المشي تلقائيًا من خطواتك'}</span><span>${n(Math.round(S.strideCm))} سم/خطوة</span></div>
+      ${WEB ? `<button class="link mt" data-act="shortcutHelp">${STEPS[todayKey()] ? 'خطواتك من تطبيق الصحة ✓ — كيف تعمل؟' : 'اربط خطوات الآيفون تلقائيًا'}</button>` : ''}
+      <div class="walk-meta"><span>${D.walkKm ? `منها ${n(round1(D.walkKm))} كم يدويًا` : WEB ? 'أو أضف المسافة يدويًا' : 'يُحسب المشي تلقائيًا من خطواتك'}</span><span>${n(Math.round(S.strideCm))} سم/خطوة</span></div>
       <div class="inline-actions">
         <button class="btn" data-act="addKm">+ إضافة مسافة</button>
         <button class="btn" data-act="workout">تمرين: ${n(D.workout || 0)} د</button>
@@ -386,7 +439,8 @@
       <div class="field"><label>تحديد موقعي بالـ GPS<div class="h">أدق للمدن غير الموجودة</div></label><button class="btn" data-act="gps">موقعي</button></div>
       <div class="field"><label>طريقة الحساب</label><select data-set="method">${methodOpts}</select></div>
       <div class="field"><label>حساب العصر</label><select data-set="asrFactor"><option value="1" ${S.asrFactor == 1 ? 'selected' : ''}>الجمهور (المِثل)</option><option value="2" ${S.asrFactor == 2 ? 'selected' : ''}>الحنفي (المِثلين)</option></select></div>
-      <div class="field"><label>تنبيه عند الأذان</label><button class="switch ${S.notifPrayers ? 'on' : ''}" data-act="toggle" data-id="notifPrayers"></button></div>
+      ${WEB ? `<div class="field"><label>تنبيه عند الأذان<div class="h">تُضاف المواقيت لتقويم جوالك مع تنبيه</div></label><button class="btn" data-act="ics">إضافة للتقويم</button></div>`
+        : `<div class="field"><label>تنبيه عند الأذان</label><button class="switch ${S.notifPrayers ? 'on' : ''}" data-act="toggle" data-id="notifPrayers"></button></div>`}
     </div>
     <div class="sec-h"><h2>تعديل يدوي بالدقائق</h2><span class="meta">لمطابقة مسجد حيّك</span></div>
     <div class="card">${adj}</div>`;
@@ -417,12 +471,19 @@
     <div class="sec-h"><h2>عادات إضافية مقترحة</h2></div>
     <div class="card">${exToggles}</div>
     <div class="sec-h"><h2>التنبيهات</h2></div>
-    <div class="card">
+    ${WEB ? `<div class="card">
+      <div class="field"><label>تنبيهات الأذان والتذكير<div class="h">يُنشئ ملف تقويم لـ٣٠ يومًا بمواقيت ${S.placeName}، فيه تنبيه عند كل أذان وتذكير مسائي ${S.notifEvening ? 'الساعة ' + n(S.eveningTime) : ''}. أعد إضافته إذا غيّرت المدينة.</div></label></div>
+      <div class="field"><label>تذكير المراجعة المسائية</label><button class="switch ${S.notifEvening ? 'on' : ''}" data-act="toggle" data-id="notifEvening"></button></div>
+      <div class="field"><label>وقت التذكير</label><input type="time" data-set="eveningTime" value="${S.eveningTime}"></div>
+      <button class="btn primary block mt" data-act="ics">إضافة المواقيت إلى تقويم الآيفون</button>
+    </div>
+    <div class="sec-h"><h2>خطوات الآيفون</h2></div>
+    <div class="card"><div class="field"><label>ربط المشي بتطبيق الصحة<div class="h">عبر تطبيق الاختصارات</div></label><button class="btn" data-act="shortcutHelp">الطريقة</button></div></div>` : `<div class="card">
       <div class="field"><label>تنبيه عند كل أذان</label><button class="switch ${S.notifPrayers ? 'on' : ''}" data-act="toggle" data-id="notifPrayers"></button></div>
       <div class="field"><label>تذكير المراجعة المسائية</label><button class="switch ${S.notifEvening ? 'on' : ''}" data-act="toggle" data-id="notifEvening"></button></div>
       <div class="field"><label>وقت التذكير</label><input type="time" data-set="eveningTime" value="${S.eveningTime}"></div>
-      ${NATIVE ? `<div class="field"><label>السماح بالإشعارات<div class="h">إذا لم تصلك التنبيهات</div></label><button class="btn" data-act="notifPerm">السماح</button></div>` : ''}
-    </div>
+      <div class="field"><label>السماح بالإشعارات<div class="h">إذا لم تصلك التنبيهات</div></label><button class="btn" data-act="notifPerm">السماح</button></div>
+    </div>`}
     <div class="sec-h"><h2>المظهر</h2></div>
     <div class="card"><div class="field"><label>الوضع</label><select data-set="theme">
       <option value="auto" ${S.theme === 'auto' ? 'selected' : ''}>حسب الجهاز</option><option value="light" ${S.theme === 'light' ? 'selected' : ''}>فاتح</option><option value="dark" ${S.theme === 'dark' ? 'selected' : ''}>داكن</option></select></div></div>
@@ -494,13 +555,43 @@
     closeSheet,
     stepPerm: () => { try { NATIVE.requestSteps(); } catch (e) {} },
     notifPerm: () => { try { NATIVE.requestNotifications(); } catch (e) {} },
-    gps: () => { if (!NATIVE) return toast('متاح داخل التطبيق'); toast('جارٍ تحديد الموقع…'); try { NATIVE.requestLocation(); } catch (e) {} },
+    gps: () => {
+      toast('جارٍ تحديد الموقع…');
+      if (NATIVE) { try { NATIVE.requestLocation(); } catch (e) {} return; }
+      if (!navigator.geolocation) return toast('المتصفح لا يدعم تحديد الموقع');
+      navigator.geolocation.getCurrentPosition(
+        p => window.onNative('location', { lat: p.coords.latitude, lng: p.coords.longitude }),
+        () => window.onNative('location', null), { timeout: 15000, maximumAge: 3600000 });
+    },
+    ics: () => {
+      const from = start() > new Date() ? start() : fromKey(todayKey());
+      const left = Math.max(7, S.length - Math.max(0, dayNum(todayKey()) - 1));
+      const url = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(buildIcs(from, left));
+      const a = document.createElement('a');
+      a.href = url;
+      if (!IOS) a.download = 'tahadi30-prayer-times.ics';
+      document.body.appendChild(a); a.click(); a.remove();
+      if (IOS) toast('اختر «إضافة الكل» لتصلك التنبيهات');
+    },
+    shortcutHelp: () => sheet(`<h2>ربط خطوات الآيفون</h2>
+      <p>تطبيقات الويب لا تقرأ الخطوات مباشرة، لكن اختصارًا صغيرًا يقرأها من تطبيق «الصحة» ويفتح التحدي بها. تجهيزه مرة واحدة:</p>
+      <div class="urge"><h4>١. اختصار جديد</h4><div>افتح تطبيق «الاختصارات» ← زر ＋ ← سمِّه «تحدي ٣٠».</div></div>
+      <div class="urge"><h4>٢. العثور على عينات الصحة</h4><div>أضف إجراء <b>Find Health Samples</b>: النوع = <b>الخطوات</b>، وتاريخ البدء = <b>اليوم</b>. إن كانت عندك ساعة Apple أضف شرط: المصدر = iPhone حتى لا تُحسب الخطوات مرتين.</div></div>
+      <div class="urge"><h4>٣. المجموع</h4><div>أضف <b>Calculate Statistics</b> واختر <b>Sum</b>، ثم <b>Round Number</b>.</div></div>
+      <div class="urge"><h4>٤. فتح التحدي</h4><div>أضف إجراء <b>URL</b> واكتب الرابط التالي، ثم ضع بعده متغيّر «الرقم المقرّب»، ثم أضف <b>Open URLs</b>:</div>
+        <div class="card mt" style="direction:ltr;text-align:left;font-family:monospace;font-size:13px;word-break:break-all;-webkit-user-select:text;user-select:text">${appUrl()}?steps=</div>
+        <button class="btn block" data-act="copyUrl">نسخ الرابط</button></div>
+      <div class="urge"><h4>٥. على الشاشة الرئيسية</h4><div>من تفاصيل الاختصار ← «إضافة إلى الشاشة الرئيسية». <b>افتح التحدي دائمًا من هذه الأيقونة</b> فتتحدّث خطواتك تلقائيًا. (لا تستخدم معها أيقونة «إضافة إلى الشاشة الرئيسية» من Safari لأن بياناتها منفصلة.)</div></div>
+      <button class="btn primary block mt" data-act="closeSheet">تم</button>`),
+    copyUrl: () => { try { navigator.clipboard.writeText(appUrl() + '?steps='); toast('نُسخ الرابط'); } catch (e) { toast('انسخ الرابط يدويًا'); } },
     adj: el => { S.adjust[el.dataset.id] += +el.dataset.d; saveS(); scheduleNotifs(); rerender(); },
     toggle: el => { S[el.dataset.id] = !S[el.dataset.id]; saveS(); scheduleNotifs(); rerender(); },
     extra: el => { S.extras[el.dataset.id] = !S.extras[el.dataset.id]; saveS(); rerender(); },
     export: () => {
       const data = JSON.stringify({ settings: S, days: DAYS, quranPage: BOOK, v: 1 });
-      if (NATIVE && NATIVE.share) NATIVE.share(data); else { navigator.clipboard && navigator.clipboard.writeText(data); toast('نُسخت البيانات'); }
+      if (NATIVE && NATIVE.share) NATIVE.share(data);
+      else if (navigator.share) navigator.share({ title: 'نسخة احتياطية — تحدي ٣٠ يوم', text: data }).catch(() => {});
+      else { navigator.clipboard && navigator.clipboard.writeText(data); toast('نُسخت البيانات'); }
     },
     import: () => sheet(`<h2>استيراد البيانات</h2><p>الصق النص الذي صدّرته سابقًا.</p><textarea id="impIn" style="min-height:140px;direction:ltr"></textarea><button class="btn primary block mt" data-act="doImport">استيراد</button>`),
     doImport: () => {
@@ -572,15 +663,22 @@
 
   /* ---------- البدء ---------- */
   applyTheme();
+  if (intakeWebSteps()) setTimeout(() => toast('تم تحديث خطواتك من تطبيق الصحة'), 400);
   refreshSteps();
+  if (WEB && location.protocol === 'https:') {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  }
   render();
   scheduleNotifs();
   if (!S.onboarded) {
     sheet(`<h2>بسم الله، أهلًا بك</h2>
       <p>هذا تحدّيك لمدة ٣٠ يومًا يبدأ <b style="color:var(--green)">${greg(start())}</b>: الصلوات في وقتها، وِرد من القرآن، مشي ٥ كم أو تمرين، بدون سكر ولا خبز، وحفظ النفس.</p>
       <div class="urge"><h4>١. سجّل كل يوم</h4><div>اضغط على الصلاة عند أدائها، وسجّل الباقي في المساء.</div></div>
-      <div class="urge"><h4>٢. التنبيهات</h4><div>يصلك تنبيه عند كل أذان وتذكير مسائي. (المدينة الافتراضية: مسقط — غيّرها من تبويب الصلاة)</div></div>
-      <div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٣. عدّاد الخطوات</h4><div>يحسب مشيك تلقائيًا من حسّاس الجوال.</div></div>${NATIVE ? '<button class="btn" data-act="onbSteps">تفعيل</button>' : ''}</div>
+      ${NATIVE ? `<div class="urge"><h4>٢. التنبيهات</h4><div>يصلك تنبيه عند كل أذان وتذكير مسائي. (المدينة الافتراضية: مسقط — غيّرها من تبويب الصلاة)</div></div>
+      <div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٣. عدّاد الخطوات</h4><div>يحسب مشيك تلقائيًا من حسّاس الجوال.</div></div><button class="btn" data-act="onbSteps">تفعيل</button></div>`
+      : `<div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٢. تنبيهات الأذان</h4><div>أضف مواقيت ٣٠ يومًا (مسقط) إلى تقويم جوالك مع تنبيه عند كل أذان. غيّر المدينة أولًا من تبويب الصلاة إن لزم.</div></div><button class="btn" data-act="ics">إضافة</button></div>
+      <div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٣. خطوات المشي</h4><div>اربطها بتطبيق «الصحة» عبر اختصار بسيط، أو أضف المسافة يدويًا.</div></div><button class="btn" data-act="shortcutHelp">الطريقة</button></div>`}
       <div class="card quote mt"><div class="qt">«أحبُّ الأعمال إلى الله أدومها وإن قلّ»</div><div class="qs">متفق عليه</div></div>
       <button class="btn primary block" data-act="onbDone">لنبدأ</button>`);
   }
