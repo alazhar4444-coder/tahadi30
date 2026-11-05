@@ -233,7 +233,10 @@
     quran: '#DCFCE7', walk: '#DBEAFE', workout: '#E0F2FE', noSugar: '#FCE7F3', noBread: '#FEF3C7', chastity: '#E0E7FF',
     water: '#CFFAFE', sleep: '#E0E7FF', default: '#F1F5F9'
   };
-  const emo = (id, size) => `<span class="emo ${size || ''}" style="--t:${TINT[id] || TINT.default}">${E[id] || '•'}${BAN.has(id) ? '<i class="ban"></i>' : ''}</span>`;
+  const AID = { mosque: 'rawatib', shield: 'chastity', water: 'water', points: 'points' };
+  const emo = (id, size) => `<span class="emo ${size || ''}">${ART.tile(AID[id] || id)}</span>`;
+  const mi = id => `<span class="mi">${ART.tile(AID[id] || id)}</span>`;
+  const bdg = (id, cls) => `<span class="bdg ${cls || ''}">${ART.badge(id)}</span>`;
   const I = { bulb: '' };
   const ico = {
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -268,14 +271,14 @@
     return pts;
   }
   const MEDALS = [
-    { id: 'w1', e: '🥉', name: 'وسام الأسبوع الأول', tier: 'برونزي', from: 1, to: 7, bonus: 150, rk: 'rewardW1' },
-    { id: 'w2', e: '🥈', name: 'وسام الأسبوع الثاني', tier: 'فضي', from: 8, to: 14, bonus: 250, rk: 'rewardW2' },
-    { id: 'w3', e: '🥇', name: 'وسام الأسبوع الثالث', tier: 'ذهبي', from: 15, to: 21, bonus: 350, rk: 'rewardW3' },
-    { id: 'w4', e: '💎', name: 'وسام الأسبوع الرابع', tier: 'ماسي', from: 22, to: 28, bonus: 500, rk: 'rewardW4' },
-    { id: 'all', e: '🏆', name: 'كأس التحدي', tier: '٣٠ يومًا كاملة', from: 1, to: 30, bonus: 1000, rk: 'rewardAll' }
+    { id: 'w1', e: 'w1', name: 'وسام الأسبوع الأول', tier: 'برونزي', from: 1, to: 7, bonus: 150, rk: 'rewardW1' },
+    { id: 'w2', e: 'w2', name: 'وسام الأسبوع الثاني', tier: 'فضي', from: 8, to: 14, bonus: 250, rk: 'rewardW2' },
+    { id: 'w3', e: 'w3', name: 'وسام الأسبوع الثالث', tier: 'ذهبي', from: 15, to: 21, bonus: 350, rk: 'rewardW3' },
+    { id: 'w4', e: 'w4', name: 'وسام الأسبوع الرابع', tier: 'ماسي', from: 22, to: 28, bonus: 500, rk: 'rewardW4' },
+    { id: 'all', e: 'all', name: 'كأس التحدي', tier: '٣٠ يومًا كاملة', from: 1, to: 30, bonus: 1000, rk: 'rewardAll' }
   ];
   const LEVELS = [
-    [0, '🌱', 'بداية الطريق'], [400, '🌿', 'مجتهد'], [1200, '🌳', 'ملتزم'], [2500, '⭐', 'مثابر'], [4000, '🏅', 'بطل'], [6000, '👑', 'قدوة']
+    [0, 'lv0', 'بداية الطريق'], [400, 'lv1', 'مجتهد'], [1200, 'lv2', 'ملتزم'], [2500, 'lv3', 'مثابر'], [4000, 'lv4', 'بطل'], [6000, 'lv5', 'قدوة']
   ];
   const dayKeyN = i => keyOf(addDays(start(), i - 1));
   function medalProgress(m) {
@@ -305,9 +308,9 @@
   function celebrate(big, emoji, title, body, pts, reward) {
     confetti(big ? 140 : 70);
     try { NATIVE && NATIVE.vibrate && NATIVE.vibrate(big ? 60 : 30); } catch (e) {}
-    sheet(`<div class="cele ${big ? 'big' : ''}"><div class="cele-e">${emoji}</div><h2>${title}</h2><p>${body}</p>
+    sheet(`<div class="cele ${big ? 'big' : ''}"><div class="cele-e">${ART.badge(emoji)}</div><h2>${title}</h2><p>${body}</p>
       <div class="cele-pts">+${n(pts)} نقطة</div>
-      ${reward ? `<div class="cele-gift">🎁 كافئ نفسك: <b>${reward.replace(/</g, '&lt;')}</b></div>` : ''}
+      ${reward ? `<div class="cele-gift">${mi('gift')} كافئ نفسك: <b>${reward.replace(/</g, '&lt;')}</b></div>` : ''}
       <button class="btn primary block" data-act="closeSheet">الحمد لله</button></div>`);
   }
   function checkRewards(k) {
@@ -328,7 +331,7 @@
     }
     Store.set('celebrated', done);
     const st = totals().stars;
-    celebrate(false, '⭐', 'نجمة اليوم!', `أكملت أهدافك العشرة لليوم ${n(dn)}. مجموع نجومك: ${n(st)}`, 50, '');
+    celebrate(false, 'starBig', 'نجمة اليوم!', `أكملت أهدافك العشرة لليوم ${n(dn)}. مجموع نجومك: ${n(st)}`, 50, '');
   }
 
   /* ---------- عناصر مشتركة ---------- */
@@ -351,11 +354,11 @@
     const title = dn >= 1 && dn <= S.length ? `اليوم ${n(dn)}` : dn > S.length ? 'بعد التحدي' : 'يوم تجريبي';
     const km = walkKmOf(k);
 
-    const pre = dn < 1 ? `<div class="note-card">📅 <div><b>يبدأ التحدي ${greg(start())}</b><span>${dn === 0 ? 'غدًا البداية!' : 1 - dn === 2 ? 'باقي يومان' : `باقي ${n(1 - dn)} أيام`} · سجّل الآن للتجربة، هذه الأيام لا تُحسب</span></div></div>` : '';
+    const pre = dn < 1 ? `<div class="note-card">${emo('calendar')}<div><b>يبدأ التحدي ${greg(start())}</b><span>${dn === 0 ? 'غدًا البداية!' : 1 - dn === 2 ? 'باقي يومان' : `باقي ${n(1 - dn)} أيام`} · سجّل الآن للتجربة، هذه الأيام لا تُحسب</span></div></div>` : '';
 
     const segs = CORE.map(id => `<i class="${st[id] ? 'on' : ''}"></i>`).join('');
-    const msg = full ? `<div class="prog-msg win">🎉 حصلت على نجمة اليوم! <b>+٥٠</b></div>`
-      : `<div class="prog-msg">باقي <b>${n(missing.length)}</b> ${missing.length <= 10 && missing.length > 2 ? 'أهداف' : missing.length === 2 ? 'هدفان' : 'هدف'} لنجمة اليوم <span class="miss">${missing.map(id => `<span>${E[id]}</span>`).join('')}</span></div>`;
+    const msg = full ? `<div class="prog-msg win">حصلت على نجمة اليوم! <b>+٥٠ نقطة</b></div>`
+      : `<div class="prog-msg">باقي <b>${n(missing.length)}</b> ${missing.length <= 10 && missing.length > 2 ? 'أهداف' : missing.length === 2 ? 'هدفان' : 'هدف'} لنجمة اليوم <span class="miss">${missing.map(id => mi(id)).join('')}</span></div>`;
 
     let next = '';
     if (isToday) {
@@ -374,15 +377,15 @@
       <div class="g-top">${emo(id, 'lg')}${done ? `<span class="g-ok">${ico.check}</span>` : ''}</div>
       <div class="g-t">${title}</div>${body}<div class="g-foot">${foot}</div></div>`;
 
-    const stepsTxt = WEB ? (STEPS[k] ? `👣 ${n(STEPS[k].toLocaleString('en'))} خطوة` : '') : STEP_STATE.permitted && STEP_STATE.available ? `👣 ${n((STEPS[k] || 0).toLocaleString('en'))} خطوة` : '';
+    const stepsTxt = WEB ? (STEPS[k] ? `${n(STEPS[k].toLocaleString('en'))} خطوة` : '') : STEP_STATE.permitted && STEP_STATE.available ? `${n((STEPS[k] || 0).toLocaleString('en'))} خطوة` : '';
     const goals = [
       gcard('quran', 'القرآن', `<div class="g-v">${n(D.quran || 0)}<small> / ${n(S.quranGoal)} صفحة</small></div>`, stp('quran'), st.quran),
-      gcard('walk', 'المشي', `<div class="g-v">${n(round1(km))}<small> / ${n(S.walkKm)} كم</small></div><div class="bar"><i style="width:${Math.min(km / S.walkKm * 100, 100)}%"></i></div>${stepsTxt ? `<div class="g-h">${stepsTxt}</div>` : (D.workout ? `<div class="g-h">🏋️ ${n(D.workout)} دقيقة تمرين</div>` : '')}`,
+      gcard('walk', 'المشي', `<div class="g-v">${n(round1(km))}<small> / ${n(S.walkKm)} كم</small></div><div class="bar"><i style="width:${Math.min(km / S.walkKm * 100, 100)}%"></i></div>${stepsTxt ? `<div class="g-h">${stepsTxt}</div>` : (D.workout ? `<div class="g-h">+ ${n(D.workout)} دقيقة تمرين</div>` : '')}`,
         `<button class="gbtn" data-act="walkSheet">${ico.plus}إضافة</button>`, st.walk),
       gcard('noSugar', 'بدون سكر', '<div class="g-h">حلويات وعصائر ومشروبات محلّاة</div>', yn('avoid', 'noSugar', D.noSugar), st.noSugar),
       gcard('noBread', 'بدون خبز', '<div class="g-h">خبز ومعجنات</div>', yn('avoid', 'noBread', D.noBread), st.noBread),
-      gcard('chastity', 'حفظ النفس', `<div class="g-h">العفّة وغضّ البصر</div>${D.chastity === false ? '<div class="slip">لا تيأس — استغفر وابدأ من جديد، تحدّيك مستمر 🤍</div>' : ''}`,
-        `${yn('avoid', 'chastity', D.chastity)}<button class="help" data-act="urge">🆘 أحتاج مساعدة الآن</button>`, st.chastity, true)
+      gcard('chastity', 'حفظ النفس', `<div class="g-h">العفّة وغضّ البصر</div>${D.chastity === false ? '<div class="slip">لا تيأس — استغفر وابدأ من جديد، تحدّيك مستمر.</div>' : ''}`,
+        `${yn('avoid', 'chastity', D.chastity)}<button class="help" data-act="urge">${mi('help')} أحتاج مساعدة الآن</button>`, st.chastity, true)
     ].join('');
 
     const exs = extrasFor(k).map(e => {
@@ -396,17 +399,17 @@
     const wm = dn >= 1 && dn <= 28 ? MEDALS.find(m => dn >= m.from && dn <= m.to) : null;
     let week = '';
     if (wm) {
-      const days = []; for (let i = wm.from; i <= wm.to; i++) { const kk = dayKeyN(i); days.push(`<div class="wd ${kk > todayKey() ? 'fut' : ''} ${isFull(kk) ? 'got' : ''} ${kk === k ? 'cur' : ''}"><span>${isFull(kk) ? '⭐' : kk > todayKey() ? '' : '·'}</span><small>${n(i)}</small></div>`); }
+      const days = []; for (let i = wm.from; i <= wm.to; i++) { const kk = dayKeyN(i); days.push(`<div class="wd ${kk > todayKey() ? 'fut' : ''} ${isFull(kk) ? 'got' : ''} ${kk === k ? 'cur' : ''}"><span>${isFull(kk) ? ART.badge('starBig') : kk > todayKey() ? '' : '·'}</span><small>${n(i)}</small></div>`); }
       const mp = medalProgress(wm);
       week = `${secT('جائزة هذا الأسبوع', `<span class="sub">${n(mp.full)} / ٧</span>`)}
-      <div class="card week"><div class="week-m ${mp.got ? 'got' : ''}">${wm.e}</div><div class="grow"><div class="t">${wm.name}</div><div class="h">${mp.got ? 'حصلت عليه! 🎉' : `أكمل ٧ أيام كاملة هذا الأسبوع · +${n(wm.bonus)} نقطة`}</div>
+      <div class="card week"><div class="week-m ${mp.got ? 'got' : ''}">${ART.badge(wm.e)}</div><div class="grow"><div class="t">${wm.name}</div><div class="h">${mp.got ? 'حصلت عليه!' : `أكمل ٧ أيام كاملة هذا الأسبوع · +${n(wm.bonus)} نقطة`}</div>
       <div class="wdays">${days.join('')}</div></div></div>`;
     }
 
     return `
     <header class="hd">
       <div class="grow"><div class="eyebrow">${greg(d)} · ${hijri(d)}</div><h1>${title}<small>${dn >= 1 && dn <= S.length ? ` من ${n(S.length)}` : ''}</small></h1></div>
-      <button class="pts" data-act="tab" data-tab="challenge"><span>${tt.level[1]}</span>${n(tt.pts)}</button>
+      <button class="pts" data-act="tab" data-tab="challenge">${bdg(tt.level[1])}${n(tt.pts)}</button>
     </header>
     <div class="daynav">
       <button data-act="prevDay" ${k <= minK ? 'disabled' : ''}>${ico.chevR} السابق</button>
@@ -417,11 +420,11 @@
     <section class="prog ${full ? 'full' : ''}">
       <div class="prog-top">
         <div><div class="prog-n">${n(doneN)}<span> / ١٠</span></div><div class="prog-l">أهداف اليوم</div></div>
-        <div class="prog-star ${full ? 'on' : ''}">⭐</div>
+        <div class="prog-star ${full ? 'on' : ''}">${ART.badge('starBig')}</div>
       </div>
       <div class="segbar">${segs}</div>
       ${msg}
-      <div class="prog-foot"><span>🔥 سلسلة ${n(fire)}</span><span>🛡️ ${n(purity)} عفّة</span><span>✨ +${n(dayPoints(k))} اليوم</span></div>
+      <div class="prog-foot"><span>${mi('fire')} سلسلة ${n(fire)}</span><span>${mi('chastity')} ${n(purity)} عفّة</span><span>${mi('points')} +${n(dayPoints(k))} نقطة</span></div>
     </section>
     ${next}
 
@@ -437,7 +440,7 @@
 
     ${secT('تأمّل اليوم')}
     <div class="card quote"><div class="qt">${q.t}</div><div class="qs">${q.s}</div></div>
-    <div class="card tipc">💡 <span>${tip}</span></div>
+    <div class="card tipc">${emo('bulb')}<span>${tip}</span></div>
 
     ${secT('ملاحظة اليوم')}
     <div class="card"><textarea id="note" placeholder="ما الذي ساعدك اليوم؟ وما الذي صعّب عليك؟">${(D.note || '').replace(/</g, '&lt;')}</textarea></div>`;
@@ -449,9 +452,9 @@
     const lvlPct = tt.next ? Math.min(100, (tt.pts - tt.level[0]) / (tt.next[0] - tt.level[0]) * 100) : 100;
     const medals = MEDALS.map(m => {
       const mp = medalProgress(m), r = S[m.rk];
-      return `<div class="medal ${mp.got ? 'got' : ''} ${m.id === 'all' ? 'wide' : ''}"><div class="m-e">${m.e}</div><div class="m-t">${m.name}</div><div class="m-h">${m.tier} · +${n(m.bonus)}</div>
+      return `<div class="medal ${mp.got ? 'got' : ''} ${m.id === 'all' ? 'wide' : ''}"><div class="m-e">${ART.badge(m.e)}</div><div class="m-t">${m.name}</div><div class="m-h">${m.tier} · +${n(m.bonus)}</div>
         <div class="bar gold"><i style="width:${mp.full / mp.need * 100}%"></i></div><div class="m-h">${mp.got ? 'تم الحصول عليه ✓' : `${n(mp.full)} من ${n(mp.need)} أيام كاملة`}</div>
-        ${r ? `<div class="m-gift">🎁 ${r.replace(/</g, '&lt;')}</div>` : ''}</div>`;
+        ${r ? `<div class="m-gift">${mi('gift')} ${r.replace(/</g, '&lt;')}</div>` : ''}</div>`;
     }).join('');
     const cells = [];
     let onTime = 0, pages = 0, kms = 0, sugar = 0, bread = 0, elapsed = 0;
@@ -459,7 +462,7 @@
       const k = dayKeyN(i), fut = k > tk, D = DAYS[k];
       const st = fut ? null : coreStatus(k), cnt = st ? CORE.filter(id => st[id]).length : 0, full = cnt === 10;
       cells.push(`<button class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${full ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''} style="--p:${cnt * 10}%">
-        <span class="dc-e">${full ? '⭐' : fut ? '' : n(cnt)}</span><small>${n(i)}</small></button>`);
+        <span class="dc-e">${full ? ART.badge('starBig') : fut ? '' : n(cnt)}</span><small>${n(i)}</small></button>`);
       if (!fut) {
         elapsed++;
         if (D) { C.prayers.forEach(p => { if (D.p && D.p[p.id] === 2) onTime++; }); pages += D.quran || 0; if (D.noSugar === true) sugar++; if (D.noBread === true) bread++; }
@@ -467,32 +470,32 @@
       }
     }
     const purity = streak(isTrue('chastity'));
-    const stat = (e, v, l) => `<div class="stat"><span class="s-e">${e}</span><div class="s-v">${v}</div><div class="s-l">${l}</div></div>`;
+    const stat = (e, v, l) => `<div class="stat">${emo(e, 'sm')}<div class="s-v">${v}</div><div class="s-l">${l}</div></div>`;
 
     return `
     <header class="hd"><div class="grow"><div class="eyebrow">${elapsed ? `مضى ${n(elapsed)} من ${n(S.length)} يومًا` : `يبدأ ${greg(start())}`}</div><h1>إنجازاتي</h1></div></header>
     <section class="level">
-      <div class="lv-e">${tt.level[1]}</div>
+      <div class="lv-e">${ART.badge(tt.level[1])}</div>
       <div class="grow"><div class="lv-n">${tt.level[2]}</div><div class="lv-p">${n(tt.pts)} <small>نقطة</small></div>
         <div class="bar light"><i style="width:${lvlPct}%"></i></div>
-        <div class="lv-h">${tt.next ? `باقي ${n(tt.next[0] - tt.pts)} نقطة للمستوى التالي: ${tt.next[1]} ${tt.next[2]}` : 'أعلى مستوى! ما شاء الله'}</div></div>
+        <div class="lv-h">${tt.next ? `باقي ${n(tt.next[0] - tt.pts)} نقطة للمستوى التالي: ${tt.next[2]}` : 'أعلى مستوى! ما شاء الله'}</div></div>
     </section>
-    <div class="stats3">${stat('⭐', n(tt.stars), 'نجوم')}${stat('🔥', n(streak(isFull)), 'متتالية')}${stat('🛡️', n(purity), 'أيام عفّة')}</div>
+    <div class="stats3">${stat('star', n(tt.stars), 'نجوم')}${stat('fire', n(streak(isFull)), 'متتالية')}${stat('chastity', n(purity), 'أيام عفّة')}</div>
 
     ${secT('الأوسمة')}
     <div class="medals">${medals}</div>
 
-    ${secT('أيام التحدي', '<span class="sub">⭐ يوم كامل</span>')}
+    ${secT('أيام التحدي', `<span class="sub">${mi('star')} يوم كامل</span>`)}
     <div class="card"><div class="dgrid">${cells.join('')}</div><p class="foot">الرقم = عدد الأهداف المحققة من ١٠ · اضغط على يوم لفتحه</p></div>
 
     ${secT('أرقامك')}
     <div class="stats2">
-      ${stat('🕌', `${n(onTime)}<small>/${n(elapsed * 5)}</small>`, 'صلاة في وقتها')}
-      ${stat('📖', n(pages), 'صفحة قرآن')}
-      ${stat('🚶', n(round1(kms)), 'كم مشي')}
-      ${stat('🍬', `${n(sugar)}<small>/${n(elapsed)}</small>`, 'يوم بلا سكر')}
-      ${stat('🍞', `${n(bread)}<small>/${n(elapsed)}</small>`, 'يوم بلا خبز')}
-      ${stat('✨', n(tt.pts), 'مجموع النقاط')}
+      ${stat('rawatib', `${n(onTime)}<small>/${n(elapsed * 5)}</small>`, 'صلاة في وقتها')}
+      ${stat('quran', n(pages), 'صفحة قرآن')}
+      ${stat('walk', n(round1(kms)), 'كم مشي')}
+      ${stat('noSugar', `${n(sugar)}<small>/${n(elapsed)}</small>`, 'يوم بلا سكر')}
+      ${stat('noBread', `${n(bread)}<small>/${n(elapsed)}</small>`, 'يوم بلا خبز')}
+      ${stat('points', n(tt.pts), 'مجموع النقاط')}
     </div>
 
     ${secT('كيف تجمع النقاط؟')}
@@ -517,13 +520,13 @@
       S.adjust[id] ? `${n(Math.abs(S.adjust[id]))} دقيقة ${S.adjust[id] > 0 ? 'تأخير' : 'تقديم'}` : 'بدون تعديل', stp('adj', id))).join('');
 
     return `
-    <header class="hd"><div class="grow"><div class="eyebrow">📍 ${S.placeName} · ${hijri(now)}</div><h1>مواقيت الصلاة</h1></div></header>
-    ${np ? `<section class="nextbig"><div class="nb-e">${E[np.pr.id]}</div><div class="nb-l">باقي على صلاة ${np.pr.name}</div>
+    <header class="hd"><div class="grow"><div class="eyebrow">${S.placeName} · ${hijri(now)}</div><h1>مواقيت الصلاة</h1></div></header>
+    ${np ? `<section class="nextbig"><div class="nb-e">${emo(np.pr.id, 'lg')}</div><div class="nb-l">باقي على صلاة ${np.pr.name}</div>
       <div class="nb-c" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div><div class="nb-l">الأذان ${fmtTime(np.at)}</div></section>` : ''}
     <div class="card list">${rows}</div>
     <div class="stats2">
-      <div class="stat"><span class="s-e">🌄</span><div class="s-v sm">${fmtTime(tomorrow.fajr)}</div><div class="s-l">فجر الغد</div></div>
-      <div class="stat"><span class="s-e">🧭</span><div class="s-v sm">${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}°</div><div class="s-l">القبلة من الشمال</div></div>
+      <div class="stat">${emo('fajr', 'sm')}<div class="s-v sm">${fmtTime(tomorrow.fajr)}</div><div class="s-l">فجر الغد</div></div>
+      <div class="stat">${emo('compass', 'sm')}<div class="s-v sm">${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}°</div><div class="s-l">القبلة من الشمال</div></div>
     </div>
 
     ${secT('الموقع والحساب')}
@@ -544,7 +547,7 @@
     const inp = (id, type, extra) => `<input class="inp" type="${type}" data-set="${id}" value="${(S[id] == null ? '' : S[id]).toString().replace(/"/g, '&quot;')}" ${extra || ''}>`;
     const num = (e, id, t, h, min, max, step) => srow(e, t, h, inp(id, 'number', `inputmode="decimal" min="${min}" max="${max}" step="${step || 1}"`));
     const ex = g => C.extras.filter(e => e.group === g).map(e => srow(e.id, e.name, e.hint, sw(S.extras[e.id], 'extra', e.id))).join('');
-    const rw = MEDALS.map(m => `<div class="srow"><span class="emo" style="--t:#FEF3C7">${m.e}</span><div class="grow"><div class="t">${m.name}</div>
+    const rw = MEDALS.map(m => `<div class="srow"><span class="emo">${ART.badge(m.e)}</span><div class="grow"><div class="t">${m.name}</div>
       <input class="inp wide" type="text" data-set="${m.rk}" value="${(S[m.rk] || '').replace(/"/g, '&quot;')}" placeholder="مثال: وجبة في مطعمي المفضّل"></div></div>`).join('');
 
     return `
@@ -564,7 +567,7 @@
       ${num('water', 'waterGoal', 'أكواب الماء', '', 4, 16)}
     </div>
 
-    ${secT('🎁 مكافآتك الشخصية')}
+    ${secT('مكافآتك الشخصية')}
     <p class="foot" style="margin:-4px 6px 8px">اكتب ما ستكافئ به نفسك عند كل وسام، وسيظهر لك عند الحصول عليه.</p>
     <div class="card list">${rw}</div>
 
@@ -623,12 +626,12 @@
       const D = day(viewKey), id = el.dataset.id, v = +el.dataset.v;
       D.p[id] = D.p[id] === v ? 0 : v; saveD(); haptic(); rerender();
     },
-    walkSheet: () => sheet(`<h2>🚶 المشي والرياضة</h2><p>هدفك ${n(S.walkKm)} كم مشي، أو ${n(S.workoutMin)} دقيقة من أي تمرين آخر.</p>
+    walkSheet: () => sheet(`<div class="sh-h">${emo('walk', 'lg')}<h2>المشي والرياضة</h2></div><p>هدفك ${n(S.walkKm)} كم مشي، أو ${n(S.workoutMin)} دقيقة من أي تمرين آخر.</p>
       <div class="sh-l">أضف مسافة مشيتها</div>
       <div class="chips">${[0.5, 1, 2, 3, 5].map(v => `<button class="chipb" data-act="km" data-v="${v}">+${n(v)} كم</button>`).join('')}</div>
-      <div class="sh-l">أو سجّل تمرينًا 🏋️</div>
+      <div class="sh-l">أو سجّل تمرينًا</div>
       <div class="chips">${[15, 30, 45, 60].map(v => `<button class="chipb" data-act="wo" data-v="${v}">+${n(v)} دقيقة</button>`).join('')}</div>
-      ${WEB ? '<button class="btn ghost block mt" data-act="shortcutHelp">👣 ربط خطوات الآيفون تلقائيًا</button>' : ''}
+      ${WEB ? '<button class="btn ghost block mt" data-act="shortcutHelp">ربط خطوات الآيفون تلقائيًا</button>' : ''}
       <button class="btn ghost block mt" data-act="resetWalk">تصفير ما أضفته يدويًا</button>`),
     resetWalk: () => { const D = day(viewKey); D.walkKm = 0; D.workout = 0; saveD(); closeSheet(); rerender(); },
     prayer: el => {
@@ -773,6 +776,7 @@
   matchMedia('(prefers-color-scheme: dark)').addEventListener && matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
   /* ---------- البدء ---------- */
+  ART.mount();
   applyTheme();
   if (intakeWebSteps()) setTimeout(() => toast('تم تحديث خطواتك من تطبيق الصحة'), 400);
   refreshSteps();

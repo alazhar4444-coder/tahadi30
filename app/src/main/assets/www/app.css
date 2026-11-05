@@ -56,14 +56,15 @@ h1, h2, h3, .t, b { font-weight: 900; }
 #view { max-width: 620px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top)) 16px calc(104px + env(safe-area-inset-bottom)); }
 
 /* ===== الأيقونات ===== */
-.emo { width: 44px; height: 44px; border-radius: 13px; background: var(--t, var(--soft)); display: grid; place-items: center;
-  font-family: var(--emoji); font-size: 24px; line-height: 1; flex: none; position: relative; font-weight: 400; }
-:root[data-theme="dark"] .emo { background: color-mix(in srgb, var(--t) 14%, var(--soft)); }
-.emo.lg { width: 52px; height: 52px; border-radius: 16px; font-size: 29px; }
-.emo .ban { position: absolute; bottom: -3px; left: -3px; width: 19px; height: 19px; border-radius: 50%; background: #EF4444;
-  border: 2px solid var(--card); }
-.emo .ban::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 2.5px; margin-top: -1.25px; background: #fff; border-radius: 2px; }
-.emo.lg .ban { width: 22px; height: 22px; }
+.emo { width: 46px; height: 46px; flex: none; display: block; }
+.emo.lg { width: 56px; height: 56px; }
+.emo.sm { width: 34px; height: 34px; margin-bottom: 4px; }
+.emo .art { width: 100%; height: 100%; display: block; filter: drop-shadow(0 3px 5px rgba(15, 23, 42, .14)); }
+.mi { display: inline-block; width: 20px; height: 20px; vertical-align: -5px; flex: none; }
+.mi .art { width: 100%; height: 100%; }
+.bdg { display: inline-block; width: 22px; height: 22px; }
+.bdg .art { width: 100%; height: 100%; }
+.art.badge { overflow: visible; }
 
 /* ===== الرأس ===== */
 .hd { display: flex; align-items: flex-end; gap: 12px; padding: 14px 4px 10px; }
@@ -346,3 +347,40 @@ textarea { width: 100%; min-height: 84px; resize: none; border: 0; background: t
   opacity: 0; pointer-events: none; transition: all .3s cubic-bezier(.2,.9,.3,1); z-index: 60; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .ltr { direction: ltr; display: inline-block; }
+
+/* أيقونات مرسومة داخل الأوسمة والنجوم */
+.prog-star { width: 58px; height: 58px; font-size: 0; }
+.prog-star .art { width: 100%; height: 100%; }
+.prog-msg .miss { gap: 4px; }
+.prog-msg .miss .mi { width: 22px; height: 22px; background: none; padding: 0; }
+.prog-msg .miss span.mi { background: none; }
+.prog-foot span { display: inline-flex; align-items: center; gap: 5px; }
+.prog-foot .mi { width: 18px; height: 18px; }
+.week-m { width: 54px; height: 54px; font-size: 0; }
+.week-m .art { width: 100%; height: 100%; }
+.wd span { font-size: 0; }
+.wd span .art { width: 70%; height: 70%; }
+.wd span { font-size: 17px; }
+.m-e { width: 64px; height: 64px; margin: 0 auto; font-size: 0; }
+.m-e .art { width: 100%; height: 100%; }
+.lv-e { font-size: 0; }
+.lv-e .art { width: 62px; height: 62px; }
+.cele-e { width: 120px; height: 120px; margin: 0 auto; font-size: 0; }
+.cele.big .cele-e { width: 150px; height: 150px; }
+.cele-e .art { width: 100%; height: 100%; filter: drop-shadow(0 10px 18px rgba(217, 119, 6, .35)); }
+.dc.full .dc-e { font-size: 0; }
+.dc.full .dc-e .art { width: 66%; height: 66%; }
+.pts .bdg { width: 24px; height: 24px; }
+.nb-e .emo { margin: 0 auto 6px; }
+.tipc { font-size: 0; align-items: center; }
+.tipc span { font-size: 14.5px; }
+.note-card { font-size: 0; align-items: center; }
+.help { display: inline-flex; align-items: center; gap: 6px; }
+.help .mi { width: 22px; height: 22px; }
+.cele-gift .mi, .m-gift .mi { width: 20px; height: 20px; }
+.sh-h { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.sh-h h2 { margin: 0 !important; }
+.sec .sub .mi { width: 16px; height: 16px; vertical-align: -3px; }
+.stat .emo.sm .art { filter: drop-shadow(0 2px 3px rgba(15,23,42,.12)); }
+.prog-foot span.mi, .prog-msg .miss span.mi { background: none !important; padding: 0 !important; border-radius: 0; }
+.prog-foot span.mi .art, .prog-msg .miss .art { filter: drop-shadow(0 1px 2px rgba(0,0,0,.2)); }
