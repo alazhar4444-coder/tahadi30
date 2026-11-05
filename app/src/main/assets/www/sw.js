@@ -1,6 +1,6 @@
 /* يعمل التطبيق بدون إنترنت بعد أول فتح */
-const CACHE = 'tahadi30-v7';
-const FILES = ['./', 'index.html', 'app.css', 'app.js', 'content.js', 'praytime.js', 'icons.js', 'fonts/thmanyah-black.otf', 'fonts/thmanyah-bold.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
+const CACHE = 'tahadi30-v8';
+const FILES = ['./', 'index.html', 'app.css', 'app.js', 'content.js', 'praytime.js', 'icons.js', 'fonts/thmanyah-regular.otf', 'fonts/thmanyah-bold.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))));

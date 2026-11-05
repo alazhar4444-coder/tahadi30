@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         stepSensor = sensorManager != null ? sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) : null;
 
         web = new WebView(this);
-        web.setBackgroundColor(Color.parseColor("#F3F5F8"));
+        web.setBackgroundColor(Color.parseColor("#F6F7F9"));
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);

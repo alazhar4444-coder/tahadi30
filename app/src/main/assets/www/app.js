@@ -43,6 +43,7 @@
   let S = Object.assign({}, DEFAULTS, Store.get('settings', {}));
   S.adjust = Object.assign({}, DEFAULTS.adjust, S.adjust || {});
   S.extras = Object.assign({}, DEFAULTS.extras, S.extras || {});
+  if (S.ui !== 7) { Object.keys(S.extras).forEach(k => S.extras[k] = false); S.ui = 7; }
   let DAYS = Store.get('days', {});
   let BOOK = Store.get('quranPage', 1);
   let STEPS = {};            // yyyy-mm-dd -> steps (من الحسّاس)
@@ -215,7 +216,7 @@
   function applyTheme() {
     const dark = S.theme === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    if (NATIVE && NATIVE.setBars) try { NATIVE.setBars(dark ? '#0B0F14' : '#F3F5F8', !dark); } catch (e) {}
+    if (NATIVE && NATIVE.setBars) try { NATIVE.setBars(dark ? '#0E1114' : '#F6F7F9', !dark); } catch (e) {}
   }
 
   /* ---------- الأيقونات: إيموجي واقعية ومفهومة ---------- */
@@ -254,7 +255,7 @@
     const D = DAYS[k] || { p: {} }, p = D.p || {};
     return {
       fajr: p.fajr === 2, dhuhr: p.dhuhr === 2, asr: p.asr === 2, maghrib: p.maghrib === 2, isha: p.isha === 2,
-      quran: (D.quran || 0) >= S.quranGoal, walk: walkDone(k),
+      quran: (D.quran || 0) >= S.quranGoal, walk: walkDone(k) || D.wDone === true,
       noSugar: D.noSugar === true, noBread: D.noBread === true, chastity: D.chastity === true
     };
   }
@@ -309,7 +310,6 @@
     confetti(big ? 140 : 70);
     try { NATIVE && NATIVE.vibrate && NATIVE.vibrate(big ? 60 : 30); } catch (e) {}
     sheet(`<div class="cele ${big ? 'big' : ''}"><div class="cele-e">${ART.badge(emoji)}</div><h2>${title}</h2><p>${body}</p>
-      <div class="cele-pts">+${n(pts)} نقطة</div>
       ${reward ? `<div class="cele-gift">${mi('gift')} كافئ نفسك: <b>${reward.replace(/</g, '&lt;')}</b></div>` : ''}
       <button class="btn primary block" data-act="closeSheet">الحمد لله</button></div>`);
   }
@@ -341,259 +341,150 @@
   const sw = (on, act, id) => `<button class="switch ${on ? 'on' : ''}" data-act="${act}" data-id="${id}" role="switch" aria-checked="${!!on}"></button>`;
   const srow = (id, t, h, trail, act, attrs) => `<div class="srow" ${act ? `data-act="${act}"` : ''} ${attrs || ''}>${emo(id)}<div class="grow"><div class="t">${t}</div>${h ? `<div class="h">${h}</div>` : ''}</div>${trail || ''}</div>`;
 
+  /* صفّ مهمة: الضغط في أي مكان يحقّقها */
+  const task = (id, title, sub, done, kind, extra) => `<div class="task ${done ? 'done' : ''}" data-act="tick" data-kind="${kind}" data-id="${id}" role="checkbox" aria-checked="${done}">
+      ${emo(id)}<div class="grow"><div class="t">${title}</div>${sub ? `<div class="h">${sub}</div>` : ''}</div>${extra || ''}
+      <span class="chk">${ico.check}</span></div>`;
+
   /* ========== شاشة اليوم ========== */
   function viewToday() {
     const k = viewKey, D = day(k), d = fromKey(k), isToday = k === todayKey();
-    const dn = dayNum(k), t = ptimes(d), st = coreStatus(k), doneN = CORE.filter(id => st[id]).length, full = doneN === CORE.length;
-    const missing = CORE.filter(id => !st[id]);
-    const purity = streak(isTrue('chastity')), fire = streak(isFull);
-    const q = C.quotes[((dn > 0 ? dn - 1 : d.getDate()) + C.quotes.length) % C.quotes.length];
-    const tip = C.tips[(d.getDate() + d.getMonth()) % C.tips.length];
+    const dn = dayNum(k), t = ptimes(d), st = coreStatus(k);
+    const doneN = CORE.filter(id => st[id]).length, full = doneN === CORE.length;
     const minK = keyOf(addDays(start(), -7));
-    const tt = totals();
-    const title = dn >= 1 && dn <= S.length ? `اليوم ${n(dn)}` : dn > S.length ? 'بعد التحدي' : 'يوم تجريبي';
+    const title = !isToday ? greg(d).split('،')[0] : dn >= 1 && dn <= S.length ? `اليوم ${n(dn)} من ${n(S.length)}` : 'اليوم';
+    const sub = dn < 1 ? `التحدي يبدأ ${greg(start())} · هذه الأيام للتجربة` : `${greg(d)} · ${hijri(d)}`;
     const km = walkKmOf(k);
+    const q = C.quotes[((dn > 0 ? dn - 1 : d.getDate()) + C.quotes.length) % C.quotes.length];
 
-    const pre = dn < 1 ? `<div class="note-card">${emo('calendar')}<div><b>يبدأ التحدي ${greg(start())}</b><span>${dn === 0 ? 'غدًا البداية!' : 1 - dn === 2 ? 'باقي يومان' : `باقي ${n(1 - dn)} أيام`} · سجّل الآن للتجربة، هذه الأيام لا تُحسب</span></div></div>` : '';
-
-    const segs = CORE.map(id => `<i class="${st[id] ? 'on' : ''}"></i>`).join('');
-    const msg = full ? `<div class="prog-msg win">حصلت على نجمة اليوم! <b>+٥٠ نقطة</b></div>`
-      : `<div class="prog-msg">باقي <b>${n(missing.length)}</b> ${missing.length <= 10 && missing.length > 2 ? 'أهداف' : missing.length === 2 ? 'هدفان' : 'هدف'} لنجمة اليوم <span class="miss">${missing.map(id => mi(id)).join('')}</span></div>`;
-
-    let next = '';
-    if (isToday) {
-      const np = nextPrayer();
-      if (np) next = `<div class="next">${emo(np.pr.id)}<div class="grow"><div class="h">الصلاة القادمة</div><div class="t">${np.pr.name} <span>${fmtTime(np.at)}</span></div></div>
-        <div class="next-c"><div class="h">بعد</div><div class="cd" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - Date.now())}</div></div></div>`;
-    }
-
-    const prayers = C.prayers.map(pr => {
-      const v = D.p[pr.id] || 0;
-      return `<div class="prow ${v === 2 ? 'done' : ''}">${emo(pr.id)}<div class="grow"><div class="t">${pr.name}</div><div class="h">${fmtTime(t[pr.id])}</div></div>
-        <div class="pseg"><button class="${v === 2 ? 'on-ok' : ''}" data-act="pset" data-id="${pr.id}" data-v="2">${ico.check}في وقتها</button><button class="${v === 1 ? 'on-late' : ''}" data-act="pset" data-id="${pr.id}" data-v="1">${ico.clock}متأخرة</button></div></div>`;
-    }).join('');
-
-    const gcard = (id, title, body, foot, done, wide) => `<div class="gcard ${done ? 'done' : ''} ${wide ? 'wide' : ''}">
-      <div class="g-top">${emo(id, 'lg')}${done ? `<span class="g-ok">${ico.check}</span>` : ''}</div>
-      <div class="g-t">${title}</div>${body}<div class="g-foot">${foot}</div></div>`;
-
-    const stepsTxt = WEB ? (STEPS[k] ? `${n(STEPS[k].toLocaleString('en'))} خطوة` : '') : STEP_STATE.permitted && STEP_STATE.available ? `${n((STEPS[k] || 0).toLocaleString('en'))} خطوة` : '';
+    const prayers = C.prayers.map(pr => task(pr.id, pr.name, fmtTime(t[pr.id]), st[pr.id], 'prayer')).join('');
+    const walkSub = STEPS[k] || D.walkKm ? `${n(round1(km))} من ${n(S.walkKm)} كم` : `${n(S.walkKm)} كم أو ${n(S.workoutMin)} دقيقة رياضة`;
     const goals = [
-      gcard('quran', 'القرآن', `<div class="g-v">${n(D.quran || 0)}<small> / ${n(S.quranGoal)} صفحة</small></div>`, stp('quran'), st.quran),
-      gcard('walk', 'المشي', `<div class="g-v">${n(round1(km))}<small> / ${n(S.walkKm)} كم</small></div><div class="bar"><i style="width:${Math.min(km / S.walkKm * 100, 100)}%"></i></div>${stepsTxt ? `<div class="g-h">${stepsTxt}</div>` : (D.workout ? `<div class="g-h">+ ${n(D.workout)} دقيقة تمرين</div>` : '')}`,
-        `<button class="gbtn" data-act="walkSheet">${ico.plus}إضافة</button>`, st.walk),
-      gcard('noSugar', 'بدون سكر', '<div class="g-h">حلويات وعصائر ومشروبات محلّاة</div>', yn('avoid', 'noSugar', D.noSugar), st.noSugar),
-      gcard('noBread', 'بدون خبز', '<div class="g-h">خبز ومعجنات</div>', yn('avoid', 'noBread', D.noBread), st.noBread),
-      gcard('chastity', 'حفظ النفس', `<div class="g-h">العفّة وغضّ البصر</div>${D.chastity === false ? '<div class="slip">لا تيأس — استغفر وابدأ من جديد، تحدّيك مستمر.</div>' : ''}`,
-        `${yn('avoid', 'chastity', D.chastity)}<button class="help" data-act="urge">${mi('help')} أحتاج مساعدة الآن</button>`, st.chastity, true)
+      task('quran', 'قراءة القرآن', `${n(S.quranGoal)} ${S.quranGoal === 1 ? 'صفحة' : S.quranGoal === 2 ? 'صفحتان' : 'صفحات'} على الأقل`, st.quran, 'quran'),
+      task('walk', 'المشي أو الرياضة', walkSub, st.walk, 'walk'),
+      task('noSugar', 'بدون سكر', 'لا حلويات ولا مشروبات محلّاة', st.noSugar, 'avoid'),
+      task('noBread', 'بدون خبز', '', st.noBread, 'avoid'),
+      task('chastity', 'حفظ النفس', 'العفّة وغضّ البصر', st.chastity, 'avoid', `<button class="mini-help" data-act="urge">مساعدة</button>`)
     ].join('');
-
-    const exs = extrasFor(k).map(e => {
-      const v = D.x[e.id];
-      if (e.type === 'count') { const g = S[e.goalKey]; return srow(e.id, e.name, `${n(v || 0)} من ${n(g)} ${e.unit}`, stp('xcount', e.id)); }
-      if (e.type === 'avoid') return srow(e.id, e.name, '', `<div class="mini-yn"><button class="${v === true ? 'on-yes' : ''}" data-act="xavoid" data-id="${e.id}" data-v="1">${ico.check}</button><button class="${v === false ? 'on-no' : ''}" data-act="xavoid" data-id="${e.id}" data-v="0">${ico.x}</button></div>`);
-      return srow(e.id, e.name, e.hint, `<span class="tick ${v ? 'on' : ''}">${ico.check}</span>`, 'xcheck', `data-id="${e.id}"`);
-    }).join('');
-
-    // جائزة هذا الأسبوع
-    const wm = dn >= 1 && dn <= 28 ? MEDALS.find(m => dn >= m.from && dn <= m.to) : null;
-    let week = '';
-    if (wm) {
-      const days = []; for (let i = wm.from; i <= wm.to; i++) { const kk = dayKeyN(i); days.push(`<div class="wd ${kk > todayKey() ? 'fut' : ''} ${isFull(kk) ? 'got' : ''} ${kk === k ? 'cur' : ''}"><span>${isFull(kk) ? ART.badge('starBig') : kk > todayKey() ? '' : '·'}</span><small>${n(i)}</small></div>`); }
-      const mp = medalProgress(wm);
-      week = `${secT('جائزة هذا الأسبوع', `<span class="sub">${n(mp.full)} / ٧</span>`)}
-      <div class="card week"><div class="week-m ${mp.got ? 'got' : ''}">${ART.badge(wm.e)}</div><div class="grow"><div class="t">${wm.name}</div><div class="h">${mp.got ? 'حصلت عليه!' : `أكمل ٧ أيام كاملة هذا الأسبوع · +${n(wm.bonus)} نقطة`}</div>
-      <div class="wdays">${days.join('')}</div></div></div>`;
-    }
+    const ex = extrasFor(k).map(e => task(e.id, e.name, e.type === 'count' ? `${n(S[e.goalKey])} ${e.unit}` : '', e.type === 'count' ? (D.x[e.id] || 0) >= S[e.goalKey] : D.x[e.id] === true, 'extra')).join('');
 
     return `
     <header class="hd">
-      <div class="grow"><div class="eyebrow">${greg(d)} · ${hijri(d)}</div><h1>${title}<small>${dn >= 1 && dn <= S.length ? ` من ${n(S.length)}` : ''}</small></h1></div>
-      <button class="pts" data-act="tab" data-tab="challenge">${bdg(tt.level[1])}${n(tt.pts)}</button>
-    </header>
-    <div class="daynav">
-      <button data-act="prevDay" ${k <= minK ? 'disabled' : ''}>${ico.chevR} السابق</button>
-      ${isToday ? '<span>اليوم</span>' : '<button class="today" data-act="goToday">العودة لليوم</button>'}
-      <button data-act="nextDay" ${k < todayKey() ? '' : 'disabled'}>التالي ${ico.chevL}</button>
-    </div>
-    ${pre}
-    <section class="prog ${full ? 'full' : ''}">
-      <div class="prog-top">
-        <div><div class="prog-n">${n(doneN)}<span> / ١٠</span></div><div class="prog-l">أهداف اليوم</div></div>
-        <div class="prog-star ${full ? 'on' : ''}">${ART.badge('starBig')}</div>
+      <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
+      <div class="arrows">
+        <button data-act="prevDay" ${k <= minK ? 'disabled' : ''} aria-label="اليوم السابق">${ico.chevR}</button>
+        <button data-act="nextDay" ${k < todayKey() ? '' : 'disabled'} aria-label="اليوم التالي">${ico.chevL}</button>
       </div>
-      <div class="segbar">${segs}</div>
-      ${msg}
-      <div class="prog-foot"><span>${mi('fire')} سلسلة ${n(fire)}</span><span>${mi('chastity')} ${n(purity)} عفّة</span><span>${mi('points')} +${n(dayPoints(k))} نقطة</span></div>
+    </header>
+    ${!isToday ? '<button class="back" data-act="goToday">العودة إلى اليوم</button>' : ''}
+
+    <section class="progress ${full ? 'full' : ''}">
+      <div class="p-row"><span class="p-n">${n(doneN)} <small>من ١٠</small></span><span class="p-star">${ART.badge('starBig')}</span></div>
+      <div class="p-bar"><i style="width:${doneN * 10}%"></i></div>
+      <div class="p-msg">${full ? 'أحسنت! حصلت على نجمة اليوم' : `أكمل ${n(10 - doneN)} ${10 - doneN === 1 ? 'هدفًا' : 'أهداف'} لتحصل على نجمة اليوم`}</div>
     </section>
-    ${next}
 
-    ${secT('الصلوات الخمس', `<span class="sub">${n(C.prayers.filter(p => D.p[p.id] === 2).length)} / ٥</span>`)}
-    <div class="card list">${prayers}</div>
+    <h2 class="label">الصلوات في وقتها</h2>
+    <div class="box">${prayers}</div>
 
-    ${secT('أهدافي اليومية')}
-    <div class="ggrid">${goals}</div>
+    <h2 class="label">أهدافي</h2>
+    <div class="box">${goals}</div>
 
-    ${week}
+    ${ex ? `<h2 class="label">إضافي</h2><div class="box">${ex}</div>` : ''}
 
-    ${exs ? secT('عادات إضافية', '<button class="tlink" data-act="tab" data-tab="settings">تعديل</button>') + `<div class="card list">${exs}</div>` : ''}
-
-    ${secT('تأمّل اليوم')}
-    <div class="card quote"><div class="qt">${q.t}</div><div class="qs">${q.s}</div></div>
-    <div class="card tipc">${emo('bulb')}<span>${tip}</span></div>
-
-    ${secT('ملاحظة اليوم')}
-    <div class="card"><textarea id="note" placeholder="ما الذي ساعدك اليوم؟ وما الذي صعّب عليك؟">${(D.note || '').replace(/</g, '&lt;')}</textarea></div>`;
+    <div class="ayah">${q.t}<span>${q.s}</span></div>`;
   }
 
   /* ========== إنجازاتي ========== */
   function viewChallenge() {
-    const tt = totals(), tk = todayKey();
-    const lvlPct = tt.next ? Math.min(100, (tt.pts - tt.level[0]) / (tt.next[0] - tt.level[0]) * 100) : 100;
+    const tk = todayKey(), tt = totals();
     const medals = MEDALS.map(m => {
       const mp = medalProgress(m), r = S[m.rk];
-      return `<div class="medal ${mp.got ? 'got' : ''} ${m.id === 'all' ? 'wide' : ''}"><div class="m-e">${ART.badge(m.e)}</div><div class="m-t">${m.name}</div><div class="m-h">${m.tier} · +${n(m.bonus)}</div>
-        <div class="bar gold"><i style="width:${mp.full / mp.need * 100}%"></i></div><div class="m-h">${mp.got ? 'تم الحصول عليه ✓' : `${n(mp.full)} من ${n(mp.need)} أيام كاملة`}</div>
-        ${r ? `<div class="m-gift">${mi('gift')} ${r.replace(/</g, '&lt;')}</div>` : ''}</div>`;
+      return `<div class="mrow ${mp.got ? 'got' : ''}"><span class="m-b">${ART.badge(m.e)}</span>
+        <div class="grow"><div class="t">${m.name}</div><div class="h">${mp.got ? 'حصلت عليه' : `${n(mp.full)} من ${n(mp.need)} أيام كاملة`}${r ? ` · مكافأتك: ${r.replace(/</g, '&lt;')}` : ''}</div>
+        <div class="m-bar"><i style="width:${mp.full / mp.need * 100}%"></i></div></div></div>`;
     }).join('');
     const cells = [];
-    let onTime = 0, pages = 0, kms = 0, sugar = 0, bread = 0, elapsed = 0;
     for (let i = 1; i <= S.length; i++) {
-      const k = dayKeyN(i), fut = k > tk, D = DAYS[k];
-      const st = fut ? null : coreStatus(k), cnt = st ? CORE.filter(id => st[id]).length : 0, full = cnt === 10;
-      cells.push(`<button class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${full ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''} style="--p:${cnt * 10}%">
-        <span class="dc-e">${full ? ART.badge('starBig') : fut ? '' : n(cnt)}</span><small>${n(i)}</small></button>`);
-      if (!fut) {
-        elapsed++;
-        if (D) { C.prayers.forEach(p => { if (D.p && D.p[p.id] === 2) onTime++; }); pages += D.quran || 0; if (D.noSugar === true) sugar++; if (D.noBread === true) bread++; }
-        kms += walkKmOf(k);
-      }
+      const k = dayKeyN(i), fut = k > tk, st = fut ? null : coreStatus(k), cnt = st ? CORE.filter(id => st[id]).length : 0;
+      cells.push(`<button class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${cnt === 10 ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''}>${cnt === 10 ? ART.badge('starBig') : `<span>${n(i)}</span>`}</button>`);
     }
-    const purity = streak(isTrue('chastity'));
-    const stat = (e, v, l) => `<div class="stat">${emo(e, 'sm')}<div class="s-v">${v}</div><div class="s-l">${l}</div></div>`;
-
     return `
-    <header class="hd"><div class="grow"><div class="eyebrow">${elapsed ? `مضى ${n(elapsed)} من ${n(S.length)} يومًا` : `يبدأ ${greg(start())}`}</div><h1>إنجازاتي</h1></div></header>
-    <section class="level">
-      <div class="lv-e">${ART.badge(tt.level[1])}</div>
-      <div class="grow"><div class="lv-n">${tt.level[2]}</div><div class="lv-p">${n(tt.pts)} <small>نقطة</small></div>
-        <div class="bar light"><i style="width:${lvlPct}%"></i></div>
-        <div class="lv-h">${tt.next ? `باقي ${n(tt.next[0] - tt.pts)} نقطة للمستوى التالي: ${tt.next[2]}` : 'أعلى مستوى! ما شاء الله'}</div></div>
-    </section>
-    <div class="stats3">${stat('star', n(tt.stars), 'نجوم')}${stat('fire', n(streak(isFull)), 'متتالية')}${stat('chastity', n(purity), 'أيام عفّة')}</div>
-
-    ${secT('الأوسمة')}
-    <div class="medals">${medals}</div>
-
-    ${secT('أيام التحدي', `<span class="sub">${mi('star')} يوم كامل</span>`)}
-    <div class="card"><div class="dgrid">${cells.join('')}</div><p class="foot">الرقم = عدد الأهداف المحققة من ١٠ · اضغط على يوم لفتحه</p></div>
-
-    ${secT('أرقامك')}
-    <div class="stats2">
-      ${stat('rawatib', `${n(onTime)}<small>/${n(elapsed * 5)}</small>`, 'صلاة في وقتها')}
-      ${stat('quran', n(pages), 'صفحة قرآن')}
-      ${stat('walk', n(round1(kms)), 'كم مشي')}
-      ${stat('noSugar', `${n(sugar)}<small>/${n(elapsed)}</small>`, 'يوم بلا سكر')}
-      ${stat('noBread', `${n(bread)}<small>/${n(elapsed)}</small>`, 'يوم بلا خبز')}
-      ${stat('points', n(tt.pts), 'مجموع النقاط')}
+    <header class="hd"><div class="grow"><h1>إنجازاتي</h1><div class="sub">نجمة لكل يوم كامل، ووسام لكل أسبوع كامل</div></div></header>
+    <div class="big-stats">
+      <div><b>${n(tt.stars)}</b><span>نجوم</span></div>
+      <div><b>${n(streak(isFull))}</b><span>أيام متتالية</span></div>
+      <div><b>${n(streak(isTrue('chastity')))}</b><span>أيام عفّة</span></div>
     </div>
-
-    ${secT('كيف تجمع النقاط؟')}
-    <div class="card list rules">
-      ${srow('mosque', 'كل صلاة في وقتها', 'المتأخرة ٥ نقاط', '<b class="rp">+١٠</b>')}
-      ${srow('quran', 'كل هدف من أهدافك اليومية', 'القرآن، المشي، السكر، الخبز، العفّة', '<b class="rp">+١٠</b>')}
-      ${srow('water', 'كل عادة إضافية', '', '<b class="rp">+٥</b>')}
-      ${srow('star', 'نجمة اليوم الكامل', 'الأهداف العشرة كلها', '<b class="rp">+٥٠</b>')}
-      ${srow('trophy', 'أوسمة الأسابيع والكأس', '٧ أيام كاملة متتالية في الأسبوع', '<b class="rp">+١٥٠…١٠٠٠</b>')}
-    </div>`;
+    <h2 class="label">أيام التحدي</h2>
+    <div class="box pad"><div class="dgrid">${cells.join('')}</div></div>
+    <h2 class="label">الأوسمة</h2>
+    <div class="box">${medals}</div>`;
   }
 
   /* ========== الصلاة ========== */
   function viewPrayer() {
     const now = new Date(), t = ptimes(now), np = nextPrayer(now), cur = currentPrayerId(now);
-    const tomorrow = ptimes(addDays(now, 1));
-    const rows = [['fajr', 'الفجر'], ['sunrise', 'الشروق'], ['dhuhr', 'الظهر'], ['asr', 'العصر'], ['maghrib', 'المغرب'], ['isha', 'العشاء']]
-      .map(([id, nm]) => `<div class="srow ${id === cur ? 'cur' : ''}">${emo(id)}<div class="grow"><div class="t">${nm}</div>${id === cur ? '<div class="h">الوقت الحالي</div>' : ''}</div><div class="ptime">${fmtTime(t[id])}</div></div>`).join('');
-    const methodOpts = Object.entries(PrayTime.METHODS).map(([k, m]) => `<option value="${k}" ${S.method === k ? 'selected' : ''}>${m.name}</option>`).join('');
     const cityOpts = CITIES.map(c => `<option value="${c[0]}" ${S.city === c[0] ? 'selected' : ''}>${c[1]}</option>`).join('') + (S.city === 'gps' ? '<option value="gps" selected>موقعي الحالي</option>' : '');
-    const adj = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map(id => srow(id, C.prayers.find(p => p.id === id).name,
-      S.adjust[id] ? `${n(Math.abs(S.adjust[id]))} دقيقة ${S.adjust[id] > 0 ? 'تأخير' : 'تقديم'}` : 'بدون تعديل', stp('adj', id))).join('');
-
+    const rows = [['fajr', 'الفجر'], ['sunrise', 'الشروق'], ['dhuhr', 'الظهر'], ['asr', 'العصر'], ['maghrib', 'المغرب'], ['isha', 'العشاء']]
+      .map(([id, nm]) => `<div class="prow ${id === cur ? 'cur' : ''} ${np && np.pr.id === id ? 'nxt' : ''}">${emo(id)}<div class="grow t">${nm}</div><div class="tm">${fmtTime(t[id])}</div></div>`).join('');
     return `
-    <header class="hd"><div class="grow"><div class="eyebrow">${S.placeName} · ${hijri(now)}</div><h1>مواقيت الصلاة</h1></div></header>
-    ${np ? `<section class="nextbig"><div class="nb-e">${emo(np.pr.id, 'lg')}</div><div class="nb-l">باقي على صلاة ${np.pr.name}</div>
-      <div class="nb-c" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div><div class="nb-l">الأذان ${fmtTime(np.at)}</div></section>` : ''}
-    <div class="card list">${rows}</div>
-    <div class="stats2">
-      <div class="stat">${emo('fajr', 'sm')}<div class="s-v sm">${fmtTime(tomorrow.fajr)}</div><div class="s-l">فجر الغد</div></div>
-      <div class="stat">${emo('compass', 'sm')}<div class="s-v sm">${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}°</div><div class="s-l">القبلة من الشمال</div></div>
-    </div>
-
-    ${secT('الموقع والحساب')}
-    <div class="card list">
-      ${srow('pin', 'المدينة', '', `<select class="sel" data-set="city">${cityOpts}</select>`)}
-      ${srow('compass', 'استخدام موقعي الحالي', 'أدق للمدن غير الموجودة', '<span class="go">تحديد</span>', 'gps')}
-      ${srow('calendar', 'طريقة الحساب', '', `<select class="sel" data-set="method">${methodOpts}</select>`)}
-      ${srow('asr', 'حساب العصر', '', `<select class="sel" data-set="asrFactor"><option value="1" ${S.asrFactor == 1 ? 'selected' : ''}>الجمهور</option><option value="2" ${S.asrFactor == 2 ? 'selected' : ''}>الحنفي</option></select>`)}
-      ${WEB ? srow('bell', 'تنبيهات الأذان', 'تُضاف إلى تقويم جوالك', '<span class="go">إضافة</span>', 'ics') : srow('bell', 'تنبيه عند الأذان', '', sw(S.notifPrayers, 'toggle', 'notifPrayers'))}
-    </div>
-    ${secT('تعديل المواقيت بالدقائق')}
-    <div class="card list">${adj}</div>
-    <p class="foot">قدّم أو أخّر أي صلاة لتطابق مسجد حيّك.</p>`;
+    <header class="hd"><div class="grow"><h1>الصلاة</h1><div class="sub">${hijri(now)}</div></div>
+      <select class="city" data-set="city" aria-label="المدينة">${cityOpts}</select></header>
+    ${np ? `<section class="countdown"><div>باقي على ${np.pr.name}</div><div class="cd" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div></section>` : ''}
+    <div class="box">${rows}</div>
+    ${WEB ? '<button class="wide-btn" data-act="ics">إضافة تنبيهات الأذان إلى التقويم</button>' : ''}`;
   }
 
   /* ========== الإعدادات ========== */
   function viewSettings() {
     const inp = (id, type, extra) => `<input class="inp" type="${type}" data-set="${id}" value="${(S[id] == null ? '' : S[id]).toString().replace(/"/g, '&quot;')}" ${extra || ''}>`;
-    const num = (e, id, t, h, min, max, step) => srow(e, t, h, inp(id, 'number', `inputmode="decimal" min="${min}" max="${max}" step="${step || 1}"`));
-    const ex = g => C.extras.filter(e => e.group === g).map(e => srow(e.id, e.name, e.hint, sw(S.extras[e.id], 'extra', e.id))).join('');
-    const rw = MEDALS.map(m => `<div class="srow"><span class="emo">${ART.badge(m.e)}</span><div class="grow"><div class="t">${m.name}</div>
-      <input class="inp wide" type="text" data-set="${m.rk}" value="${(S[m.rk] || '').replace(/"/g, '&quot;')}" placeholder="مثال: وجبة في مطعمي المفضّل"></div></div>`).join('');
-
+    const row = (t, trail, h) => `<div class="set"><div class="grow"><div class="t">${t}</div>${h ? `<div class="h">${h}</div>` : ''}</div>${trail}</div>`;
+    const num = (id, t, min, max, step, h) => row(t, inp(id, 'number', `inputmode="decimal" min="${min}" max="${max}" step="${step || 1}"`), h);
+    const link = (t, act, red) => `<div class="set link ${red ? 'red' : ''}" data-act="${act}">${t}</div>`;
+    const methodOpts = Object.entries(PrayTime.METHODS).map(([k, m]) => `<option value="${k}" ${S.method === k ? 'selected' : ''}>${m.name}</option>`).join('');
+    const adj = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map(id => row(C.prayers.find(p => p.id === id).name,
+      `<div class="stp"><button data-act="adj" data-id="${id}" data-d="-1">${ico.minus}</button><span>${n(S.adjust[id])}</span><button data-act="adj" data-id="${id}" data-d="1">${ico.plus}</button></div>`)).join('');
+    const exs = C.extras.map(e => row(e.name, sw(S.extras[e.id], 'extra', e.id))).join('');
+    const rws = MEDALS.map(m => row(m.name, '', '') .replace('</div></div>', `</div><input class="inp full" type="text" data-set="${m.rk}" value="${(S[m.rk] || '').replace(/"/g, '&quot;')}" placeholder="مثال: وجبة في مطعمي المفضّل"></div>`)).join('');
     return `
-    <header class="hd"><div class="grow"><div class="eyebrow">خصّص تحدّيك</div><h1>الإعدادات</h1></div></header>
-    <div class="card list">
-      ${srow('person', 'الاسم', '', inp('name', 'text', 'placeholder="اختياري"'))}
-      ${srow('calendar', 'بداية التحدي', '', inp('startDate', 'date'))}
-      ${num('trophy', 'length', 'مدة التحدي', 'بالأيام', 7, 90)}
+    <header class="hd"><div class="grow"><h1>الإعدادات</h1></div></header>
+
+    <h2 class="label">التحدي</h2>
+    <div class="box">
+      ${row('تاريخ البداية', inp('startDate', 'date'))}
+      ${num('quranGoal', 'صفحات القرآن يوميًا', 1, 40)}
+      ${num('walkKm', 'المشي يوميًا (كم)', 1, 30, .5)}
     </div>
 
-    ${secT('الأهداف اليومية')}
-    <div class="card list">
-      ${num('quran', 'quranGoal', 'صفحات القرآن', 'الجزء = ٢٠ صفحة', 1, 40)}
-      ${num('walk', 'walkKm', 'مسافة المشي (كم)', '', 1, 30, .5)}
-      ${num('workout', 'workoutMin', 'أو دقائق تمرين', 'بديل عن المشي', 10, 180, 5)}
-      ${num('steps', 'strideCm', 'طول الخطوة (سم)', 'تقريبًا: طولك × ٠٫٤١٥', 40, 120)}
-      ${num('water', 'waterGoal', 'أكواب الماء', '', 4, 16)}
+    <h2 class="label">التنبيهات</h2>
+    <div class="box">
+      ${WEB ? link('إضافة تنبيهات الأذان إلى التقويم', 'ics') : row('تنبيه عند الأذان', sw(S.notifPrayers, 'toggle', 'notifPrayers'))}
+      ${row('تذكير مسائي', sw(S.notifEvening, 'toggle', 'notifEvening'))}
+      ${S.notifEvening ? row('وقت التذكير', inp('eveningTime', 'time')) : ''}
+      ${WEB ? link('ربط خطوات الآيفون', 'shortcutHelp') : !STEP_STATE.permitted && STEP_STATE.available ? link('تفعيل عدّاد الخطوات', 'stepPerm') : ''}
     </div>
 
-    ${secT('مكافآتك الشخصية')}
-    <p class="foot" style="margin:-4px 6px 8px">اكتب ما ستكافئ به نفسك عند كل وسام، وسيظهر لك عند الحصول عليه.</p>
-    <div class="card list">${rw}</div>
+    <h2 class="label">مكافآتك عند كل وسام</h2>
+    <div class="box">${rws}</div>
 
-    ${secT('عبادات إضافية')}
-    <div class="card list">${ex('deen')}</div>
-    ${secT('عادات صحية إضافية')}
-    <div class="card list">${ex('health')}</div>
+    <h2 class="label">عادات إضافية (اختيارية)</h2>
+    <div class="box">${exs}</div>
 
-    ${secT('التنبيهات')}
-    <div class="card list">
-      ${WEB ? srow('bell', 'إضافة المواقيت إلى التقويم', `تنبيه عند كل أذان لمدينة ${S.placeName}`, '<span class="go">إضافة</span>', 'ics')
-        : srow('bell', 'تنبيه عند كل أذان', '', sw(S.notifPrayers, 'toggle', 'notifPrayers'))}
-      ${srow('clock', 'التذكير المسائي', '', sw(S.notifEvening, 'toggle', 'notifEvening'))}
-      ${srow('clock', 'وقت التذكير', '', inp('eveningTime', 'time'))}
-      ${WEB ? srow('steps', 'ربط خطوات الآيفون', 'من تطبيق الصحة', '<span class="go">الطريقة</span>', 'shortcutHelp')
-        : srow('bell', 'السماح بالإشعارات', '', '<span class="go">السماح</span>', 'notifPerm')}
+    <h2 class="label">متقدّم</h2>
+    <div class="box">
+      ${row('طريقة حساب الصلاة', `<select class="sel" data-set="method">${methodOpts}</select>`)}
+      ${row('حساب العصر', `<select class="sel" data-set="asrFactor"><option value="1" ${S.asrFactor == 1 ? 'selected' : ''}>الجمهور</option><option value="2" ${S.asrFactor == 2 ? 'selected' : ''}>الحنفي</option></select>`)}
+      ${link('تحديد موقعي بالـ GPS', 'gps')}
+      ${num('workoutMin', 'دقائق الرياضة بدل المشي', 10, 180, 5)}
+      ${num('strideCm', 'طول الخطوة (سم)', 40, 120)}
+      ${row('الوضع', `<select class="sel" data-set="theme"><option value="auto" ${S.theme === 'auto' ? 'selected' : ''}>تلقائي</option><option value="light" ${S.theme === 'light' ? 'selected' : ''}>فاتح</option><option value="dark" ${S.theme === 'dark' ? 'selected' : ''}>داكن</option></select>`)}
     </div>
+    <h2 class="label">تعديل مواقيت الصلاة (دقائق)</h2>
+    <div class="box">${adj}</div>
 
-    ${secT('المظهر والبيانات')}
-    <div class="card list">
-      ${srow('moon', 'الوضع', '', `<select class="sel" data-set="theme"><option value="auto" ${S.theme === 'auto' ? 'selected' : ''}>تلقائي</option><option value="light" ${S.theme === 'light' ? 'selected' : ''}>فاتح</option><option value="dark" ${S.theme === 'dark' ? 'selected' : ''}>داكن</option></select>`)}
-      ${srow('backup', 'تصدير نسخة احتياطية', '', '<span class="go">تصدير</span>', 'export')}
-      ${srow('backup', 'استيراد نسخة', '', '<span class="go">استيراد</span>', 'import')}
-      ${srow('trash', 'مسح كل البيانات', '', '<span class="go red">مسح</span>', 'reset')}
-    </div>
-    <p class="foot center">تحدي ٣٠ يوم · بياناتك محفوظة على جهازك فقط</p>`;
+    <h2 class="label">البيانات</h2>
+    <div class="box">${link('تصدير نسخة احتياطية', 'export')}${link('استيراد نسخة', 'import')}${link('مسح كل البيانات', 'reset', true)}</div>`;
   }
 
   /* ---------- الرسم ---------- */
@@ -622,6 +513,15 @@
     nextDay: () => { if (viewKey < todayKey()) { viewKey = keyOf(addDays(fromKey(viewKey), 1)); render(); } },
     goToday: () => { viewKey = todayKey(); render(); },
     openDay: el => { viewKey = el.dataset.k; tab = 'today'; render(); window.scrollTo(0, 0); },
+    tick: el => {
+      const D = day(viewKey), id = el.dataset.id, kind = el.dataset.kind;
+      if (kind === 'prayer') D.p[id] = D.p[id] === 2 ? 0 : 2;
+      else if (kind === 'quran') { const on = (D.quran || 0) >= S.quranGoal; D.quran = on ? 0 : S.quranGoal; if (!on) { BOOK = Math.min(604, BOOK + S.quranGoal); Store.set('quranPage', BOOK); } }
+      else if (kind === 'walk') { const on = walkDone(viewKey) || D.wDone === true; if (on) { D.wDone = false; D.walkKm = 0; D.workout = 0; } else D.wDone = true; }
+      else if (kind === 'avoid') D[id] = D[id] === true ? null : true;
+      else if (kind === 'extra') { const e = C.extras.find(x => x.id === id); D.x[id] = e.type === 'count' ? ((D.x[id] || 0) >= S[e.goalKey] ? 0 : S[e.goalKey]) : !(D.x[id] === true); }
+      saveD(); haptic(); rerender();
+    },
     pset: el => {
       const D = day(viewKey), id = el.dataset.id, v = +el.dataset.v;
       D.p[id] = D.p[id] === v ? 0 : v; saveD(); haptic(); rerender();
@@ -787,14 +687,9 @@
   render();
   scheduleNotifs();
   if (!S.onboarded) {
-    sheet(`<h2>بسم الله، أهلًا بك</h2>
-      <p>هذا تحدّيك لمدة ٣٠ يومًا يبدأ <b style="color:var(--green)">${greg(start())}</b>: الصلوات في وقتها، وِرد من القرآن، مشي ٥ كم أو تمرين، بدون سكر ولا خبز، وحفظ النفس.</p>
-      <div class="urge"><h4>١. سجّل كل يوم</h4><div>اضغط على الصلاة عند أدائها، وسجّل الباقي في المساء.</div></div>
-      ${NATIVE ? `<div class="urge"><h4>٢. التنبيهات</h4><div>يصلك تنبيه عند كل أذان وتذكير مسائي. (المدينة الافتراضية: مسقط — غيّرها من تبويب الصلاة)</div></div>
-      <div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٣. عدّاد الخطوات</h4><div>يحسب مشيك تلقائيًا من حسّاس الجوال.</div></div><button class="btn" data-act="onbSteps">تفعيل</button></div>`
-      : `<div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٢. تنبيهات الأذان</h4><div>أضف مواقيت ٣٠ يومًا (مسقط) إلى تقويم جوالك مع تنبيه عند كل أذان. غيّر المدينة أولًا من تبويب الصلاة إن لزم.</div></div><button class="btn" data-act="ics">إضافة</button></div>
-      <div class="urge" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><h4>٣. خطوات المشي</h4><div>اربطها بتطبيق «الصحة» عبر اختصار بسيط، أو أضف المسافة يدويًا.</div></div><button class="btn" data-act="shortcutHelp">الطريقة</button></div>`}
-      <div class="card quote mt"><div class="qt">«أحبُّ الأعمال إلى الله أدومها وإن قلّ»</div><div class="qs">متفق عليه</div></div>
-      <button class="btn primary block" data-act="onbDone">لنبدأ</button>`);
+    sheet(`<div class="cele"><div class="cele-e" style="width:96px;height:96px">${ART.tile('rawatib')}</div><h2>بسم الله</h2>
+      <p>تحدّي ٣٠ يومًا يبدأ ${greg(start())}.<br>كل يوم: اضغط على الهدف عندما تنجزه ✓<br>أكمل الأهداف العشرة لتحصل على نجمة، وأسبوعًا كاملًا لتحصل على وسام.</p>
+      ${WEB ? '<button class="btn block" data-act="ics" style="margin-bottom:10px">إضافة تنبيهات الأذان (مسقط)</button>' : ''}
+      <button class="btn primary block" data-act="onbDone">ابدأ</button></div>`);
   }
 })();
