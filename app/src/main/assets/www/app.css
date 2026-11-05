@@ -287,3 +287,107 @@ textarea { width: 100%; min-height: 80px; resize: vertical; border: 1.5px solid 
 .ic-stat { display: flex; align-items: center; gap: 10px; }
 .ic-stat .ico { margin: 0; }
 .mile svg { width: 20px; height: 20px; margin: 0 auto 2px; }
+
+/* =========================================================
+   التصميم الملوّن — v3
+   ========================================================= */
+:root {
+  --bg: #F3F4F1; --card: #FFFFFF; --ink: #14201B; --ink-2: #5F6B66; --ink-3: #A3ABA7;
+  --line: #ECEEEA; --track: #EEF0EC; --green: #0E9F6E; --green-2: #10B981; --green-soft: #E3F6EE;
+  --gold: #D97706; --gold-soft: #FEF3C7; --red: #E11D48; --red-soft: #FFE4E9;
+  --shadow: 0 1px 2px rgba(20, 32, 27, .04), 0 8px 24px -12px rgba(20, 32, 27, .18);
+  --r: 20px;
+}
+:root[data-theme="dark"] {
+  --bg: #0D1117; --card: #161C24; --ink: #EEF2F0; --ink-2: #9AA5A0; --ink-3: #5D6862;
+  --line: #222A33; --track: #1F2730; --green: #34D399; --green-2: #34D399; --green-soft: #12302A;
+  --gold: #FBBF24; --gold-soft: #3A2E12; --red: #FB7185; --red-soft: #3B1A22;
+  --shadow: 0 1px 0 rgba(255,255,255,.03);
+}
+
+.card { border: 1px solid rgba(20,32,27,.04); }
+:root[data-theme="dark"] .card { border-color: rgba(255,255,255,.04); }
+.top h1 { font-size: 24px; }
+
+/* أيقونات بتدرّج لوني */
+.ico { background: linear-gradient(135deg, var(--a, #0E9F6E), var(--b, #34D399)) !important; color: #fff !important;
+  box-shadow: 0 6px 14px -6px var(--a, #0E9F6E); border-radius: 14px; }
+.ico svg { stroke-width: 2; }
+.hi { width: 30px; height: 30px; border-radius: 10px; display: inline-grid; place-items: center; flex: none;
+  background: linear-gradient(135deg, var(--a), var(--b)); color: #fff; }
+.hi svg { width: 18px !important; height: 18px !important; color: #fff !important; stroke: #fff; stroke-width: 2.1; }
+.sec-h { margin: 26px 2px 12px; }
+.sec-h h2 { font-size: 18px; gap: 10px; }
+.legend-i svg { color: var(--a, currentColor); }
+
+/* البطل */
+.hero { background:
+    radial-gradient(circle at 12% 110%, rgba(255,255,255,.14) 0 70px, transparent 71px),
+    radial-gradient(circle at 92% -20%, rgba(255,255,255,.10) 0 90px, transparent 91px),
+    linear-gradient(140deg, #0E9F6E 0%, #0F766E 55%, #134E4A 100%) !important;
+  box-shadow: 0 14px 30px -14px rgba(14, 118, 110, .7); border: 0; }
+:root[data-theme="dark"] .hero { background: linear-gradient(140deg, #065F46, #0F3D3A) !important; }
+.chip { background: rgba(255,255,255,.18); backdrop-filter: blur(4px); }
+
+/* شريط الأهداف */
+.goals { grid-template-columns: repeat(5, 1fr); gap: 12px 6px; padding: 16px 12px 12px; }
+.gw { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.gw span { font-size: 11.5px; color: var(--ink-2); line-height: 1.2; }
+.gi { width: 100%; max-width: 54px; aspect-ratio: 1; border-radius: 16px; background: var(--track); color: var(--ink-3);
+  border: 1.5px dashed var(--line); }
+.gi svg { width: 25px; height: 25px; stroke-width: 2; }
+.gi.on { background: linear-gradient(135deg, var(--a), var(--b)); color: #fff; border: 0;
+  box-shadow: 0 6px 14px -6px var(--a); }
+
+/* الصلاة القادمة */
+.next { gap: 12px; position: relative; overflow: hidden; }
+.next::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 5px;
+  background: linear-gradient(var(--a), var(--b)); }
+.next .n-count { color: var(--a); font-size: 23px; }
+:root[data-theme="dark"] .next .n-count { color: var(--b); }
+
+/* أزرار التسجيل */
+.ib.ok { background: linear-gradient(135deg, #0E9F6E, #34D399); box-shadow: 0 6px 12px -6px #0E9F6E; }
+.ib.late { background: linear-gradient(135deg, #F59E0B, #FBBF24); box-shadow: 0 6px 12px -6px #F59E0B; }
+.ib.no { background: linear-gradient(135deg, #E11D48, #FB7185); box-shadow: 0 6px 12px -6px #E11D48; }
+.ib { background: var(--track); color: var(--ink-3); }
+.ib.sm { background: var(--green-soft); }
+.check { border-radius: 13px; }
+.check.on { background: linear-gradient(135deg, #0E9F6E, #34D399); border-color: transparent; }
+.stepper button { border-radius: 12px; }
+.stepper button[data-d="1"] { background: linear-gradient(135deg, #0E9F6E, #34D399) !important; }
+
+/* الأشرطة */
+.bar { background: var(--track); }
+.bar > i { background: linear-gradient(90deg, var(--a, #0E9F6E), var(--b, #34D399)); }
+
+/* الأزرار */
+.btn { background: var(--track); font-size: 15px; }
+.btn.primary { background: linear-gradient(135deg, #0E9F6E, #10B981); }
+.btn svg { color: var(--green); }
+.btn.primary svg { color: #fff; }
+
+/* شبكة التحدي */
+.cell { border-radius: 12px; }
+.cell.l1 { background: #FDE68A; color: #78350F; }
+.cell.l2 { background: #A7F3D0; color: #065F46; }
+.cell.l3 { background: linear-gradient(135deg, #34D399, #10B981); color: #fff; }
+.cell.l4 { background: linear-gradient(135deg, #0E9F6E, #0F766E); color: #fff; box-shadow: 0 6px 12px -6px #0E9F6E; }
+.cell.today { outline-color: #F59E0B; }
+.stat { border: 1px solid rgba(20,32,27,.04); border-radius: 18px; }
+.stat.feature { background: linear-gradient(135deg, #EEF2FF, #E0E7FF); }
+.stat.feature .v { color: #4F46E5; }
+:root[data-theme="dark"] .stat.feature { background: linear-gradient(135deg, #1E1B4B, #272463); }
+:root[data-theme="dark"] .stat.feature .v { color: #A5B4FC; }
+.mile.got { background: linear-gradient(135deg, #F59E0B, #FCD34D); color: #fff; }
+
+/* صفحة الصلاة */
+.bigclock { background: linear-gradient(140deg, var(--a, #0E9F6E), var(--b, #0F766E)) !important; border: 0;
+  box-shadow: 0 14px 30px -14px var(--a, #0E9F6E); }
+.ptimes .row.cur { background: var(--green-soft); }
+
+/* الشريط السفلي */
+.tabs { background: color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.tabs button.on { color: var(--green); }
+.tabs button.on svg { background: var(--green-soft); border-radius: 10px; padding: 3px 12px; width: 48px; height: 30px; }
+.tabs button svg { padding: 3px 12px; width: 48px; height: 30px; }

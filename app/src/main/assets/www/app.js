@@ -259,7 +259,21 @@
     dash: '<circle cx="12" cy="12" r="7.5" stroke-dasharray="2.6 2.6"/>'
   };
   const svg = name => `<svg viewBox="0 0 24 24">${P[name] || ''}</svg>`;
-  const ic = (name, cls) => `<span class="ico ${cls || ''}">${svg(name)}</span>`;
+  /* لون مميّز (تدرّج) لكل صلاة وهدف */
+  const COL = {
+    fajr: ['#6D5DFC', '#E86FB0'], sunrise: ['#FFB347', '#FF7E5F'], dhuhr: ['#F7B500', '#FF8A00'], asr: ['#FF8C42', '#FF4E50'],
+    maghrib: ['#F7567C', '#8E54E9'], isha: ['#3B4BC8', '#1B2370'], moon: ['#4651C9', '#7C83FD'],
+    book: ['#0E9F6E', '#34D399'], mihrab: ['#0E9F6E', '#2DD4BF'], walk: ['#2563EB', '#38BDF8'], dumbbell: ['#7C3AED', '#A78BFA'],
+    candy: ['#EC4899', '#F43F5E'], bread: ['#C2761F', '#F2A541'], shield: ['#4F46E5', '#818CF8'],
+    beads: ['#059669', '#6EE7B7'], beadsMoon: ['#6366F1', '#A5B4FC'], sunSmall: ['#F59E0B', '#FCD34D'], hand: ['#E11D48', '#FB7185'],
+    heart: ['#DB2777', '#F9A8D4'], plate: ['#92400E', '#D6A06A'], drop: ['#0891B2', '#22D3EE'], bed: ['#1E3A8A', '#6366F1'],
+    leaf: ['#4D7C0F', '#A3E635'], cupNo: ['#DC2626', '#FB923C'], phoneNo: ['#475569', '#94A3B8'], flame: ['#F97316', '#FACC15'],
+    star: ['#F59E0B', '#FDE047'], compass: ['#0D9488', '#5EEAD4'], target: ['#0E9F6E', '#34D399'], pencil: ['#64748B', '#94A3B8'],
+    quote: ['#0E9F6E', '#34D399'], pin: ['#D97706', '#FBBF24']
+  };
+  const cv = name => { const c = COL[name] || COL.book; return `--a:${c[0]};--b:${c[1]}`; };
+  const ic = name => `<span class="ico" style="${cv(name)}">${svg(name)}</span>`;
+  const hi = name => `<span class="hi" style="${cv(name)}">${svg(name)}</span>`;
 
   const I = {
     check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -299,7 +313,7 @@
     let nextCard = '';
     if (isToday) {
       const np = nextPrayer();
-      if (np) nextCard = `<div class="card next"><div><div class="n-name">الصلاة القادمة</div><div class="n-big">${np.pr.name} · ${fmtTime(np.at)}</div></div>
+      if (np) nextCard = `<div class="card next" style="${cv(np.pr.id)}">${ic(np.pr.id)}<div class="grow"><div class="n-name">الصلاة القادمة</div><div class="n-big">${np.pr.name} · ${fmtTime(np.at)}</div></div>
         <div class="n-count" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - Date.now())}</div></div>`;
     }
 
@@ -324,7 +338,7 @@
       if (e.type === 'count') {
         const g = S[e.goalKey];
         return `<div class="row">${ic(e.icon, 'b')}<div class="grow"><div class="t">${e.name}</div><div class="h">${n(v || 0)} من ${n(g)} ${e.unit}</div>
-          <div class="bar mt" style="height:6px"><i style="width:${Math.min((v || 0) / g * 100, 100)}%"></i></div></div>
+          <div class="bar mt" style="height:6px;${cv(e.icon)}"><i style="width:${Math.min((v || 0) / g * 100, 100)}%"></i></div></div>
           <div class="stepper"><button data-act="xcount" data-id="${e.id}" data-d="-1">−</button><button data-act="xcount" data-id="${e.id}" data-d="1" style="background:var(--green);color:#fff">+</button></div></div>`;
       }
       if (e.type === 'avoid') return `<div class="row">${ic(e.icon, 'r')}<div class="grow"><div class="t">${e.name}</div></div>${yesNo('xavoid', e.id, v)}</div>`;
@@ -332,10 +346,10 @@
         <div class="check ${v ? 'on' : ''}">${I.check}</div></div>`;
     }).join('');
 
-    const gl = (icon, ok, label, act) => `<button class="gi ${ok ? 'on' : ''}" ${act ? `data-act="${act}"` : ''} aria-label="${label}">${svg(icon)}</button>`;
+    const gl = (icon, ok, label) => `<div class="gw"><div class="gi ${ok ? 'on' : ''}" style="${cv(icon)}">${svg(icon)}</div><span>${label}</span></div>`;
     const goals = C.prayers.map(pr => gl(pr.id, D.p[pr.id] === 2, pr.name)).join('')
       + gl('book', (D.quran || 0) >= S.quranGoal, 'القرآن') + gl('walk', walkDone(k), 'المشي')
-      + gl('candy', D.noSugar === true, 'بدون سكر') + gl('bread', D.noBread === true, 'بدون خبز') + gl('shield', D.chastity === true, 'العفّة');
+      + gl('candy', D.noSugar === true, 'السكر') + gl('bread', D.noBread === true, 'الخبز') + gl('shield', D.chastity === true, 'العفّة');
     const slipMsg = D.chastity === false ? `<div class="slip">لا تيأس. قال تعالى: «لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ». استغفر، توضأ، وابدأ من جديد — تحدّيك مستمر، والمهم ألّا تتوقف.</div>` : '';
 
     return `
@@ -356,21 +370,21 @@
     ${nextCard}
     ${!isToday ? `<div class="card center muted" style="padding:10px">تعدّل يوم ${greg(d)} — <button class="link" data-act="goToday">العودة لليوم</button></div>` : ''}
 
-    <div class="sec-h"><h2>${svg('mihrab')}الصلوات</h2><span class="meta legend-i">${svg('check2')}في وقتها ${svg('clock')}متأخرة</span></div>
+    <div class="sec-h"><h2>${hi('mihrab')}الصلوات</h2><span class="meta legend-i">${svg('check2')}في وقتها ${svg('clock')}متأخرة</span></div>
     <div class="card list">${prayerRows}</div>
 
-    <div class="sec-h"><h2>${svg('book')}القرآن</h2><span class="meta">${svg('target')}${n(S.quranGoal)}</span></div>
+    <div class="sec-h"><h2>${hi('book')}القرآن</h2><span class="meta">${svg('target')}${n(S.quranGoal)}</span></div>
     <div class="card">
       <div class="row" style="padding-top:0">${ic('book')}<div class="grow"><div class="t">${n(D.quran || 0)} <span class="muted">/ ${n(S.quranGoal)}</span></div><div class="h">${(D.quran || 0) >= S.quranGoal ? 'حققت وِردك ✓' : 'صفحات اليوم'}</div></div>
         <div class="stepper"><button data-act="quran" data-d="-1">−</button><button data-act="quran" data-d="1" style="background:var(--green);color:#fff">+</button></div></div>
       <div class="walk-meta" style="margin-top:4px;align-items:center"><span class="legend-i">${svg('pin')}صفحة <b>${n(BOOK)}</b> / ٦٠٤</span><button class="ib sm" data-act="setBook" aria-label="تعديل">${svg('pencil')}</button></div>
-      <div class="bar gold mt" style="height:6px"><i style="width:${BOOK / 604 * 100}%"></i></div>
+      <div class="bar mt" style="height:8px;${cv('book')}"><i style="width:${BOOK / 604 * 100}%"></i></div>
     </div>
 
-    <div class="sec-h"><h2>${svg('walk')}المشي والرياضة</h2><span class="meta">${walkDone(k) ? '<span class="badge">✓</span>' : `${svg('target')}${n(S.walkKm)} كم`}</span></div>
+    <div class="sec-h"><h2>${hi('walk')}المشي والرياضة</h2><span class="meta">${walkDone(k) ? '<span class="badge">✓</span>' : `${svg('target')}${n(S.walkKm)} كم`}</span></div>
     <div class="card">
       <div class="walk-top">${ic('walk', 'h')}<div class="km grow" style="margin-inline-start:10px">${n(round1(km))} <small>/ ${n(S.walkKm)} كم</small></div><div class="muted">${stepsLine}</div></div>
-      <div class="bar"><i style="width:${kmPct}%"></i></div>
+      <div class="bar" style="${cv('walk')}"><i style="width:${kmPct}%"></i></div>
       ${NATIVE && STEP_STATE.available && !STEP_STATE.permitted ? `<button class="btn primary block mt" data-act="stepPerm">${svg('walk')}تفعيل عدّاد الخطوات</button>` : ''}
       ${WEB ? `<button class="link mt" data-act="shortcutHelp">${STEPS[todayKey()] ? 'خطواتك من تطبيق الصحة ✓' : 'اربط خطوات الآيفون تلقائيًا'}</button>` : ''}
       <div class="inline-actions">
@@ -379,20 +393,20 @@
       </div>
     </div>
 
-    <div class="sec-h"><h2>${svg('shield')}الانضباط</h2><span class="meta">آخر اليوم</span></div>
+    <div class="sec-h"><h2>${hi('shield')}الانضباط</h2><span class="meta">آخر اليوم</span></div>
     <div class="card list">
       ${avoid('noSugar', 'candy', 'بدون سكر', 'حلويات، عصائر، مشروبات محلّاة')}
       ${avoid('noBread', 'bread', 'بدون خبز', 'خبز ومعجنات')}
       ${avoid('chastity', 'shield', 'حفظ النفس', 'العفّة وغضّ البصر', slipMsg + `<button class="link sos" data-act="urge">${svg('heart')}أحتاج مساعدة الآن</button>`)}
     </div>
 
-    ${ex.length ? `<div class="sec-h"><h2>${svg('star')}إضافية</h2><button class="ib sm" data-act="tab" data-tab="settings" aria-label="تعديل">${svg('pencil')}</button></div><div class="card list">${exRows}</div>` : ''}
+    ${ex.length ? `<div class="sec-h"><h2>${hi('star')}إضافية</h2><button class="ib sm" data-act="tab" data-tab="settings" aria-label="تعديل">${svg('pencil')}</button></div><div class="card list">${exRows}</div>` : ''}
 
-    <div class="sec-h"><h2>${svg('quote')}تأمّل اليوم</h2></div>
+    <div class="sec-h"><h2>${hi('quote')}تأمّل اليوم</h2></div>
     <div class="card quote"><div class="qt">${q.t}</div><div class="qs">${q.s}</div></div>
     <div class="card tip">${I.bulb}<div>${tip}</div></div>
 
-    <div class="sec-h"><h2>${svg('pencil')}ملاحظة اليوم</h2></div>
+    <div class="sec-h"><h2>${hi('pencil')}ملاحظة اليوم</h2></div>
     <div class="card"><textarea id="note" placeholder="ما الذي ساعدك اليوم؟ وما الذي صعّب عليك؟">${(D.note || '').replace(/</g, '&lt;')}</textarea></div>
     `;
   }
@@ -421,7 +435,7 @@
     let best = 0, run = 0;
     for (let i = 0; i < S.length; i++) { const k = keyOf(addDays(start(), i)); if (isTrue('chastity')(k)) { run++; best = Math.max(best, run); } else run = 0; }
 
-    const hb = (icon, name, val, max) => `<div class="hbar"><div class="hl"><span class="legend-i">${svg(icon)}${name}</span><span>${n(val)} / ${n(max)}</span></div><div class="bar"><i style="width:${max ? Math.min(val / max * 100, 100) : 0}%"></i></div></div>`;
+    const hb = (icon, name, val, max) => `<div class="hbar"><div class="hl"><span class="legend-i" style="${cv(icon)}">${svg(icon)}${name}</span><span>${n(val)} / ${n(max)}</span></div><div class="bar" style="${cv(icon)}"><i style="width:${max ? Math.min(val / max * 100, 100) : 0}%"></i></div></div>`;
     const miles = [7, 14, 21, 30].map(m => `<div class="mile ${full >= m ? 'got' : ''}">${svg(full >= m ? 'star' : 'target')}<div class="mv">${n(m)}</div>يوم</div>`).join('');
 
     return `
@@ -439,7 +453,7 @@
       <div class="stat">${ic('walk', 'h')}<div class="v">${n(round1(kms))} <small>كم</small></div><div class="k">مشيتها${workout ? ` + ${n(workout)} د تمرين` : ''}</div></div>
     </div>
 
-    <div class="sec-h"><h2>${svg('target')}الالتزام</h2><span class="meta">من الأيام المنقضية</span></div>
+    <div class="sec-h"><h2>${hi('target')}الالتزام</h2><span class="meta">من الأيام المنقضية</span></div>
     <div class="card">
       ${hb('mihrab', 'الصلاة في وقتها', onTime, elapsed * 5)}
       ${hb('candy', 'بدون سكر', sugar, elapsed)}
@@ -447,7 +461,7 @@
       ${hb('pencil', 'أيام سُجّلت', logged, elapsed)}
     </div>
 
-    <div class="sec-h"><h2>${svg('flame')}المحطات</h2></div>
+    <div class="sec-h"><h2>${hi('flame')}المحطات</h2></div>
     <div class="miles">${miles}</div>
     <p class="muted center mt">اضغط على أي يوم في الشبكة لفتحه وتعديله.</p>`;
   }
@@ -467,7 +481,7 @@
 
     return `
     <div class="top"><div><h1>مواقيت الصلاة</h1><div class="sub">${S.placeName} · ${hijri(now)}</div></div></div>
-    <div class="card bigclock">
+    <div class="card bigclock" style="${np ? cv(np.pr.id) : ''}">
       <div class="l">${np ? `باقي على صلاة ${np.pr.name}` : ''}</div>
       <div class="c" id="npCount" data-at="${np ? np.at.getTime() : 0}">${np ? dur(np.at - now) : ''}</div>
       <div class="l">${np ? fmtTime(np.at) : ''}</div>
