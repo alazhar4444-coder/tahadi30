@@ -1,12 +1,11 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">
-    <!-- هلال -->
-    <path android:fillColor="#F4EFE4"
-        android:pathData="M60,28 A26,26 0 1,0 60,80 A32,32 0 0,1 60,28 Z" />
-    <!-- علامة إنجاز -->
-    <path android:strokeColor="#F3C97A" android:strokeWidth="6.5"
-        android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:fillColor="#00000000"
-        android:pathData="M56,56 L63,63 L77,47" />
+    <path android:pathData="M54,24.11 A29.89,29.89 0 1,1 54,83.89 A29.89,29.89 0 1,1 54,24.11" android:strokeColor="#FA114F" android:strokeAlpha="0.22" android:strokeWidth="6.20" android:fillColor="#00000000"/>
+    <path android:pathData="M54.00,24.11 A29.89,29.89 0 1,1 25.57,44.76" android:strokeColor="#FA114F" android:strokeWidth="6.20" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <path android:pathData="M54,31.06 A22.94,22.94 0 1,1 54,76.94 A22.94,22.94 0 1,1 54,31.06" android:strokeColor="#3DD34A" android:strokeAlpha="0.22" android:strokeWidth="6.20" android:fillColor="#00000000"/>
+    <path android:pathData="M54.00,31.06 A22.94,22.94 0 1,1 31.06,54.00" android:strokeColor="#3DD34A" android:strokeWidth="6.20" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <path android:pathData="M54,38.02 A15.98,15.98 0 1,1 54,69.98 A15.98,15.98 0 1,1 54,38.02" android:strokeColor="#00C7E6" android:strokeAlpha="0.22" android:strokeWidth="6.20" android:fillColor="#00000000"/>
+    <path android:pathData="M54.00,38.02 A15.98,15.98 0 1,1 44.61,41.07" android:strokeColor="#00C7E6" android:strokeWidth="6.20" android:strokeLineCap="round" android:fillColor="#00000000"/>
+    <path android:pathData="M57.38,46.48 A8.08,8.08 0 1,0 57.38,61.52 A9.78,9.78 0 0,1 57.38,46.48 Z" android:fillColor="#FFD86B"/>
 </vector>
