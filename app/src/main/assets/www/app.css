@@ -31,7 +31,8 @@ body { font-family: "Thmanyah", -apple-system, system-ui, sans-serif; font-weigh
   -webkit-font-smoothing: antialiased; -webkit-user-select: none; user-select: none; overscroll-behavior-y: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; border: 0; background: none; padding: 0; }
-svg { display: block; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+svg { display: block; }
+svg:not(.art) { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 h1, h2, .t, b { font-weight: 700; }
 .grow { flex: 1; min-width: 0; }
 
