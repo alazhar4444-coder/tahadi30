@@ -16,9 +16,30 @@
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
+<div id="splash" aria-hidden="true">
+  <svg class="sp-logo" viewBox="0 0 200 200">
+    <defs>
+      <linearGradient id="spbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E2F86"/><stop offset=".55" stop-color="#16184A"/><stop offset="1" stop-color="#090A24"/></linearGradient>
+      <linearGradient id="spr1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FA114F"/><stop offset="1" stop-color="#FF6A95"/></linearGradient>
+      <linearGradient id="spr2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3DD34A"/><stop offset="1" stop-color="#C2F75F"/></linearGradient>
+      <linearGradient id="spr3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00C7E6"/><stop offset="1" stop-color="#7DF0FA"/></linearGradient>
+      <linearGradient id="spm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4C7"/><stop offset="1" stop-color="#FFC94A"/></linearGradient>
+    </defs>
+    <rect class="sp-bg" width="200" height="200" rx="46" fill="url(#spbg)"/>
+    <g transform="rotate(-90 100 100)" fill="none" stroke-linecap="round" stroke-width="13">
+      <circle cx="100" cy="100" r="66" stroke="#FA114F" stroke-opacity=".2"/><circle class="sp-r r1" cx="100" cy="100" r="66" stroke="url(#spr1)" pathLength="100"/>
+      <circle cx="100" cy="100" r="50" stroke="#3DD34A" stroke-opacity=".2"/><circle class="sp-r r2" cx="100" cy="100" r="50" stroke="url(#spr2)" pathLength="100"/>
+      <circle cx="100" cy="100" r="34" stroke="#00C7E6" stroke-opacity=".2"/><circle class="sp-r r3" cx="100" cy="100" r="34" stroke="url(#spr3)" pathLength="100"/>
+    </g>
+    <path class="sp-moon" fill="url(#spm)" d="M107 84 A18 18 0 1 0 107 116 A22 22 0 0 1 107 84 Z"/>
+  </svg>
+  <div class="sp-t">تحدي ٣٠ يوم</div>
+  <div class="sp-s">صلاة · قرآن · صحة</div>
+</div>
 <div id="app">
   <main id="view"></main>
   <nav class="tabs" id="tabs">
+    <span class="tab-ind" id="tabInd"></span>
     <button data-tab="today" class="on">
       <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3.5"/><path d="M3.5 9.5h17M8 2.8v3.4M16 2.8v3.4M8.5 14.5l2.5 2.5 4.5-4.5"/></svg><span>اليوم</span></button>
     <button data-tab="challenge">

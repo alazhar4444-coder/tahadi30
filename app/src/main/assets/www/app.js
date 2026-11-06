@@ -309,7 +309,7 @@
   function celebrate(big, emoji, title, body, pts, reward) {
     confetti(big ? 140 : 70);
     try { NATIVE && NATIVE.vibrate && NATIVE.vibrate(big ? 60 : 30); } catch (e) {}
-    sheet(`<div class="cele ${big ? 'big' : ''}"><div class="cele-e">${ART.badge(emoji)}</div><h2>${title}</h2><p>${body}</p>
+    sheet(`<div class="cele ${big ? 'big' : ''}"><div class="cele-stage"><span class="rays"></span><div class="cele-e">${ART.badge(emoji)}</div></div><h2>${title}</h2><p>${body}</p>
       ${reward ? `<div class="cele-gift">${mi('gift')} كافئ نفسك: <b>${reward.replace(/</g, '&lt;')}</b></div>` : ''}
       <button class="btn primary block" data-act="closeSheet">الحمد لله</button></div>`);
   }
@@ -348,7 +348,7 @@
       <span class="chk">${ico.check}</span></div>`;
 
   /* ========== شاشة اليوم ========== */
-  function viewToday() {
+  function viewToday(anim) {
     const k = viewKey, D = day(k), d = fromKey(k), isToday = k === todayKey();
     const dn = dayNum(k), t = ptimes(d), st = coreStatus(k);
     const doneN = CORE.filter(id => st[id]).length, full = doneN === CORE.length;
@@ -370,6 +370,7 @@
     ].join('');
     const ex = extrasFor(k).map(e => task(e.id, e.name, e.type === 'count' ? `${n(S[e.goalKey])} ${e.unit}` : '', e.type === 'count' ? (D.x[e.id] || 0) >= S[e.goalKey] : D.x[e.id] === true, 'extra')).join('');
 
+    PREV = { k, n: doneN };
     return `
     <header class="hd">
       <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
@@ -380,7 +381,7 @@
     </header>
     ${!isToday ? '<button class="back" data-act="goToday">العودة إلى اليوم</button>' : ''}
 
-    ${skyCard(isToday, doneN, full)}
+    ${skyCard(isToday, doneN, full, anim || PREV.k !== k ? 0 : PREV.n)}
 
     <h2 class="label">الصلوات في وقتها</h2>
     <div class="box">${prayers}</div>
@@ -400,19 +401,19 @@
       const mp = medalProgress(m), r = S[m.rk];
       return `<div class="mrow ${mp.got ? 'got' : ''}"><span class="m-b">${ART.badge(m.e)}</span>
         <div class="grow"><div class="t">${m.name}</div><div class="h">${mp.got ? 'حصلت عليه' : `${n(mp.full)} من ${n(mp.need)} أيام كاملة`}${r ? ` · مكافأتك: ${r.replace(/</g, '&lt;')}` : ''}</div>
-        <div class="m-bar"><i style="width:${mp.full / mp.need * 100}%"></i></div></div></div>`;
+        <div class="m-bar"><i data-w="${mp.full / mp.need * 100}" style="width:0"></i></div></div></div>`;
     }).join('');
     const cells = [];
     for (let i = 1; i <= S.length; i++) {
       const k = dayKeyN(i), fut = k > tk, st = fut ? null : coreStatus(k), cnt = st ? CORE.filter(id => st[id]).length : 0;
-      cells.push(`<button class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${cnt === 10 ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''}>${cnt === 10 ? ART.badge('starBig') : `<span>${n(i)}</span>`}</button>`);
+      cells.push(`<button style="--d:${i}" class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${cnt === 10 ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''}>${cnt === 10 ? ART.badge('starBig') : `<span>${n(i)}</span>`}</button>`);
     }
     return `
     <header class="hd"><div class="grow"><h1>إنجازاتي</h1><div class="sub">نجمة لكل يوم كامل، ووسام لكل أسبوع كامل</div></div></header>
     <div class="big-stats">
-      <div><b>${n(tt.stars)}</b><span>نجوم</span></div>
-      <div><b>${n(streak(isFull))}</b><span>أيام متتالية</span></div>
-      <div><b>${n(streak(isTrue('chastity')))}</b><span>أيام عفّة</span></div>
+      <div><b class="cu" data-n="${tt.stars}">٠</b><span>نجوم</span></div>
+      <div><b class="cu" data-n="${streak(isFull)}">٠</b><span>أيام متتالية</span></div>
+      <div><b class="cu" data-n="${streak(isTrue('chastity'))}">٠</b><span>أيام عفّة</span></div>
     </div>
     <h2 class="label">أيام التحدي</h2>
     <div class="box pad"><div class="dgrid">${cells.join('')}</div></div>
@@ -429,7 +430,9 @@
     return `
     <header class="hd"><div class="grow"><h1>الصلاة</h1><div class="sub">${hijri(now)}</div></div>
       <select class="city" data-set="city" aria-label="المدينة">${cityOpts}</select></header>
-    ${np ? `<section class="countdown"><div>باقي على ${np.pr.name}</div><div class="cd" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div></section>` : ''}
+    ${np ? (() => { const pv = prevPrayerTime(now), f = Math.max(0, Math.min(1, (now - pv) / (np.at - pv))), C2 = 2 * Math.PI * 118;
+      return `<section class="countdown"><svg class="cd-ring" viewBox="0 0 260 260"><circle cx="130" cy="130" r="118" class="cr-t"/><circle id="cdRing" data-from="${pv.getTime()}" data-to="${np.at.getTime()}" cx="130" cy="130" r="118" class="cr-f" style="stroke-dasharray:${C2};stroke-dashoffset:${C2 * (1 - f)}"/></svg>
+      <div class="cd-in">${emo(np.pr.id)}<div>باقي على ${np.pr.name}</div><div class="cd" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div><div class="cd-at">${fmtTime(np.at)}</div></div></section>`; })() : ''}
     <div class="box">${rows}</div>
     <div class="tools">
       <button class="tool" data-act="tasbih">${emo('adhkarAM')}<b>المسبحة</b><span>عدّاد الأذكار</span></button>
@@ -438,6 +441,11 @@
     ${WEB ? '<button class="wide-btn" data-act="ics">إضافة تنبيهات الأذان إلى التقويم</button>' : ''}`;
   }
 
+  function prevPrayerTime(now) {
+    let best = null;
+    for (let i = -1; i <= 0; i++) { const t = ptimes(addDays(now, i)); C.prayers.forEach(pr => { if (t[pr.id] && t[pr.id] <= now && (!best || t[pr.id] > best)) best = t[pr.id]; }); }
+    return best || new Date(now.getTime() - 3600000);
+  }
   /* ---------- السماء الحيّة ---------- */
   function period(now) {
     const t = ptimes(now);
@@ -449,21 +457,23 @@
     if (now < t.isha) return 'maghrib';
     return 'isha';
   }
-  function skyCard(isToday, doneN, full) {
+  function skyCard(isToday, doneN, full, prevN) {
     const now = new Date(), per = isToday ? period(now) : 'day', np = isToday ? nextPrayer(now) : null;
     const morning = per === 'fajr' || per === 'sunrise';
     const hi = isToday ? `${morning ? 'صباح الخير' : 'مساء الخير'}${S.name ? ' يا ' + S.name : ''}` : 'سجل هذا اليوم';
     const msg = full ? 'أحسنت! حصلت على نجمة اليوم' : `أكمل ${n(10 - doneN)} ${10 - doneN === 1 ? 'هدفًا' : 'أهداف'} لتحصل على نجمة اليوم`;
-    const stars = per === 'isha' || per === 'fajr' ? '<i class="st s1"></i><i class="st s2"></i><i class="st s3"></i><i class="st s4"></i><i class="st s5"></i>' : '';
-    return `<section class="sky sky-${per}">${stars}<span class="orb"></span>
+    const night = per === 'isha' || per === 'fajr';
+    const deco = night ? '<i class="st s1"></i><i class="st s2"></i><i class="st s3"></i><i class="st s4"></i><i class="st s5"></i><i class="shoot"></i>'
+      : '<i class="cl c1"></i><i class="cl c2"></i>';
+    return `<section class="sky sky-${per}">${deco}<span class="orb"></span>
       <div class="sky-top">
         <div class="grow"><div class="sky-hi">${hi}</div>
           ${np ? `<div class="sky-next">${np.pr.name} بعد <b id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</b></div>` : ''}</div>
         ${isToday ? `<span class="sky-ic">${ART.tile(per)}</span>` : ''}
       </div>
       <div class="sky-prog">
-        <div class="sp-row"><span><b>${n(doneN)}</b> من ١٠ أهداف</span><span class="sp-star ${full ? 'on' : ''}">${ART.badge('starBig')}</span></div>
-        <div class="sp-bar"><i style="width:${doneN * 10}%"></i></div>
+        <div class="sp-row"><span><b class="cu" data-n="${doneN}" data-from="${prevN}">${n(prevN)}</b> من ١٠ أهداف</span><span class="sp-star ${full ? 'on' : ''}">${ART.badge('starBig')}</span></div>
+        <div class="sp-bar"><i data-w="${doneN * 10}" style="width:${prevN * 10}%"></i></div>
         <div class="sp-msg">${msg}</div>
       </div></section>`;
   }
@@ -564,15 +574,36 @@
   }
 
   /* ---------- الرسم ---------- */
-  function render() {
+  /* ---------- الحركة ---------- */
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  function countUp(root) {
+    root.querySelectorAll('.cu[data-n]').forEach(el => {
+      const to = +el.dataset.n, from = +(el.dataset.from || 0); if (from === to) { el.textContent = n(to); return; }
+      const t0 = performance.now(), d = 700;
+      const step = now => { const f = Math.min(1, (now - t0) / d); el.textContent = n(Math.round(from + (to - from) * ease(f))); if (f < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => root.querySelectorAll('[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; })));
+  }
+  function moveInd() {
+    const nav = $('#tabs'), b = nav && nav.querySelector('button.on'), ind = $('#tabInd'); if (!b || !ind) return;
+    ind.style.width = (b.offsetWidth - 24) + 'px'; ind.style.transform = `translateX(${b.offsetLeft + 12}px)`;
+  }
+  let PREV = { k: '', n: 0 };
+  function render(anim) {
+    if (anim === undefined) anim = true;
     const v = $('#view');
-    const html = tab === 'today' ? viewToday() : tab === 'challenge' ? viewChallenge() : tab === 'prayer' ? viewPrayer() : viewSettings();
+    const html = tab === 'today' ? viewToday(anim) : tab === 'challenge' ? viewChallenge() : tab === 'prayer' ? viewPrayer() : viewSettings();
     v.innerHTML = html;
-    document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+    if (anim) { v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 12))); }
+    else v.classList.remove('enter');
+    countUp(v);
+    document.querySelectorAll('#tabs button').forEach(b => { const on = b.dataset.tab === tab; if (on && !b.classList.contains('on') && anim) { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } b.classList.toggle('on', on); });
+    moveInd();
     const note = $('#note');
     if (note) note.addEventListener('input', () => { day(viewKey).note = note.value; saveD(); });
   }
-  function rerender() { const y = window.scrollY; render(); window.scrollTo(0, y); }
+  function rerender() { const y = window.scrollY; render(false); window.scrollTo(0, y); }
 
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -755,6 +786,8 @@
 
   // عدّاد تنازلي
   setInterval(() => {
+    const ring = document.getElementById('cdRing');
+    if (ring) { const a = +ring.dataset.from, b = +ring.dataset.to, C2 = 2 * Math.PI * 118; ring.style.strokeDashoffset = C2 * (1 - Math.max(0, Math.min(1, (Date.now() - a) / (b - a)))); }
     const el = $('#npCount'); if (!el) return;
     const at = +el.dataset.at, left = at - Date.now();
     if (left <= 0) { rerender(); return; }
@@ -767,6 +800,9 @@
 
   /* ---------- البدء ---------- */
   ART.mount();
+  const sp = document.getElementById('splash');
+  if (sp) setTimeout(() => { sp.classList.add('out'); setTimeout(() => sp.remove(), 650); }, 1700);
+  window.addEventListener('resize', moveInd);
   applyTheme();
   if (intakeWebSteps()) setTimeout(() => toast('تم تحديث خطواتك من تطبيق الصحة'), 400);
   refreshSteps();
