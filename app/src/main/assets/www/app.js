@@ -342,7 +342,8 @@
   const srow = (id, t, h, trail, act, attrs) => `<div class="srow" ${act ? `data-act="${act}"` : ''} ${attrs || ''}>${emo(id)}<div class="grow"><div class="t">${t}</div>${h ? `<div class="h">${h}</div>` : ''}</div>${trail || ''}</div>`;
 
   /* صفّ مهمة: الضغط في أي مكان يحقّقها */
-  const task = (id, title, sub, done, kind, extra) => `<div class="task ${done ? 'done' : ''}" data-act="tick" data-kind="${kind}" data-id="${id}" role="checkbox" aria-checked="${done}">
+  let JUST = '';
+  const task = (id, title, sub, done, kind, extra) => `<div class="task ${done ? 'done' : ''} ${JUST === id ? 'just' : ''}" data-act="tick" data-kind="${kind}" data-id="${id}" role="checkbox" aria-checked="${done}">
       ${emo(id)}<div class="grow"><div class="t">${title}</div>${sub ? `<div class="h">${sub}</div>` : ''}</div>${extra || ''}
       <span class="chk">${ico.check}</span></div>`;
 
@@ -357,7 +358,8 @@
     const km = walkKmOf(k);
     const q = C.quotes[((dn > 0 ? dn - 1 : d.getDate()) + C.quotes.length) % C.quotes.length];
 
-    const prayers = C.prayers.map(pr => task(pr.id, pr.name, fmtTime(t[pr.id]), st[pr.id], 'prayer')).join('');
+    const npx = isToday ? nextPrayer() : null;
+    const prayers = C.prayers.map(pr => task(pr.id, pr.name, fmtTime(t[pr.id]), st[pr.id], 'prayer', npx && npx.pr.id === pr.id && !st[pr.id] ? '<span class="soon">القادمة</span>' : '')).join('');
     const walkSub = STEPS[k] || D.walkKm ? `${n(round1(km))} من ${n(S.walkKm)} كم` : `${n(S.walkKm)} كم أو ${n(S.workoutMin)} دقيقة رياضة`;
     const goals = [
       task('quran', 'قراءة القرآن', `${n(S.quranGoal)} ${S.quranGoal === 1 ? 'صفحة' : S.quranGoal === 2 ? 'صفحتان' : 'صفحات'} على الأقل`, st.quran, 'quran'),
@@ -378,11 +380,7 @@
     </header>
     ${!isToday ? '<button class="back" data-act="goToday">العودة إلى اليوم</button>' : ''}
 
-    <section class="progress ${full ? 'full' : ''}">
-      <div class="p-row"><span class="p-n">${n(doneN)} <small>من ١٠</small></span><span class="p-star">${ART.badge('starBig')}</span></div>
-      <div class="p-bar"><i style="width:${doneN * 10}%"></i></div>
-      <div class="p-msg">${full ? 'أحسنت! حصلت على نجمة اليوم' : `أكمل ${n(10 - doneN)} ${10 - doneN === 1 ? 'هدفًا' : 'أهداف'} لتحصل على نجمة اليوم`}</div>
-    </section>
+    ${skyCard(isToday, doneN, full)}
 
     <h2 class="label">الصلوات في وقتها</h2>
     <div class="box">${prayers}</div>
@@ -433,7 +431,85 @@
       <select class="city" data-set="city" aria-label="المدينة">${cityOpts}</select></header>
     ${np ? `<section class="countdown"><div>باقي على ${np.pr.name}</div><div class="cd" id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</div></section>` : ''}
     <div class="box">${rows}</div>
+    <div class="tools">
+      <button class="tool" data-act="tasbih">${emo('adhkarAM')}<b>المسبحة</b><span>عدّاد الأذكار</span></button>
+      <button class="tool" data-act="qibla">${emo('compass')}<b>القبلة</b><span>${n(Math.round(PrayTime.qibla(S.lat, S.lng)))}° من الشمال</span></button>
+    </div>
     ${WEB ? '<button class="wide-btn" data-act="ics">إضافة تنبيهات الأذان إلى التقويم</button>' : ''}`;
+  }
+
+  /* ---------- السماء الحيّة ---------- */
+  function period(now) {
+    const t = ptimes(now);
+    if (now < t.fajr) return 'isha';
+    if (now < t.sunrise) return 'fajr';
+    if (now < t.dhuhr) return 'sunrise';
+    if (now < t.asr) return 'dhuhr';
+    if (now < t.maghrib) return 'asr';
+    if (now < t.isha) return 'maghrib';
+    return 'isha';
+  }
+  function skyCard(isToday, doneN, full) {
+    const now = new Date(), per = isToday ? period(now) : 'day', np = isToday ? nextPrayer(now) : null;
+    const morning = per === 'fajr' || per === 'sunrise';
+    const hi = isToday ? `${morning ? 'صباح الخير' : 'مساء الخير'}${S.name ? ' يا ' + S.name : ''}` : 'سجل هذا اليوم';
+    const msg = full ? 'أحسنت! حصلت على نجمة اليوم' : `أكمل ${n(10 - doneN)} ${10 - doneN === 1 ? 'هدفًا' : 'أهداف'} لتحصل على نجمة اليوم`;
+    const stars = per === 'isha' || per === 'fajr' ? '<i class="st s1"></i><i class="st s2"></i><i class="st s3"></i><i class="st s4"></i><i class="st s5"></i>' : '';
+    return `<section class="sky sky-${per}">${stars}<span class="orb"></span>
+      <div class="sky-top">
+        <div class="grow"><div class="sky-hi">${hi}</div>
+          ${np ? `<div class="sky-next">${np.pr.name} بعد <b id="npCount" data-at="${np.at.getTime()}">${dur(np.at - now)}</b></div>` : ''}</div>
+        ${isToday ? `<span class="sky-ic">${ART.tile(per)}</span>` : ''}
+      </div>
+      <div class="sky-prog">
+        <div class="sp-row"><span><b>${n(doneN)}</b> من ١٠ أهداف</span><span class="sp-star ${full ? 'on' : ''}">${ART.badge('starBig')}</span></div>
+        <div class="sp-bar"><i style="width:${doneN * 10}%"></i></div>
+        <div class="sp-msg">${msg}</div>
+      </div></section>`;
+  }
+
+  /* ---------- المسبحة ---------- */
+  const DHIKR = ['سبحان الله', 'الحمد لله', 'الله أكبر', 'لا إله إلا الله', 'أستغفر الله', 'اللهم صلِّ على محمد'];
+  const TB = Object.assign({ i: 0, c: 0, goal: 33 }, Store.get('tasbih', {}));
+  function tbPaint() {
+    const r = 92, c = 2 * Math.PI * r, f = Math.min(TB.c / TB.goal, 1);
+    const ring = document.getElementById('tbRing'); if (!ring) return;
+    ring.style.strokeDashoffset = c * (1 - f);
+    document.getElementById('tbN').textContent = n(TB.c);
+    document.getElementById('tbD').textContent = DHIKR[TB.i];
+    document.getElementById('tbG').textContent = TB.c >= TB.goal ? 'اكتمل ✓ اضغط «التالي»' : `من ${n(TB.goal)}`;
+    document.querySelectorAll('[data-act=tbGoal]').forEach(b => b.classList.toggle('on', +b.dataset.v === TB.goal));
+    document.querySelector('.tb-btn').classList.toggle('done', TB.c >= TB.goal);
+    Store.set('tasbih', TB);
+  }
+
+  /* ---------- القبلة ---------- */
+  let QH = null;
+  function qStop() { if (QH) { window.removeEventListener('deviceorientationabsolute', QH, true); window.removeEventListener('deviceorientation', QH, true); QH = null; } }
+  function qStart() {
+    const qb = PrayTime.qibla(S.lat, S.lng); let hit = false, got = false;
+    QH = e => {
+      let h = e.webkitCompassHeading != null ? e.webkitCompassHeading : (e.absolute || e.type === 'deviceorientationabsolute') && e.alpha != null ? 360 - e.alpha : null;
+      if (h == null) return; got = true;
+      const rose = document.getElementById('qRose'), nd = document.getElementById('qNeedle'), msg = document.getElementById('qMsg');
+      if (!rose) return qStop();
+      rose.style.transform = `rotate(${-h}deg)`;
+      const diff = ((qb - h) % 360 + 540) % 360 - 180;
+      nd.style.transform = `rotate(${qb - h}deg)`;
+      const ok = Math.abs(diff) < 5;
+      document.querySelector('.q-dial').classList.toggle('ok', ok);
+      msg.textContent = ok ? 'أنت باتجاه القبلة ✓' : diff > 0 ? 'استدر يمينًا' : 'استدر يسارًا';
+      if (ok && !hit) { hit = true; haptic(); } if (!ok) hit = false;
+    };
+    const go = () => {
+      window.addEventListener('deviceorientationabsolute', QH, true); window.addEventListener('deviceorientation', QH, true);
+      setTimeout(() => { if (!got && document.getElementById('qMsg')) document.getElementById('qMsg').textContent = 'البوصلة غير متاحة على هذا الجهاز — استخدم الزاوية أعلاه'; }, 3000);
+    };
+    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function')
+      DeviceOrientationEvent.requestPermission().then(r => r === 'granted' ? go() : (document.getElementById('qMsg').textContent = 'اسمح بالوصول إلى الحركة لتعمل البوصلة')).catch(() => {});
+    else go();
+    const b = document.getElementById('qBtn'); if (b) b.style.display = 'none';
+    document.getElementById('qMsg').textContent = 'أمسك الجوال بشكل أفقي…';
   }
 
   /* ========== الإعدادات ========== */
@@ -503,7 +579,7 @@
     clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
   }
   function sheet(html) { $('#sheetBody').innerHTML = html; $('#sheet').hidden = false; }
-  function closeSheet() { $('#sheet').hidden = true; }
+  function closeSheet() { $('#sheet').hidden = true; qStop(); }
   const haptic = () => { try { NATIVE && NATIVE.vibrate && NATIVE.vibrate(12); } catch (e) {} };
 
   /* ---------- الأحداث ---------- */
@@ -520,8 +596,22 @@
       else if (kind === 'walk') { const on = walkDone(viewKey) || D.wDone === true; if (on) { D.wDone = false; D.walkKm = 0; D.workout = 0; } else D.wDone = true; }
       else if (kind === 'avoid') D[id] = D[id] === true ? null : true;
       else if (kind === 'extra') { const e = C.extras.find(x => x.id === id); D.x[id] = e.type === 'count' ? ((D.x[id] || 0) >= S[e.goalKey] ? 0 : S[e.goalKey]) : !(D.x[id] === true); }
-      saveD(); haptic(); rerender();
+      JUST = id; saveD(); haptic(); rerender(); setTimeout(() => { JUST = ''; }, 50);
     },
+    tasbih: () => { sheet(`<div class="tasbih"><h2>المسبحة</h2><div class="tb-d" id="tbD"></div>
+      <button class="tb-btn" data-act="tbTap"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" class="tb-track"/><circle id="tbRing" cx="100" cy="100" r="92" class="tb-ring" style="stroke-dasharray:${2 * Math.PI * 92}"/></svg><span class="tb-n" id="tbN"></span><small id="tbG"></small></button>
+      <div class="tb-goals">${[33, 99, 100].map(v => `<button data-act="tbGoal" data-v="${v}">${n(v)}</button>`).join('')}</div>
+      <div class="tb-acts"><button class="btn" data-act="tbReset">تصفير</button><button class="btn primary" data-act="tbNext">الذكر التالي</button></div></div>`); tbPaint(); },
+    tbTap: () => { TB.c++; if (TB.c === TB.goal) { try { NATIVE && NATIVE.vibrate && NATIVE.vibrate(80); } catch (e) {} } else haptic(); tbPaint(); },
+    tbGoal: el => { TB.goal = +el.dataset.v; tbPaint(); },
+    tbReset: () => { TB.c = 0; tbPaint(); },
+    tbNext: () => { TB.i = (TB.i + 1) % DHIKR.length; TB.c = 0; tbPaint(); },
+    qibla: () => { const qb = Math.round(PrayTime.qibla(S.lat, S.lng)); sheet(`<div class="qibla"><h2>اتجاه القبلة</h2><p>${n(qb)}° من الشمال · ${S.placeName}</p>
+      <div class="q-dial"><div class="q-rose" id="qRose"><b class="qn">ش</b><b class="qe">شر</b><b class="qs">ج</b><b class="qw">غ</b></div>
+      <div class="q-needle" id="qNeedle" style="transform:rotate(${qb}deg)"><span class="q-kaaba"></span></div><span class="q-center"></span></div>
+      <div class="q-msg" id="qMsg">شغّل البوصلة ثم أمسك الجوال بشكل أفقي</div>
+      <button class="btn primary block" id="qBtn" data-act="qStart">تشغيل البوصلة</button></div>`); },
+    qStart: () => qStart(),
     pset: el => {
       const D = day(viewKey), id = el.dataset.id, v = +el.dataset.v;
       D.p[id] = D.p[id] === v ? 0 : v; saveD(); haptic(); rerender();

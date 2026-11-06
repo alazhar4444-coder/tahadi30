@@ -203,3 +203,98 @@ h1, h2, .t, b { font-weight: 700; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .mi { display: inline-block; width: 20px; height: 20px; vertical-align: -4px; }
 .mi .art { width: 100%; height: 100%; }
+
+/* ===== v9: أيقونات أكبر ===== */
+.emo { width: 54px; height: 54px; }
+.task { gap: 16px; padding: 12px 16px; min-height: 80px; }
+.task .t { font-size: 18px; }
+.chk { width: 32px; height: 32px; }
+.prow { padding: 10px 16px; gap: 16px; }
+.prow .emo { width: 48px; height: 48px; }
+.soon { font-size: 12px; color: #fff; background: var(--accent); padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+
+/* حركة عند الإنجاز */
+.task.just .emo { animation: bounce .55s cubic-bezier(.3,1.6,.5,1); }
+.task.just.done .chk { animation: pop2 .45s cubic-bezier(.3,1.6,.5,1); }
+@keyframes bounce { 0% { transform: scale(1); } 35% { transform: scale(1.22) rotate(-6deg); } 100% { transform: scale(1); } }
+@keyframes pop2 { 0% { transform: scale(.3); } 100% { transform: scale(1.05); } }
+
+/* ===== السماء الحيّة ===== */
+.sky { position: relative; overflow: hidden; border-radius: 26px; padding: 20px 20px 18px; color: #fff; margin-bottom: 8px;
+  box-shadow: 0 18px 34px -22px rgba(30, 27, 75, .8); background: linear-gradient(160deg, #0E9F6E, #0B7A55); }
+.sky-fajr { background: linear-gradient(170deg, #2D2B78 0%, #7B4FA8 55%, #F29BA6 100%); }
+.sky-sunrise { background: linear-gradient(170deg, #FF9A6B 0%, #FFC27A 100%); }
+.sky-dhuhr { background: linear-gradient(170deg, #2F86F6 0%, #58C6FF 100%); }
+.sky-asr { background: linear-gradient(170deg, #F2711C 0%, #FFB64F 100%); }
+.sky-maghrib { background: linear-gradient(170deg, #4B2AA8 0%, #B83E8E 55%, #FF8A4C 100%); }
+.sky-isha { background: linear-gradient(170deg, #0B0F33 0%, #1F2670 100%); }
+.sky .orb { position: absolute; width: 190px; height: 190px; border-radius: 50%; left: -50px; top: -70px;
+  background: radial-gradient(circle, rgba(255,255,255,.28), rgba(255,255,255,0) 70%); }
+.sky-isha .orb, .sky-fajr .orb { background: radial-gradient(circle, rgba(255,230,140,.25), rgba(255,230,140,0) 70%); }
+.sky .st { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .8; animation: tw 3s ease-in-out infinite; }
+.st.s1 { top: 14px; left: 30%; } .st.s2 { top: 34px; left: 12%; animation-delay: .8s; } .st.s3 { top: 22px; left: 48%; animation-delay: 1.6s; width: 2px; height: 2px; }
+.st.s4 { top: 60px; left: 6%; animation-delay: 2.2s; } .st.s5 { top: 8px; left: 66%; animation-delay: 1.1s; width: 2px; height: 2px; }
+@keyframes tw { 50% { opacity: .2; } }
+.sky-top { display: flex; align-items: center; gap: 14px; position: relative; }
+.sky-hi { font-size: 22px; font-weight: 700; line-height: 1.3; }
+.sky-next { font-size: 15px; opacity: .92; margin-top: 2px; }
+.sky-next b { font-variant-numeric: tabular-nums; direction: ltr; display: inline-block; }
+.sky-ic { width: 66px; height: 66px; flex: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.25)); }
+.sky-ic .art { width: 100%; height: 100%; }
+.sky-prog { position: relative; margin-top: 18px; background: rgba(255,255,255,.16); border-radius: 18px; padding: 12px 14px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.sp-row { display: flex; align-items: center; justify-content: space-between; font-size: 15px; }
+.sp-row b { font-size: 24px; }
+.sp-star { width: 32px; height: 32px; filter: grayscale(1) brightness(2); opacity: .4; transition: all .4s; }
+.sp-star.on { filter: none; opacity: 1; transform: scale(1.2) rotate(-10deg); }
+.sp-star .art { width: 100%; height: 100%; }
+.sp-bar { height: 9px; border-radius: 99px; background: rgba(255,255,255,.25); overflow: hidden; margin: 8px 0 8px; }
+.sp-bar i { display: block; height: 100%; border-radius: 99px; background: #fff; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.sp-msg { font-size: 13.5px; opacity: .92; }
+
+/* ===== أدوات الصلاة ===== */
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.tool { background: var(--card); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: right; }
+.tool .emo { width: 52px; height: 52px; margin-bottom: 8px; }
+.tool b { font-size: 17px; }
+.tool span { font-size: 13px; color: var(--ink-2); }
+.tool:active { transform: scale(.97); }
+
+/* المسبحة */
+.tasbih { text-align: center; }
+.tb-d { font-size: 26px; font-weight: 700; color: var(--accent); margin: 4px 0 14px; min-height: 40px; }
+.tb-btn { position: relative; width: 230px; height: 230px; border-radius: 50%; margin: 0 auto; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #FFFFFF, #EEF2F6); box-shadow: 0 18px 40px -20px rgba(15, 23, 42, .5), inset 0 -6px 14px rgba(15,23,42,.06); }
+:root[data-theme="dark"] .tb-btn { background: radial-gradient(circle at 35% 30%, #2A313A, #1A1F25); }
+.tb-btn:active { transform: scale(.97); }
+.tb-btn svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.tb-track { fill: none; stroke: var(--line); stroke-width: 10; }
+.tb-ring { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset .25s; }
+.tb-btn.done .tb-ring { stroke: var(--gold); }
+.tb-n { font-size: 64px; font-weight: 700; line-height: 1; position: relative; }
+.tb-btn small { position: absolute; bottom: 58px; left: 0; right: 0; font-size: 14px; color: var(--ink-2); }
+.tb-goals { display: flex; gap: 8px; justify-content: center; margin: 18px 0 14px; }
+.tb-goals button { padding: 7px 16px; border-radius: 99px; background: var(--card); color: var(--ink-2); font-size: 15px; }
+.tb-goals button.on { background: var(--accent); color: #fff; }
+.tb-acts { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+
+/* القبلة */
+.qibla { text-align: center; }
+.qibla p { margin-bottom: 18px !important; }
+.q-dial { position: relative; width: 250px; height: 250px; margin: 0 auto 14px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #FFFFFF, #EEF2F6); box-shadow: 0 18px 40px -20px rgba(15,23,42,.5), inset 0 0 0 10px var(--card); transition: box-shadow .3s; }
+:root[data-theme="dark"] .q-dial { background: radial-gradient(circle at 40% 30%, #2A313A, #171B20); }
+.q-dial.ok { box-shadow: 0 18px 40px -20px rgba(14,159,110,.8), inset 0 0 0 10px var(--accent); }
+.q-rose { position: absolute; inset: 0; transition: transform .2s linear; }
+.q-rose b { position: absolute; font-size: 15px; color: var(--ink-2); }
+.q-rose .qn { top: 18px; left: 50%; transform: translateX(-50%); color: var(--red); }
+.q-rose .qs { bottom: 18px; left: 50%; transform: translateX(-50%); }
+.q-rose .qe { right: 18px; top: 50%; transform: translateY(-50%); }
+.q-rose .qw { left: 20px; top: 50%; transform: translateY(-50%); }
+.q-needle { position: absolute; left: 50%; top: 50%; width: 6px; height: 104px; margin-left: -3px; margin-top: -104px; transform-origin: 50% 100%;
+  background: linear-gradient(var(--accent), rgba(14,159,110,.2)); border-radius: 99px; transition: transform .2s linear; }
+.q-kaaba { position: absolute; top: -26px; left: 50%; width: 26px; height: 26px; margin-left: -13px; border-radius: 5px;
+  background: linear-gradient(#2B2B2B, #0D0D0D); box-shadow: inset 0 6px 0 -2px #D4A537, 0 4px 8px rgba(0,0,0,.3); }
+.q-center { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--card); }
+.q-msg { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 14px; min-height: 24px; }
+.q-dial.ok + .q-msg { color: var(--accent); }
