@@ -32,7 +32,7 @@ body { font-family: "Thmanyah", -apple-system, system-ui, sans-serif; font-weigh
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; border: 0; background: none; padding: 0; }
 svg { display: block; }
-svg:not(.art) { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+svg:not(.art):not(.sp-logo) { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 h1, h2, .t, b { font-weight: 700; }
 .grow { flex: 1; min-width: 0; }
 
@@ -308,6 +308,9 @@ h1, h2, .t, b { font-weight: 700; }
 #splash { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   background: radial-gradient(circle at 50% 40%, #23245E, #0A0B26 70%); color: #fff; transition: opacity .6s var(--out), transform .6s var(--out); }
 #splash.out { opacity: 0; transform: scale(1.08); pointer-events: none; }
+/* يختفي وحده دائمًا حتى لو تعطّل أي سكربت */
+#splash { animation: spOut .6s ease 2s forwards; }
+@keyframes spOut { to { opacity: 0; visibility: hidden; transform: scale(1.08); } }
 .sp-logo { width: 150px; height: 150px; filter: drop-shadow(0 20px 40px rgba(0,0,0,.45)); animation: spIn .7s var(--spring) both; }
 .sp-r { stroke-dasharray: 100; stroke-dashoffset: 100; animation: spDraw 1.1s var(--out) forwards; }
 .sp-r.r1 { --to: 18; animation-delay: .25s; } .sp-r.r2 { --to: 24; animation-delay: .4s; } .sp-r.r3 { --to: 10; animation-delay: .55s; }
@@ -406,5 +409,5 @@ h1, h2, .t, b { font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  #splash { display: none; }
+  #splash { display: none !important; }
 }

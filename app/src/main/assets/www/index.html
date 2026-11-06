@@ -13,7 +13,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-512.png">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="app.css?v=12">
 </head>
 <body>
 <div id="splash" aria-hidden="true">
@@ -52,9 +52,10 @@
   <div id="sheet" class="sheet" hidden><div class="sheet-bg" data-act="closeSheet"></div><div class="sheet-card" id="sheetBody"></div></div>
   <div id="toast" class="toast"></div>
 </div>
-<script src="content.js"></script>
-<script src="praytime.js"></script>
-<script src="icons.js"></script>
-<script src="app.js"></script>
+<script id="splash-guard">setTimeout(function(){var s=document.getElementById("splash");if(s)s.parentNode.removeChild(s);},3000);</script>
+<script src="content.js?v=12"></script>
+<script src="praytime.js?v=12"></script>
+<script src="icons.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
