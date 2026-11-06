@@ -411,3 +411,19 @@ h1, h2, .t, b { font-weight: 700; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   #splash { display: none !important; }
 }
+
+/* مهلة الصلاة */
+.task.locked { cursor: default; }
+.task.locked:active { background: transparent; }
+.task.waiting .emo, .task.waiting .t { opacity: .5; }
+.task.waiting .chk { border-style: dashed; color: var(--ink-3); }
+.task.waiting .chk svg { width: 16px; height: 16px; stroke-width: 2.2; }
+.task.missed .chk { background: #FFE4E8; border-color: #FFE4E8; color: var(--red); }
+:root[data-theme="dark"] .task.missed .chk { background: #3B1A22; border-color: #3B1A22; }
+.task.missed .t { color: var(--ink-2); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red) 60%, transparent); }
+.task.missed .h { color: var(--red); }
+.task.missed .emo { filter: grayscale(.7); opacity: .7; }
+.task.open .h { color: var(--accent); font-weight: 700; }
+.soon.now { background: #F59E0B; }
+.task.shake { animation: shake .4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }

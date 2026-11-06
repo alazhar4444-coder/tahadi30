@@ -150,7 +150,7 @@
       const d = addDays(now, i), t = ptimes(d), base = (diffDays(d, new Date(2026, 0, 1)) % 500) * 10;
       if (S.notifPrayers) C.prayers.forEach((pr, j) => {
         if (t[pr.id] > now) list.push({ id: base + j, at: t[pr.id].getTime(), title: `حان الآن وقت صلاة ${pr.name}`,
-          body: '«الصلاة على وقتها» — لا تنسَ تسجيلها في التحدي', ch: 'prayer' });
+          body: 'سجّلها في التحدي خلال ساعة من الأذان', ch: 'prayer' });
       });
       if (S.notifEvening) {
         const [h, m] = S.eveningTime.split(':').map(Number);
@@ -177,7 +177,7 @@
     };
     for (let i = 0; i < count; i++) {
       const d = addDays(from, i), t = ptimes(d), k = keyOf(d).replace(/-/g, '');
-      C.prayers.forEach(pr => { if (t[pr.id]) ev(`${k}-${pr.id}`, t[pr.id], 15, `🕌 صلاة ${pr.name}`, 'الصلاة على وقتها — سجّلها في التحدي'); });
+      C.prayers.forEach(pr => { if (t[pr.id]) ev(`${k}-${pr.id}`, t[pr.id], 15, `🕌 صلاة ${pr.name}`, 'سجّلها في التحدي خلال ساعة من الأذان'); });
       if (S.notifEvening) {
         const [h, m] = S.eveningTime.split(':').map(Number);
         ev(`${k}-review`, new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m), 10, '✅ سجّل إنجازات اليوم', 'تحدي ٣٠ يوم: أكمل ما تبقّى قبل النوم');
@@ -359,7 +359,16 @@
     const q = C.quotes[((dn > 0 ? dn - 1 : d.getDate()) + C.quotes.length) % C.quotes.length];
 
     const npx = isToday ? nextPrayer() : null;
-    const prayers = C.prayers.map(pr => task(pr.id, pr.name, fmtTime(t[pr.id]), st[pr.id], 'prayer', npx && npx.pr.id === pr.id && !st[pr.id] ? '<span class="soon">القادمة</span>' : '')).join('');
+    const prayers = C.prayers.map(pr => {
+      const ps = prayerState(t[pr.id], st[pr.id]), at = t[pr.id];
+      const sub = ps === 'soon' ? `الأذان ${fmtTime(at)}` : ps === 'open' ? `سجّلها قبل ${fmtTime(new Date(at.getTime() + WINDOW))}` : ps === 'missed' ? 'فاتت — مضت أكثر من ساعة' : fmtTime(at);
+      const chip = npx && npx.pr.id === pr.id && ps === 'soon' ? '<span class="soon">القادمة</span>' : ps === 'open' ? '<span class="soon now">الآن</span>' : '';
+      const cls = { done: 'done', doneLocked: 'done locked', soon: 'locked waiting', open: 'open', missed: 'missed locked' }[ps];
+      const act = ps === 'open' || ps === 'done' ? 'tick' : 'pLocked';
+      return `<div class="task ${cls} ${JUST === pr.id ? 'just' : ''}" data-act="${act}" data-kind="prayer" data-state="${ps}" data-id="${pr.id}" role="checkbox" aria-checked="${!!st[pr.id]}" aria-disabled="${act !== 'tick'}">
+        ${emo(pr.id)}<div class="grow"><div class="t">${pr.name}</div><div class="h">${sub}</div></div>${chip}
+        <span class="chk">${ps === 'missed' ? ico.x : ps === 'soon' ? ico.clock : ico.check}</span></div>`;
+    }).join('');
     const walkSub = STEPS[k] || D.walkKm ? `${n(round1(km))} من ${n(S.walkKm)} كم` : `${n(S.walkKm)} كم أو ${n(S.workoutMin)} دقيقة رياضة`;
     const goals = [
       task('quran', 'قراءة القرآن', `${n(S.quranGoal)} ${S.quranGoal === 1 ? 'صفحة' : S.quranGoal === 2 ? 'صفحتان' : 'صفحات'} على الأقل`, st.quran, 'quran'),
@@ -445,6 +454,15 @@
     let best = null;
     for (let i = -1; i <= 0; i++) { const t = ptimes(addDays(now, i)); C.prayers.forEach(pr => { if (t[pr.id] && t[pr.id] <= now && (!best || t[pr.id] > best)) best = t[pr.id]; }); }
     return best || new Date(now.getTime() - 3600000);
+  }
+  /* مهلة تسجيل الصلاة: ساعة من الأذان */
+  const WINDOW = 60 * 60000;
+  function prayerState(at, done) {
+    const now = Date.now(), a = at.getTime();
+    if (done) return now <= a + WINDOW ? 'done' : 'doneLocked';
+    if (now < a) return 'soon';
+    if (now <= a + WINDOW) return 'open';
+    return 'missed';
   }
   /* ---------- السماء الحيّة ---------- */
   function period(now) {
@@ -620,8 +638,14 @@
     nextDay: () => { if (viewKey < todayKey()) { viewKey = keyOf(addDays(fromKey(viewKey), 1)); render(); } },
     goToday: () => { viewKey = todayKey(); render(); },
     openDay: el => { viewKey = el.dataset.k; tab = 'today'; render(); window.scrollTo(0, 0); },
+    pLocked: el => {
+      const s = el.dataset.state;
+      toast(s === 'soon' ? 'لم يدخل وقت هذه الصلاة بعد' : s === 'missed' ? 'انتهت مهلة الساعة — لا يمكن تسجيلها' : 'انتهت مهلة التعديل');
+      el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+    },
     tick: el => {
       const D = day(viewKey), id = el.dataset.id, kind = el.dataset.kind;
+      if (kind === 'prayer') { const ps = prayerState(ptimes(fromKey(viewKey))[id], D.p[id] === 2); if (ps !== 'open' && ps !== 'done') { rerender(); return actions.pLocked({ dataset: { state: ps }, classList: { remove() {}, add() {} } }); } }
       if (kind === 'prayer') D.p[id] = D.p[id] === 2 ? 0 : 2;
       else if (kind === 'quran') { const on = (D.quran || 0) >= S.quranGoal; D.quran = on ? 0 : S.quranGoal; if (!on) { BOOK = Math.min(604, BOOK + S.quranGoal); Store.set('quranPage', BOOK); } }
       else if (kind === 'walk') { const on = walkDone(viewKey) || D.wDone === true; if (on) { D.wDone = false; D.walkKm = 0; D.workout = 0; } else D.wDone = true; }
@@ -793,6 +817,15 @@
     if (left <= 0) { rerender(); return; }
     el.textContent = dur(left);
   }, 1000);
+  // تحديث حالة الصلوات عند بداية أو انتهاء مهلة الساعة
+  let lastSig = '';
+  setInterval(() => {
+    if (tab !== 'today' || !$('#sheet').hidden) return;
+    const t = ptimes(fromKey(viewKey)), D = DAYS[viewKey] || { p: {} };
+    const sig = C.prayers.map(pr => prayerState(t[pr.id], (D.p || {})[pr.id] === 2)).join(',');
+    if (lastSig && sig !== lastSig) rerender();
+    lastSig = sig;
+  }, 15000);
   // تغيّر اليوم عند منتصف الليل
   let lastDay = todayKey();
   setInterval(() => { const k = todayKey(); if (k !== lastDay) { if (viewKey === lastDay) viewKey = k; lastDay = k; refreshSteps(); render(); } }, 30000);
