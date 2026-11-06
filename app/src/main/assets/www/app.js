@@ -211,7 +211,7 @@
   }
 
   /* ---------- الحالة العامة ---------- */
-  let tab = 'today', viewKey = todayKey();
+  let tab = 'today', viewKey = todayKey(), PREVTAB = 'today';
 
   function applyTheme() {
     const dark = S.theme === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
@@ -371,7 +371,7 @@
     }).join('');
     const walkSub = STEPS[k] || D.walkKm ? `${n(round1(km))} من ${n(S.walkKm)} كم` : `${n(S.walkKm)} كم أو ${n(S.workoutMin)} دقيقة رياضة`;
     const goals = [
-      task('quran', 'قراءة القرآن', `${n(S.quranGoal)} ${S.quranGoal === 1 ? 'صفحة' : S.quranGoal === 2 ? 'صفحتان' : 'صفحات'} على الأقل`, st.quran, 'quran'),
+      task('quran', 'قراءة القرآن', `${n(S.quranGoal)} ${S.quranGoal === 1 ? 'صفحة' : S.quranGoal === 2 ? 'صفحتان' : 'صفحات'} على الأقل`, st.quran, 'quran', `<button class="mini-read" data-act="readQuran">اقرأ</button>`),
       task('walk', 'المشي أو الرياضة', walkSub, st.walk, 'walk'),
       task('noSugar', 'بدون سكر', 'لا حلويات ولا مشروبات محلّاة', st.noSugar, 'avoid'),
       task('noBread', 'بدون خبز', '', st.noBread, 'avoid'),
@@ -383,7 +383,7 @@
     return `
     <header class="hd">
       <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
-      <div class="arrows">
+      <div class="arrows"><button data-act="tab" data-tab="settings" aria-label="الإعدادات" class="gear"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.5 7.5 0 0 0-2.6-1.5L14 2.4h-4l-.4 2.5A7.5 7.5 0 0 0 7 6.4l-2.4-.9-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.5 7.5 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg></button>
         <button data-act="prevDay" ${k <= minK ? 'disabled' : ''} aria-label="اليوم السابق">${ico.chevR}</button>
         <button data-act="nextDay" ${k < todayKey() ? '' : 'disabled'} aria-label="اليوم التالي">${ico.chevL}</button>
       </div>
@@ -418,7 +418,7 @@
       cells.push(`<button style="--d:${i}" class="dc ${fut ? 'fut' : ''} ${k === tk ? 'cur' : ''} ${cnt === 10 ? 'full' : ''}" data-act="openDay" data-k="${k}" ${fut ? 'disabled' : ''}>${cnt === 10 ? ART.badge('starBig') : `<span>${n(i)}</span>`}</button>`);
     }
     return `
-    <header class="hd"><div class="grow"><h1>إنجازاتي</h1><div class="sub">نجمة لكل يوم كامل، ووسام لكل أسبوع كامل</div></div></header>
+    <header class="hd"><div class="grow"><h1>إنجازاتي</h1><div class="sub">نجمة لكل يوم كامل، ووسام لكل أسبوع كامل</div></div><div class="arrows"><button data-act="tab" data-tab="settings" aria-label="الإعدادات" class="gear"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.5 7.5 0 0 0-2.6-1.5L14 2.4h-4l-.4 2.5A7.5 7.5 0 0 0 7 6.4l-2.4-.9-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.5 7.5 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg></button></div></header>
     <div class="big-stats">
       <div><b class="cu" data-n="${tt.stars}">٠</b><span>نجوم</span></div>
       <div><b class="cu" data-n="${streak(isFull)}">٠</b><span>أيام متتالية</span></div>
@@ -552,7 +552,8 @@
     const exs = C.extras.map(e => row(e.name, sw(S.extras[e.id], 'extra', e.id))).join('');
     const rws = MEDALS.map(m => row(m.name, '', '') .replace('</div></div>', `</div><input class="inp full" type="text" data-set="${m.rk}" value="${(S[m.rk] || '').replace(/"/g, '&quot;')}" placeholder="مثال: وجبة في مطعمي المفضّل"></div>`)).join('');
     return `
-    <header class="hd"><div class="grow"><h1>الإعدادات</h1></div></header>
+    <div class="rd-top plain">${backBtn('backSettings')}<span></span></div>
+    <header class="hd" style="padding-top:4px"><div class="grow"><h1>الإعدادات</h1></div></header>
 
     <h2 class="label">التحدي</h2>
     <div class="box">
@@ -592,6 +593,143 @@
   }
 
   /* ---------- الرسم ---------- */
+  const APPV = '14';
+  /* ===================== القرآن والأذكار ===================== */
+  let SUB = null;                 // شاشة فرعية: {t:'surah', s} أو {t:'adhkar', c}
+  const LOADED = {};
+  function need(file, varName, cb) {
+    if (window[varName]) return cb();
+    if (LOADED[file]) { LOADED[file].push(cb); return; }
+    LOADED[file] = [cb];
+    const sc = document.createElement('script'); sc.src = file + '?v=' + APPV;
+    sc.onload = () => { const q = LOADED[file]; LOADED[file] = null; q.forEach(f => f()); };
+    sc.onerror = () => { LOADED[file] = null; toast('تعذّر التحميل — تحقق من الاتصال'); };
+    document.head.appendChild(sc);
+  }
+  const loading = t => `<div class="loading"><span class="spin"></span>${t}</div>`;
+  const bismillah = 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ';
+  const backBtn = act => `<button class="backb" data-act="${act}" aria-label="رجوع">${ico.chevR}<span>رجوع</span></button>`;
+  const octa = num => `<span class="octa"><svg viewBox="0 0 40 40"><path d="M20 2l5.3 4.7 7.1-.4.4 7.1L37.5 20l-4.7 5.3-.4 7.1-7.1.4L20 38l-5.3-4.7-7.1-.4-.4-7.1L2.5 20l4.7-5.3.4-7.1 7.1-.4z"/></svg><b>${n(num)}</b></span>`;
+
+  /* ---------- القرآن: الفهرس ---------- */
+  function viewQuran() {
+    if (SUB && SUB.t === 'surah') return viewSurah();
+    if (!window.QURAN) { need('quran.js', 'QURAN', () => tab === 'quran' && render()); return `<header class="hd"><div class="grow"><h1>القرآن الكريم</h1></div></header>${loading('جارٍ تحميل المصحف…')}`; }
+    const last = Store.get('qLast', null);
+    const qf = (SUB && SUB.q) || '';
+    const list = QURAN.map((s, i) => [s, i]).filter(([s]) => !qf || s[0].includes(qf)).map(([s, i]) => `
+      <div class="srow2" data-act="openSurah" data-s="${i}">${octa(i + 1)}
+        <div class="grow"><div class="sname">${s[0]}</div><div class="h">${s[1] ? 'مكية' : 'مدنية'} · ${n(s[2].length)} آية</div></div>
+        ${last && last.s === i ? '<span class="soon">آخر قراءة</span>' : ''}<span class="chev2">${ico.chevL}</span></div>`).join('');
+    return `
+    <header class="hd"><div class="grow"><h1>القرآن الكريم</h1><div class="sub">${n(114)} سورة · ${n(6236)} آية</div></div></header>
+    ${last ? `<button class="resume" data-act="openSurah" data-s="${last.s}" data-a="${last.a}">
+      <span class="r-ic">${ART.tile('quran')}</span><div class="grow"><div class="r-l">تابع القراءة</div><div class="r-t">سورة ${QURAN[last.s][0]} · الآية ${n(last.a + 1)}</div></div><span class="chev2">${ico.chevL}</span></button>` : ''}
+    <div class="search"><input id="qSearch" type="search" placeholder="ابحث عن سورة" value="${qf}" autocomplete="off"></div>
+    <div class="box">${list || '<div class="empty">لا توجد سورة بهذا الاسم</div>'}</div>`;
+  }
+
+  /* ---------- القرآن: القراءة ---------- */
+  function viewSurah() {
+    const i = SUB.s, s = QURAN[i], fs = S.qFont || 26;
+    const ayat = s[2].map((v, a) => (i === 0 && a === 0 ? '' : '') + `<span class="ayah-t" data-a="${a}">${v}</span><span class="amark" data-act="markAyah" data-a="${a}">\u06DD${n(a + 1)}</span> `).join('');
+    return `
+    <div class="rd-top">${backBtn('closeSurah')}
+      <div class="rd-title"><b>سورة ${s[0]}</b><span>${s[1] ? 'مكية' : 'مدنية'} · ${n(s[2].length)} آية</span></div>
+      <div class="fsz"><button data-act="qFont" data-d="-2" aria-label="تصغير">ا-</button><button data-act="qFont" data-d="2" aria-label="تكبير">ا+</button></div></div>
+    <article class="mushaf" style="--fs:${fs}px">
+      <div class="sura-head"><span>سورة ${s[0]}</span></div>
+      ${i !== 0 && i !== 8 ? `<div class="basmala">${bismillah}</div>` : ''}
+      <p class="qtext">${ayat}</p>
+    </article>
+    <div class="rd-nav">
+      ${i < 113 ? `<button class="btn" data-act="openSurah" data-s="${i + 1}">السورة التالية: ${QURAN[i + 1][0]}</button>` : ''}
+      <button class="btn primary" data-act="wirdDone">${ico.check} أنهيت وِردي اليوم</button>
+      ${i > 0 ? `<button class="btn ghost" data-act="openSurah" data-s="${i - 1}">السورة السابقة: ${QURAN[i - 1][0]}</button>` : ''}
+    </div>`;
+  }
+  let qObs = null;
+  function trackReading() {
+    if (qObs) { qObs.disconnect(); qObs = null; }
+    if (!(SUB && SUB.t === 'surah') || !('IntersectionObserver' in window)) return;
+    let t = null;
+    qObs = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting && e.boundingClientRect.top < innerHeight * .5) { clearTimeout(t); const a = +e.target.dataset.a; t = setTimeout(() => Store.set('qLast', { s: SUB.s, a }), 400); } });
+    }, { rootMargin: '-15% 0px -55% 0px' });
+    document.querySelectorAll('.ayah-t').forEach(el => qObs.observe(el));
+  }
+
+  /* ---------- الأذكار ---------- */
+  const AD_KEY = () => 'adP:' + todayKey();
+  function adProg() { return Store.get(AD_KEY(), {}); }
+  function viewAdhkar() {
+    if (SUB && SUB.t === 'adhkar') return viewDhikr();
+    if (!window.ADHKAR) { need('adhkar.js', 'ADHKAR', () => tab === 'adhkar' && render()); return `<header class="hd"><div class="grow"><h1>الأذكار</h1></div></header>${loading('جارٍ التحميل…')}`; }
+    const pr = adProg(), per = period(new Date());
+    const amFirst = per === 'fajr' || per === 'sunrise' || per === 'dhuhr';
+    const doneOf = c => { const p = pr[c] || {}; return ADHKAR[c].i.filter((x, j) => (p[j] || 0) >= x[1]).length; };
+    const big = (c, cls, icon, title, hint) => { const d = doneOf(c), t = ADHKAR[c].i.length;
+      return `<button class="adk ${cls}" data-act="openAdhkar" data-c="${c}"><span class="adk-ic">${ART.tile(icon)}</span>
+        <div class="adk-t">${title}</div><div class="adk-h">${d === t ? 'أتممتها اليوم ✓' : hint}</div>
+        <div class="adk-bar"><i style="width:${d / t * 100}%"></i></div><div class="adk-n">${n(d)} / ${n(t)}</div></button>`; };
+    const qf = (SUB && SUB.q) || '';
+    const cats = ADHKAR.map((c, i) => [c, i]).filter(([c, i]) => i > 1 && (!qf || c.n.includes(qf)))
+      .map(([c, i]) => `<div class="srow2" data-act="openAdhkar" data-c="${i}"><span class="num">${n(i - 1)}</span><div class="grow"><div class="t">${c.n}</div></div><span class="h">${n(c.i.length)}</span><span class="chev2">${ico.chevL}</span></div>`).join('');
+    return `
+    <header class="hd"><div class="grow"><h1>الأذكار</h1><div class="sub">${amFirst ? 'وقت أذكار الصباح' : 'وقت أذكار المساء'}</div></div></header>
+    <div class="adk-grid">
+      ${amFirst ? big(0, 'am', 'adhkarAM', 'أذكار الصباح', 'بعد الفجر حتى الضحى') + big(1, 'pm', 'adhkarPM', 'أذكار المساء', 'بعد العصر حتى المغرب')
+                : big(1, 'pm', 'adhkarPM', 'أذكار المساء', 'بعد العصر حتى المغرب') + big(0, 'am', 'adhkarAM', 'أذكار الصباح', 'بعد الفجر حتى الضحى')}
+    </div>
+    <button class="tbcard" data-act="tasbih"><span class="r-ic">${ART.tile('adhkarAM')}</span><div class="grow"><div class="t">المسبحة</div><div class="h">سبحان الله · الحمد لله · الله أكبر</div></div><span class="chev2">${ico.chevL}</span></button>
+    <h2 class="label">حصن المسلم</h2>
+    <div class="search"><input id="aSearch" type="search" placeholder="ابحث: النوم، السفر، الطعام…" value="${qf}" autocomplete="off"></div>
+    <div class="box">${cats || '<div class="empty">لا نتائج</div>'}</div>
+    <p class="foot center">من كتاب حصن المسلم للشيخ سعيد بن علي بن وهف القحطاني</p>`;
+  }
+  function viewDhikr() {
+    const c = SUB.c, cat = ADHKAR[c], p = (adProg()[c]) || {};
+    const done = cat.i.filter((x, j) => (p[j] || 0) >= x[1]).length;
+    const cards = cat.i.map((x, j) => {
+      const cnt = p[j] || 0, left = Math.max(0, x[1] - cnt), ok = left === 0, C2 = 2 * Math.PI * 21;
+      return `<div class="dk ${ok ? 'ok' : ''}" data-act="dhikrTap" data-c="${c}" data-j="${j}" id="dk${j}">
+        <div class="dk-z">${x[0].replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+        ${x[2] ? `<div class="dk-d">${x[2]}</div>` : ''}
+        <div class="dk-f"><span class="dk-r">${x[3] ? x[3] : ''}</span>
+          <span class="dk-c"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" class="t"/><circle cx="25" cy="25" r="21" class="f" style="stroke-dasharray:${C2};stroke-dashoffset:${C2 * (1 - cnt / x[1])}"/></svg>
+          <b>${ok ? ico.check : n(left)}</b></span></div>
+        ${x[1] > 1 ? `<div class="dk-x">${ok ? 'تم' : `التكرار ${n(x[1])} مرات · اضغط للعدّ`}</div>` : ''}</div>`;
+    }).join('');
+    return `
+    <div class="rd-top">${backBtn('closeAdhkar')}<div class="rd-title"><b>${cat.n}</b><span>${n(done)} من ${n(cat.i.length)}</span></div><span style="width:70px"></span></div>
+    <div class="dk-prog"><i style="width:${done / cat.i.length * 100}%"></i></div>
+    <div class="dks">${cards}</div>
+    ${c <= 1 ? `<button class="btn ghost block mt" data-act="resetAdhkar" data-c="${c}">إعادة من البداية</button>` : ''}`;
+  }
+  function dhikrTap(c, j) {
+    const all = adProg(), p = all[c] || (all[c] = {}), x = ADHKAR[c].i[j];
+    if ((p[j] || 0) >= x[1]) return;
+    p[j] = (p[j] || 0) + 1; Store.set(AD_KEY(), all); haptic();
+    const el = document.getElementById('dk' + j), C2 = 2 * Math.PI * 21, left = x[1] - p[j];
+    if (el) {
+      el.querySelector('.f').style.strokeDashoffset = C2 * (1 - p[j] / x[1]);
+      el.querySelector('.dk-c b').innerHTML = left ? n(left) : ico.check;
+      el.classList.remove('tap'); void el.offsetWidth; el.classList.add('tap');
+    }
+    if (!left) {
+      if (el) { el.classList.add('ok'); const xx = el.querySelector('.dk-x'); if (xx) xx.textContent = 'تم'; }
+      const done = ADHKAR[c].i.filter((y, k) => (p[k] || 0) >= y[1]).length, tot = ADHKAR[c].i.length;
+      const t = document.querySelector('.rd-title span'); if (t) t.textContent = `${n(done)} من ${n(tot)}`;
+      const bar = document.querySelector('.dk-prog i'); if (bar) bar.style.width = done / tot * 100 + '%';
+      const nx = [...document.querySelectorAll('.dk:not(.ok)')][0];
+      if (nx) setTimeout(() => nx.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+      if (done === tot && c <= 1) {
+        const D = day(todayKey()); D.x[c === 0 ? 'adhkarAM' : 'adhkarPM'] = true; saveD();
+        setTimeout(() => { confetti(60); toast(c === 0 ? 'أتممت أذكار الصباح، حفظك الله' : 'أتممت أذكار المساء، حفظك الله'); }, 300);
+      }
+    }
+  }
+
   /* ---------- الحركة ---------- */
   const ease = t => 1 - Math.pow(1 - t, 3);
   function countUp(root) {
@@ -604,20 +742,25 @@
     requestAnimationFrame(() => requestAnimationFrame(() => root.querySelectorAll('[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; })));
   }
   function moveInd() {
-    const nav = $('#tabs'), b = nav && nav.querySelector('button.on'), ind = $('#tabInd'); if (!b || !ind) return;
+    const nav = $('#tabs'), b = nav && nav.querySelector('button.on'), ind = $('#tabInd'); if (!ind) return; ind.style.opacity = b ? 1 : 0; if (!b) return;
     ind.style.width = (b.offsetWidth - 24) + 'px'; ind.style.transform = `translateX(${b.offsetLeft + 12}px)`;
   }
   let PREV = { k: '', n: 0 };
   function render(anim) {
     if (anim === undefined) anim = true;
     const v = $('#view');
-    const html = tab === 'today' ? viewToday(anim) : tab === 'challenge' ? viewChallenge() : tab === 'prayer' ? viewPrayer() : viewSettings();
+    const html = tab === 'today' ? viewToday(anim) : tab === 'challenge' ? viewChallenge() : tab === 'prayer' ? viewPrayer() : tab === 'quran' ? viewQuran() : tab === 'adhkar' ? viewAdhkar() : viewSettings();
+    document.body.classList.toggle('reading', !!SUB);
     v.innerHTML = html;
     if (anim) { v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 12))); }
     else v.classList.remove('enter');
     countUp(v);
     document.querySelectorAll('#tabs button').forEach(b => { const on = b.dataset.tab === tab; if (on && !b.classList.contains('on') && anim) { b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } b.classList.toggle('on', on); });
     moveInd();
+    trackReading();
+    const fil = (id, sel) => { const inp = document.getElementById(id); if (!inp) return; inp.addEventListener('input', () => { const q = inp.value.trim();
+      document.querySelectorAll('#view .box .srow2').forEach(r => { r.style.display = !q || r.querySelector(sel).textContent.includes(q) ? '' : 'none'; }); }); };
+    fil('qSearch', '.sname'); fil('aSearch', '.t');
     const note = $('#note');
     if (note) note.addEventListener('input', () => { day(viewKey).note = note.value; saveD(); });
   }
@@ -633,7 +776,20 @@
 
   /* ---------- الأحداث ---------- */
   const actions = {
-    tab: el => { tab = el.dataset.tab; if (tab === 'today') viewKey = todayKey(); render(); window.scrollTo(0, 0); },
+    tab: el => { if (el.dataset.tab === 'settings' && tab !== 'settings') PREVTAB = tab; tab = el.dataset.tab; SUB = null; if (tab === 'today') viewKey = todayKey(); render(); window.scrollTo(0, 0); },
+    backSettings: () => { tab = PREVTAB || 'today'; render(); window.scrollTo(0, 0); },
+    openSurah: el => { SUB = { t: 'surah', s: +el.dataset.s }; tab = 'quran'; render(); const a = el.dataset.a;
+      setTimeout(() => { const t = a != null && document.querySelector(`.ayah-t[data-a="${a}"]`); if (t) t.scrollIntoView({ block: 'center' }); else window.scrollTo(0, 0); }, 30); },
+    closeSurah: () => { SUB = null; render(); window.scrollTo(0, 0); },
+    markAyah: el => { Store.set('qLast', { s: SUB.s, a: +el.dataset.a }); haptic(); toast(`حُفظ موضعك: الآية ${n(+el.dataset.a + 1)}`); },
+    qFont: el => { S.qFont = Math.max(18, Math.min(40, (S.qFont || 26) + +el.dataset.d)); saveS(); document.querySelector('.mushaf').style.setProperty('--fs', S.qFont + 'px'); },
+    wirdDone: () => { const D = day(todayKey()); if ((D.quran || 0) < S.quranGoal) { D.quran = S.quranGoal; viewKey = todayKey(); saveD(); toast('سُجّل وِرد القرآن لليوم ✓'); } else toast('وِردك مسجّل لليوم ✓'); },
+    openAdhkar: el => { need('adhkar.js', 'ADHKAR', () => { SUB = { t: 'adhkar', c: +el.dataset.c }; tab = 'adhkar'; render(); window.scrollTo(0, 0);
+      setTimeout(() => { const nx = document.querySelector('.dk:not(.ok)'); if (nx && nx.id !== 'dk0') nx.scrollIntoView({ block: 'center' }); }, 60); }); },
+    closeAdhkar: () => { SUB = null; render(); window.scrollTo(0, 0); },
+    dhikrTap: el => dhikrTap(+el.dataset.c, +el.dataset.j),
+    resetAdhkar: el => { const all = adProg(); delete all[+el.dataset.c]; Store.set(AD_KEY(), all); rerender(); window.scrollTo(0, 0); },
+    readQuran: () => { need('quran.js', 'QURAN', () => { const l = Store.get('qLast', null); if (l) actions.openSurah({ dataset: { s: l.s, a: l.a } }); else { tab = 'quran'; SUB = null; render(); } }); },
     prevDay: () => { viewKey = keyOf(addDays(fromKey(viewKey), -1)); render(); },
     nextDay: () => { if (viewKey < todayKey()) { viewKey = keyOf(addDays(fromKey(viewKey), 1)); render(); } },
     goToday: () => { viewKey = todayKey(); render(); },
@@ -803,6 +959,8 @@
   };
   window.onBack = function () {
     if (!$('#sheet').hidden) { closeSheet(); return true; }
+    if (SUB) { SUB = null; render(); return true; }
+    if (tab === 'settings') { actions.backSettings(); return true; }
     if (tab !== 'today') { actions.tab({ dataset: { tab: 'today' } }); return true; }
     if (viewKey !== todayKey()) { viewKey = todayKey(); render(); return true; }
     return false;

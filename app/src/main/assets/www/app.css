@@ -427,3 +427,109 @@ h1, h2, .t, b { font-weight: 700; }
 .soon.now { background: #F59E0B; }
 .task.shake { animation: shake .4s; }
 @keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* ===================== القرآن والأذكار ===================== */
+@font-face { font-family: "AmiriQuran"; src: url("fonts/amiri-quran.woff2") format("woff2"); font-display: swap; }
+:root { --mushaf: #FFFDF6; --mushaf-ink: #1F1A12; --gold-line: #C9A24A; }
+:root[data-theme="dark"] { --mushaf: #15130E; --mushaf-ink: #EFE6D2; --gold-line: #9C7C35; }
+
+.tabs button { font-size: 11px; }
+.tabs svg { width: 24px; height: 24px; }
+.arrows .gear svg { width: 20px; height: 20px; }
+
+.loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 60px 0; color: var(--ink-2); }
+.spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+
+.search { margin: 0 0 12px; }
+.search input { width: 100%; height: 46px; border: 0; border-radius: 14px; background: var(--card); padding: 0 16px; font-size: 16px; outline: none;
+  -webkit-user-select: text; user-select: text; -webkit-appearance: none; }
+.empty { padding: 26px; text-align: center; color: var(--ink-2); }
+
+.srow2 { display: flex; align-items: center; gap: 14px; padding: 12px 16px; min-height: 64px; cursor: pointer; }
+.srow2 + .srow2 { border-top: 1px solid var(--line); }
+.srow2:active { background: var(--line); }
+.srow2 .t { font-size: 16px; font-weight: 400; line-height: 1.45; }
+.srow2 .h { font-size: 13px; color: var(--ink-2); }
+.sname { font-family: "AmiriQuran", "Thmanyah", serif; font-size: 22px; line-height: 1.5; }
+.chev2 { color: var(--ink-3); } .chev2 svg { width: 16px; height: 16px; }
+.octa { position: relative; width: 40px; height: 40px; flex: none; display: grid; place-items: center; color: var(--accent); }
+.octa svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: var(--accent-soft) !important; stroke: var(--accent) !important; stroke-width: 1.4 !important; }
+.octa b { position: relative; font-size: 13px; }
+.num { width: 30px; text-align: center; color: var(--ink-3); font-size: 13px; flex: none; }
+
+.resume, .tbcard { display: flex; align-items: center; gap: 14px; width: 100%; text-align: right; background: var(--card); border-radius: 20px;
+  padding: 14px 16px; margin-bottom: 12px; }
+.resume { background: linear-gradient(135deg, #0B7A55, #10B981); color: #fff; box-shadow: 0 14px 26px -18px #0B7A55; }
+.resume .r-l { font-size: 13px; opacity: .85; } .resume .r-t { font-size: 18px; font-weight: 700; }
+.resume .chev2 { color: #fff; }
+.r-ic { width: 50px; height: 50px; flex: none; } .r-ic .art { width: 100%; height: 100%; }
+.tbcard .t { font-size: 17px; font-weight: 700; } .tbcard .h { font-size: 13px; color: var(--ink-2); }
+.mini-read { font-size: 13px; color: var(--accent); background: var(--accent-soft); padding: 6px 12px; border-radius: 10px; font-weight: 700; }
+
+/* شريط القراءة العلوي */
+body.reading .tabs { transform: translateY(110%); }
+.tabs { transition: transform .35s var(--out, ease); }
+body.reading #view { padding-bottom: 40px; }
+.rd-top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px; margin: 0 -18px 10px; padding: calc(8px + env(safe-area-inset-top)) 14px 10px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.rd-top.plain { position: static; background: none; backdrop-filter: none; margin-bottom: 0; }
+.backb { display: flex; align-items: center; gap: 2px; color: var(--accent); font-weight: 700; font-size: 16px; padding: 6px 4px; }
+.backb svg { width: 20px; height: 20px; }
+.rd-title { flex: 1; text-align: center; display: flex; flex-direction: column; line-height: 1.3; }
+.rd-title b { font-size: 17px; } .rd-title span { font-size: 12.5px; color: var(--ink-2); }
+.fsz { display: flex; gap: 4px; }
+.fsz button { width: 36px; height: 34px; border-radius: 10px; background: var(--card); font-weight: 700; font-size: 14px; }
+
+/* المصحف */
+.mushaf { background: var(--mushaf); color: var(--mushaf-ink); border-radius: 22px; padding: 22px 18px 28px; position: relative;
+  box-shadow: inset 0 0 0 2px var(--gold-line), inset 0 0 0 6px var(--mushaf), inset 0 0 0 7px color-mix(in srgb, var(--gold-line) 50%, transparent), 0 10px 30px -20px rgba(0,0,0,.4); }
+.sura-head { margin: 4px auto 16px; max-width: 280px; height: 52px; display: grid; place-items: center; border-radius: 14px; position: relative;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold-line) 22%, transparent), transparent); border-top: 1.5px solid var(--gold-line); border-bottom: 1.5px solid var(--gold-line); }
+.sura-head span { font-family: "AmiriQuran", serif; font-size: 24px; color: var(--mushaf-ink); }
+.basmala { font-family: "AmiriQuran", serif; text-align: center; font-size: calc(var(--fs) * .95); margin: 4px 0 14px; }
+.qtext { font-family: "AmiriQuran", "Thmanyah", serif; font-size: var(--fs); line-height: 2.25; text-align: justify; text-align-last: center; margin: 0;
+  -webkit-user-select: text; user-select: text; word-spacing: 1px; }
+.amark { display: inline-grid; place-items: center; min-width: 1.35em; height: 1.35em; margin: 0 2px; padding: 0 2px; vertical-align: middle; cursor: pointer;
+  font-family: "Thmanyah", sans-serif; font-size: .52em; color: var(--mushaf-ink); border-radius: 50%;
+  background: radial-gradient(circle, transparent 54%, var(--gold-line) 56%, var(--gold-line) 64%, transparent 66%), radial-gradient(circle, color-mix(in srgb, var(--gold-line) 18%, transparent) 50%, transparent 52%); }
+.amark:active { transform: scale(1.2); }
+.rd-nav { display: grid; gap: 8px; margin-top: 16px; }
+
+/* الأذكار */
+.adk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.adk { position: relative; overflow: hidden; border-radius: 22px; padding: 16px; color: #fff; text-align: right; display: flex; flex-direction: column; gap: 2px; min-height: 178px; }
+.adk.am { background: linear-gradient(160deg, #F59E0B, #FBBF24 55%, #FDE68A); color: #3D2400; }
+.adk.pm { background: linear-gradient(160deg, #1E1B4B, #3730A3 60%, #6366F1); }
+.adk:first-child { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent); }
+.adk-ic { width: 50px; height: 50px; margin-bottom: 10px; } .adk-ic .art { width: 100%; height: 100%; }
+.adk-t { font-size: 18px; font-weight: 700; } .adk-h { font-size: 12.5px; opacity: .85; }
+.adk-bar { height: 6px; border-radius: 9px; background: rgba(255,255,255,.35); overflow: hidden; margin-top: auto; }
+.adk.am .adk-bar { background: rgba(61,36,0,.15); }
+.adk-bar i { display: block; height: 100%; background: currentColor; border-radius: 9px; }
+.adk-n { font-size: 12px; opacity: .85; margin-top: 4px; }
+.adk:active { transform: scale(.97); }
+
+.dk-prog { height: 5px; background: var(--line); border-radius: 9px; overflow: hidden; margin: -4px 0 14px; }
+.dk-prog i { display: block; height: 100%; background: var(--accent); transition: width .5s var(--out, ease); }
+.dks { display: grid; gap: 12px; }
+.dk { background: var(--card); border-radius: 20px; padding: 18px 18px 14px; cursor: pointer; transition: opacity .3s, transform .15s; position: relative; }
+.dk:active { transform: scale(.985); }
+.dk.tap { animation: dkTap .3s; }
+@keyframes dkTap { 40% { transform: scale(.97); } }
+.dk-z { font-family: "AmiriQuran", "Thmanyah", serif; font-size: 22px; line-height: 2; color: var(--ink); -webkit-user-select: text; user-select: text; }
+.dk-d { margin-top: 10px; font-size: 14px; color: var(--ink-2); background: var(--bg); border-radius: 12px; padding: 8px 12px; line-height: 1.6; }
+.dk-f { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 10px; }
+.dk-r { font-size: 12.5px; color: var(--ink-3); }
+.dk-c { position: relative; width: 52px; height: 52px; flex: none; display: grid; place-items: center; }
+.dk-c svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.dk-c .t { fill: none; stroke: var(--line); stroke-width: 4; }
+.dk-c .f { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .25s; }
+.dk-c b { position: relative; font-size: 17px; color: var(--accent); } .dk-c b svg { position: static; width: 20px; height: 20px; transform: none; stroke-width: 3; }
+.dk-x { font-size: 12px; color: var(--ink-3); text-align: left; margin-top: -4px; }
+.dk.ok { opacity: .55; }
+.dk.ok .dk-c b { color: #fff; } .dk.ok .dk-c { background: var(--accent); border-radius: 50%; }
+.dk.ok .dk-c svg circle { display: none; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+
+.amark { display: inline; min-width: 0; height: auto; margin: 0 3px; padding: 0; background: none; border-radius: 0; vertical-align: baseline;
+  font-family: "AmiriQuran", serif; font-size: 1em; color: var(--gold-line); }
