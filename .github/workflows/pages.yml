@@ -28,6 +28,7 @@ jobs:
           mkdir -p _site
           cp -r app/src/main/assets/www/. _site/
           cp -r thabat _site/thabat
+          cp -r mizan _site/mizan
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
