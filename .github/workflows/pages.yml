@@ -23,8 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Assemble site (تحدي ٣٠ يوم + ثبات)
+        run: |
+          mkdir -p _site
+          cp -r app/src/main/assets/www/. _site/
+          cp -r thabat _site/thabat
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: app/src/main/assets/www
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
