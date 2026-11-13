@@ -1,0 +1,55 @@
+rules_version = '2';
+// قواعد حماية تطبيق «كمّل» — انسخها كاملة إلى Firebase Console ← Firestore Database ← Rules ثم Publish
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function txt(x, max) { return x is string && x.size() > 0 && x.size() <= max; }
+    function pitchOwner(pid) { return get(/databases/$(db)/documents/pitches/$(pid)).data.owner == me(); }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && uid == me() && txt(request.resource.data.n, 40);
+    }
+
+    match /pitches/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.owner == me()
+        && txt(request.resource.data.n, 50) && txt(request.resource.data.w, 40)
+        && request.resource.data.price is number && request.resource.data.price > 0 && request.resource.data.price < 500;
+      allow update: if signedIn() && resource.data.owner == me() && request.resource.data.owner == me();
+      allow delete: if signedIn() && resource.data.owner == me();
+    }
+
+    match /matches/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.org == me()
+        && request.resource.data.fmt in [5, 6, 7] && request.resource.data.dur in [1, 2]
+        && request.resource.data.pl.keys().hasOnly([me()])
+        && request.resource.data.pl[me()].k >= 1 && request.resource.data.pl[me()].k < request.resource.data.fmt * 2;
+      // المنظّم يعدّل مباراته، وأي لاعب يضيف أو يحذف نفسه فقط (حتى ٤ لاعبين معه)
+      allow update: if signedIn() && (
+        resource.data.org == me()
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pl'])
+            && request.resource.data.pl.diff(resource.data.pl).affectedKeys().hasOnly([me()])
+            && (!(me() in request.resource.data.pl)
+                || (request.resource.data.pl[me()].k >= 1 && request.resource.data.pl[me()].k <= 4))));
+      allow delete: if signedIn() && resource.data.org == me();
+    }
+
+    match /bookings/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.u == me() && request.resource.data.dur in [1, 2]
+        && (request.resource.data.get('manual', false) == false || pitchOwner(request.resource.data.p));
+      allow delete: if signedIn() && (resource.data.u == me() || pitchOwner(resource.data.p));
+    }
+
+    // كل ساعة محجوزة لها وثيقة واحدة فقط — يمنع الحجز المزدوج
+    match /slots/{id} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.u == me()
+        && id == request.resource.data.p + '_' + request.resource.data.d + '_' + string(request.resource.data.h);
+      allow delete: if signedIn() && (resource.data.u == me() || pitchOwner(resource.data.p));
+    }
+  }
+}
