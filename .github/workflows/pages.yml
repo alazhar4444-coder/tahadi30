@@ -30,6 +30,7 @@ jobs:
           cp -r thabat _site/thabat
           cp -r mizan _site/mizan
           cp -r ejada _site/ejada
+          cp -r tartan _site/tartan
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
