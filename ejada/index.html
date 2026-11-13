@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>أهدافي</title>
+<meta name="theme-color" content="#F3F4F9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#090B18" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="أهدافي">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-512.png">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<div id="splash" aria-hidden="true">
+  <i class="aur a1"></i><i class="aur a2"></i>
+  <img src="icon-512.png" alt="" class="sp-ic">
+  <div class="sp-t">أهدافي</div><div class="sp-s">أهدافك في إجادة · بوضوح</div>
+</div>
+<main id="view"></main>
+<button id="fab" class="fab" data-act="fab" aria-label="إضافة شاهد"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>شاهد</span></button>
+<nav class="tabs" id="tabs">
+  <button data-tab="home" class="on"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg><span>الرئيسية</span></button>
+  <button data-tab="goals"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></svg><span>الأهداف</span></button>
+  <button data-tab="evidence"><svg viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="m9 14 2 2 4-4"/></svg><span>الشواهد</span></button>
+</nav>
+<div id="sheet" class="sheet" hidden><div class="sheet-bg" data-act="closeSheet"></div><div class="sheet-card" id="sheetBody"></div></div>
+<div id="toast" class="toast"></div>
+<script>setTimeout(function(){var s=document.getElementById('splash');if(s)s.parentNode.removeChild(s);},2600);</script>
+<script src="content.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
