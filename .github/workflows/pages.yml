@@ -32,6 +32,7 @@ jobs:
           cp -r ejada _site/ejada
           cp -r tartan _site/tartan
           cp -r shawari _site/shawari
+          cp -r hara _site/hara
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
