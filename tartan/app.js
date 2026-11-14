@@ -109,7 +109,7 @@
     </button>`;
   }
   const govChips = () => `<button class="gsel" data-act="govSheet">${ic('pin')}<span>${ui.gov === 'all' ? 'كل المحافظات' : ui.gov}</span><svg class="chev" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button>`;
-  const localNote = () => S.live ? '' : `<div class="banner">${ic('cloud')}<span>وضع محلي: البيانات على هذا الجهاز فقط إلى أن يُربط التطبيق بقاعدة البيانات.</span></div>`;
+  const localNote = () => S.live ? '' : `<div class="banner">${ic('cloud')}<span>نسخة تجريبية: الملاعب والمباريات والأسماء للعرض فقط، وما تضيفه يُحفظ على جهازك.</span></div>`;
 
   /* ——— الشاشات ——— */
   function viewLoading() {

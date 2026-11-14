@@ -69,7 +69,19 @@ window.KMStore = (() => {
     const K = 'kammil:local';
     let D; try { D = JSON.parse(localStorage.getItem(K)); } catch (e) {}
     D = D || { uid: 'u' + Math.random().toString(36).slice(2, 10), me: null, pitches: [], matches: [], books: [], slots: {} };
-    const S = { ready: true, uid: D.uid, pitches: [], matches: [], books: [], me: D.me, live: false };
+    // البيانات التجريبية تتجدد يومياً، ويبقى ما أضافه المستخدم
+    if (window.KMDemo && D.demoDay !== dk(new Date())) {
+      const X = window.KMDemo(), t = X.day, joined = {};
+      D.matches.filter(m => m.demo && m.pl[D.uid]).forEach(m => { joined[m.id] = m.pl[D.uid]; });
+      const mineM = D.matches.filter(m => !m.demo && m.d >= t), mineB = D.books.filter(b => !b.demo && b.d >= t);
+      const slots = { ...X.slots };
+      mineM.concat(mineB).forEach(x => slotIds(x.p, x.d, x.h, x.dur).forEach(id => { slots[id] = x.id; }));
+      X.matches.forEach(m => { if (joined[m.id]) m.pl[D.uid] = joined[m.id]; });
+      D = { ...D, demoDay: t, pitches: X.pitches.concat(D.pitches.filter(p => !p.demo)),
+        matches: X.matches.filter(m => !slotIds(m.p, m.d, m.h, m.dur).some(id => slots[id] !== m.id)).concat(mineM),
+        books: X.books.filter(b => slots[`${b.p}_${b.d}_${b.h}`] === b.id).concat(mineB), slots };
+    }
+    const S = { ready: true, uid: D.uid, pitches: [], matches: [], books: [], me: D.me, live: false, demo: !!window.KMDemo };
     const sync = () => { const [a, b] = win(); S.pitches = D.pitches; S.matches = D.matches.filter(m => m.d >= a && m.d <= b); S.books = D.books.filter(m => m.d >= a && m.d <= b); S.me = D.me;
       try { localStorage.setItem(K, JSON.stringify(D)); } catch (e) {} setTimeout(emit, 0); };
     window.addEventListener('storage', e => { if (e.key === K) { D = JSON.parse(e.newValue); sync(); } });
