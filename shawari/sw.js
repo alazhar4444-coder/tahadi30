@@ -1,5 +1,5 @@
-const CACHE = 'shawari-v1';
-const FILES = ['./', 'index.html', 'game.css?v=1', 'game.js?v=1', 'fonts/thmanyah-bold.otf', 'fonts/thmanyah-black.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
+const CACHE = 'shawari-v2';
+const FILES = ['./', 'index.html', 'game.css?v=1', 'three.min.js?v=1', 'game3d.js?v=1', '2d/', '2d/index.html', '2d/game.js', '2d/game.css', 'fonts/thmanyah-bold.otf', 'fonts/thmanyah-black.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('shawari-') && k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', e => {

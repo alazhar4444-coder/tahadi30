@@ -28,11 +28,13 @@
 
 <div id="hud">
   <div class="tr">
+    <button id="bCam" aria-label="الكاميرا">📷</button>
     <button id="bPause" aria-label="إيقاف"><svg viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></svg></button>
     <div class="pill money"><span id="money">٠</span><small>ر.ع</small></div>
     <div class="pill clock" id="clock"></div>
   </div>
   <div class="tl"><canvas id="mm"></canvas><div id="stars"></div></div>
+  <div id="cmp" hidden><svg viewBox="0 0 24 24"><path d="M12 2 19 20 12 16 5 20z"/></svg></div><div id="cmpD"></div>
   <div id="mis" hidden><b id="misN"></b><span id="misT"></span><em id="misC"></em></div>
   <div id="spd" hidden><b id="spdv">٠</b><small>كم/س</small><div class="hpb"><i id="hp"></i></div></div>
 </div>
@@ -42,11 +44,11 @@
 
 <div id="title">
   <div class="t-in">
-    <div class="logo"><span>شوارع</span><i>مدينة مفتوحة</i></div>
+    <div class="logo"><span>شوارع</span><i>مدينة مفتوحة · ثلاثية الأبعاد</i></div>
     <button id="play">ابدأ اللعب</button>
     <p id="tStats"></p>
     <div class="how">
-      <div><b>🕹️</b><span>المس يسار الشاشة واسحب للتحرك والقيادة</span></div>
+      <div><b>🕹️</b><span>اسحب يسار الشاشة: للأعلى بنزين، يمين ويسار للتوجيه</span></div>
       <div><b>🚗</b><span>اقترب من أي سيارة واضغط «اركب»</span></div>
       <div><b>🚕📦🏁</b><span>مهام تاكسي وتوصيل وسباق تكسبك فلوس</span></div>
       <div><b>★</b><span>المخالفات تجيب الشرطة — اهرب أو روح الكراج 🔧</span></div>
@@ -62,11 +64,15 @@
     <div id="stats"></div>
     <button id="resume">أكمل اللعب</button>
     <button id="snd" class="ghost"></button>
-    <p class="keys">بالكيبورد: الأسهم أو WASD للقيادة · Space فرامل يد · E ركوب/نزول · H بوق</p>
+    <button id="qbtn" class="ghost snd2"></button>
+    <a class="classic" href="2d/">النسخة الكلاسيكية (ثنائية الأبعاد)</a>
+    <p class="keys">بالكيبورد: الأسهم أو WASD للقيادة · Space فرامل يد · E ركوب/نزول · H بوق · 📷 لتغيير الكاميرا</p>
   </div>
 </div>
 
-<script src="game.js?v=1"></script>
+<script src="three.min.js?v=1"></script>
+<script src="game3d.js?v=1"></script>
 <script>if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function(){});</script>
+
 </body>
 </html>
