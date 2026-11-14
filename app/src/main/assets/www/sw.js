@@ -8,7 +8,7 @@ self.addEventListener('activate', e => {
 });
 /* الشبكة أولًا (لتصل التحديثات)، ثم النسخة المحفوظة عند انقطاع الإنترنت */
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || /\/(thabat|mizan|ejada|tartan)\//.test(new URL(e.request.url).pathname)) return;
+  if (e.request.method !== 'GET' || /\/(thabat|mizan|ejada|tartan|shawari)\//.test(new URL(e.request.url).pathname)) return;
   e.respondWith(
     fetch(e.request).then(r => {
       const copy = r.clone();
