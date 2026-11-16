@@ -6,7 +6,7 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const K = 'ejada:s';
   const load = () => { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { return {}; } };
-  let S = Object.assign({ name: '', school: 'مدرسة معاذ بن جبل', year: '٢٠٢٦', theme: 'auto', v: {}, ev: [], note: {} }, load());
+  let S = Object.assign({ name: 'الأزهر الناعبي', school: 'مدرسة معاذ بن جبل', year: '٢٠٢٦', theme: 'auto', v: {}, ev: [], note: {} }, load());
   const save = () => { try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {} };
   const ui = { tab: 'home', goal: null, page: null, filter: 'all' };
 
@@ -72,14 +72,15 @@
     });
     return `
     <header class="hd">
-      <div class="grow"><div class="eyebrow">إجادة · ${esc(S.year)}</div><h1>${S.name ? `${greet}، ${esc(S.name.split(' ')[0])}` : 'أهدافي'}</h1></div>
+      <div class="grow"><div class="eyebrow">إجادة · ${esc(S.year)}</div><h1>${S.name ? `${greet}، أ. ${esc(S.name.split(' ')[0])}` : 'أهدافي'}</h1></div>
       <button class="icon-b" data-act="settings" aria-label="الإعدادات"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </header>
 
     <section class="hero">
       <i class="aur a1"></i><i class="aur a2"></i><i class="aur a3"></i>
+      <div class="hero-brand"><img src="ejada-logo-w.png" alt="إجادة"><span>أهداف ${esc(S.name || 'الأداء')}</span></div>
       <div class="hero-top">
-        <div class="hero-ring">${ring(t / 100, 156, 14, 'url(#gold)', '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDE68A"/><stop offset="1" stop-color="#F59E0B"/></linearGradient></defs>')}
+        <div class="hero-ring">${ring(t / 100, 156, 14, 'url(#gold)', '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D9FBF7"/><stop offset="1" stop-color="#55C2BC"/></linearGradient></defs>')}
           <div class="ring-in"><b class="big" data-count="${Math.round(t)}">${n(Math.round(t))}</b><span>٪ إنجاز</span></div></div>
         <div class="hero-st">
           ${[3, 2, 1, 0].map(l => `<div class="st ${LV[l].k}"><i></i><span class="grow">${LV[l].s}</span><b>${n(cnt[l])}</b></div>`).join('')}
@@ -112,9 +113,11 @@
       ${focus.map(r => { const g = G(r.g); return `<button class="fc card" data-act="res" data-id="${r.id}">
         ${tile(g, 'sm')}<div class="grow"><b>${r.s}</b><div class="sub">${g.s} · المستهدف ${n(r.L[1])}${unit(r)}</div>${track(r)}</div>
         <span class="wbadge">${n(r.w)}٪</span></button>`; }).join('')}
-    </section>` : `<section class="card done-c"><div class="trophy">🏆</div><b>كل النتائج حققت المستهدف</b><span class="sub">أداء متميز — استمر في توثيق الشواهد</span></section>`}`;
+    </section>` : `<section class="card done-c"><div class="trophy">🏆</div><b>كل النتائج حققت المستهدف</b><span class="sub">أداء متميز — استمر في توثيق الشواهد</span></section>`}
+    ${credit()}`;
   }
 
+  const credit = () => `<div class="credit"><span class="av">أ</span><div><small>صمّم التطبيق</small><b>الأستاذ الأزهر الناعبي</b></div><img src="ejada-logo.png" alt="إجادة"></div>`;
   function goalCard(g, i) {
     const p = gProg(g);
     return `<button class="gc card" data-act="goal" data-id="${g.id}" style="--c:${g.c};--c2:${g.c2};--i:${i}">
@@ -193,7 +196,8 @@
         <button data-act="import"><span class="li-ic" style="--c:#D97706"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 19h14"/></svg></span><span class="grow">استرجاع نسخة<small>من ملف احتياطي سابق</small></span></button>
         <button data-act="reset" class="danger"><span class="li-ic" style="--c:#E11D48"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></span><span class="grow" id="resetT">مسح كل البيانات</span></button>
       </section>
-      <p class="about">الأهداف والأوزان والمستويات مأخوذة من ملف إجادة الخاص بك. معظم النتائج مسجّلة في الملف بمستويات معكوسة (٤ ثم ٣ ثم ٢)، فرتّبها التطبيق تصاعدياً: الحد الأدنى ثم المستهدف ثم يفوق. نسبة الإنجاز مؤشر شخصي للمتابعة وليست التقييم الرسمي. بياناتك محفوظة على جهازك فقط.</p>
+      ${credit()}
+      <p class="about">تطبيق شخصي لمتابعة أهداف الأستاذ الأزهر الناعبي في منظومة إجادة، وليس تطبيقاً رسمياً من المنظومة. الأهداف والأوزان والمستويات مأخوذة من ملف إجادة الخاص بك. معظم النتائج مسجّلة في الملف بمستويات معكوسة (٤ ثم ٣ ثم ٢)، فرتّبها التطبيق تصاعدياً: الحد الأدنى ثم المستهدف ثم يفوق. نسبة الإنجاز مؤشر شخصي للمتابعة وليست التقييم الرسمي. بياناتك محفوظة على جهازك فقط.</p>
       <input type="file" id="impF" accept="application/json,.json" hidden>`;
   }
 
@@ -256,7 +260,7 @@
         evOf(r.id).sort((a, b) => a.d.localeCompare(b.d)).forEach(e => { s += `   - ${e.t} (${fdate(e.d)})\n`; });
       });
     });
-    return s;
+    return s + '\n— من تطبيق «أهدافي» · تصميم الأستاذ الأزهر الناعبي';
   }
 
   const act = {
