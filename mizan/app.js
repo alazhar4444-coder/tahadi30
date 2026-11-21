@@ -319,7 +319,7 @@
       <div class="li tog" data-act="export"><div class="grow"><b class="tint">تصدير نسخة احتياطية</b></div></div>
       <div class="li tog" data-act="import"><div class="grow"><b class="tint">استيراد نسخة</b></div></div>
       <div class="li tog" data-act="reset"><div class="grow"><b class="red">مسح كل البيانات</b></div></div>
-    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p>`;
+    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p><div class="credit"><img src="icon-180.png" alt=""><div><small>تطبيق «بسك» · تصميم وتطوير</small><b>الأزهر الناعبي</b></div></div>`;
   }
 
   /* ===================== إضافة الطعام ===================== */
@@ -359,7 +359,7 @@
   function onboard(step) {
     const m = OB;
     if (step === 1) Object.assign(OB, { sex: OB.sex || 'm', h: OB.h || 168, w0: OB.w0 || 85 });
-    if (step === 1) sheetFull(`<div class="ob"><img src="icon-180.png" class="ob-ic" alt=""><h2>أهلًا بك في «ميزان»</h2>
+    if (step === 1) sheetFull(`<div class="ob"><img src="icon-180.png" class="ob-ic" alt=""><h2>أهلًا بك في «بسك»</h2>
       <p>إنقاص الوزن بالطريقة الصحيحة: سعرات محسوبة لجسمك، خطة غذائية بدون سكر ولا خبز، تحدّي ٢١ يوماً، وتقدّم واضح — بدون حرمان قاسٍ.</p>
       <div class="note">⚕️ إن كان لديك مرض مزمن أو تتناول أدوية، أو كنتِ حاملًا أو مرضعًا، أو عمرك أقل من ١٨ سنة، فاستشر الطبيب قبل البدء.</div>
       <button class="btn primary block" data-act="ob" data-s="2">لنبدأ</button></div>`);

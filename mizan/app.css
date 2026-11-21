@@ -1,6 +1,7 @@
 /* ميزان — التصميم */
 @font-face { font-family: "Thmanyah"; src: url("fonts/thmanyah-regular.otf") format("opentype"); font-weight: 400; font-display: block; }
 @font-face { font-family: "Thmanyah"; src: url("fonts/thmanyah-bold.otf") format("opentype"); font-weight: 700; font-display: block; }
+@font-face { font-family: "Thmanyah"; src: url("fonts/thmanyah-black.otf") format("opentype"); font-weight: 900; font-display: block; }
 :root {
   --bg: #F5F7F6; --card: #FFFFFF; --ink: #0F1A14; --ink-2: #66756C; --ink-3: #BCC6C0; --line: #E9EEEB; --soft: #EFF3F1;
   --brand: #16A34A; --brand-2: #22C55E; --brand-soft: #E5F7EC; --kcal: #F97316; --water: #0EA5E9; --prot: #8B5CF6; --red: #E11D48;
@@ -299,3 +300,7 @@ b, h1, h2 { font-weight: 700; } .grow { flex: 1; min-width: 0; }
 .pmeal li span { flex: 1; } .pmeal li em { font-style: normal; font-size: 12px; color: var(--ink-2); } .pmeal li i { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--kcal); min-width: 34px; text-align: left; }
 .shop { display: grid; gap: 4px; margin: 10px 0 14px; } .shop label { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 12px; background: var(--soft); font-size: 14.5px; }
 .shop input { width: 18px; height: 18px; accent-color: var(--brand); } .shop span { flex: 1; } .shop em { font-style: normal; font-size: 12px; color: var(--ink-2); } .shop input:checked + span { text-decoration: line-through; opacity: .5; }
+.sp-by { position: absolute; bottom: calc(34px + env(safe-area-inset-bottom)); font-size: 13px; color: rgba(255,255,255,.75); animation: fadeUp .6s var(--out) .7s both; } .sp-by b { color: #BBF7D0; }
+.sp-t { font-weight: 900 !important; font-size: 40px !important; }
+.credit { display: flex; align-items: center; gap: 12px; margin: 14px 0; padding: 12px 14px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow); }
+.credit img { width: 46px; height: 46px; border-radius: 12px; } .credit small { display: block; font-size: 12px; color: var(--ink-2); } .credit b { font-size: 16px; }
