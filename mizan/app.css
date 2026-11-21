@@ -360,3 +360,50 @@ body { letter-spacing: 0; }
 .ios-cta { margin-bottom: 6px; }
 .ob-by { text-align: center !important; font-size: 12px !important; color: var(--ink-2) !important; margin: 4px 0 8px !important; }
 .credit { border-radius: 14px; box-shadow: none; }
+
+/* ===== الثيم البنفسجي الاحترافي ===== */
+:root { --brand: #5E5CE6; --brand-2: #7D7AFF; --brand-soft: #EEEDFC; --ink: #0B0B1A; }
+:root[data-theme="dark"] { --brand: #8B88FF; --brand-2: #7D7AFF; --brand-soft: #1E1D3A; --bg: #05050C; --card: #14141F; --soft: #1D1D2B; }
+.eyebrow { color: var(--brand); }
+.hero { background: radial-gradient(120% 90% at 10% 0%, rgba(255,255,255,.22), transparent 55%), radial-gradient(80% 70% at 100% 100%, rgba(255,111,181,.35), transparent 60%), linear-gradient(150deg, #7D7AFF, #5E5CE6 45%, #3B2FB8); box-shadow: 0 22px 44px -22px rgba(94,92,230,.85); position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.18) 50%, transparent 65%); transform: translateX(-120%); animation: shine 4.5s 1.2s ease-in-out infinite; pointer-events: none; }
+@keyframes shine { 0% { transform: translateX(-120%); } 30%, 100% { transform: translateX(120%); } }
+.hero.over { background: linear-gradient(150deg, #FF9F0A, #FF6B00); }
+.prog-hero { background: radial-gradient(90% 70% at 85% 0%, rgba(125,122,255,.45), transparent 60%), linear-gradient(160deg, #1C1B3A, #0E0D22); box-shadow: 0 22px 44px -24px rgba(30,27,75,.9); }
+.card .mbar.blue i { background: linear-gradient(90deg, #7D7AFF, #5E5CE6); }
+.pc.got { background: linear-gradient(135deg, #EEEDFC, #DDDBFF); color: #2E2A8C; } .pc.got b { color: #5E5CE6; }
+.breath i { background: radial-gradient(circle, #B9B8FF, #5E5CE6); }
+.plan-sum div { background: linear-gradient(150deg, #7D7AFF, #4B48D8); box-shadow: 0 14px 26px -16px #4B48D8; }
+.plan-sum div:nth-child(2) { background: linear-gradient(150deg, #5AC8FA, #0A84FF); box-shadow: 0 14px 26px -16px #0A84FF; }
+.plan-sum div:nth-child(3) { background: linear-gradient(150deg, #FFB340, #FF7A00); box-shadow: 0 14px 26px -16px #FF7A00; }
+.dc.ok { background: linear-gradient(145deg, #8B88FF, #5E5CE6); box-shadow: 0 6px 14px -8px #5E5CE6; }
+.dc.now { border-color: var(--brand); color: var(--brand); }
+.fab { background: linear-gradient(135deg, #7D7AFF, #5E5CE6) !important; box-shadow: 0 10px 24px -8px rgba(94,92,230,.8) !important; }
+.fab::before { content: ""; position: absolute; inset: -4px; border-radius: 30px; border: 2px solid rgba(125,122,255,.5); animation: halo 2.4s ease-out infinite; }
+@keyframes halo { from { transform: scale(.92); opacity: 1; } to { transform: scale(1.18); opacity: 0; } }
+.sbb .ok.on { background: linear-gradient(135deg, #7D7AFF, #5E5CE6); border-color: transparent; }
+.adjust { background: var(--brand-soft); }
+.cup.on { background: linear-gradient(160deg, #5AC8FA, #0A84FF) !important; color: #fff !important; }
+.tabs button.on { color: var(--brand); } .tabs button.on svg { animation: tabpop .45s var(--spring); }
+@keyframes tabpop { 40% { transform: translateY(-3px) scale(1.15); } }
+.card { transition: transform .2s var(--spring); } .card:active { transform: scale(.985); }
+/* رموز احترافية بأسلوب آبل */
+.sym { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: #fff; position: relative; overflow: hidden;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c) 55%, color-mix(in srgb, var(--c) 80%, #000)); box-shadow: 0 6px 14px -8px var(--c), inset 0 1px 0 rgba(255,255,255,.35); }
+.sym svg { width: 21px; height: 21px; stroke: #fff; stroke-width: 1.9; fill: none; }
+.sym.sm { width: 30px; height: 30px; border-radius: 8px; } .sym.sm svg { width: 18px; height: 18px; }
+.sym.lg { width: 48px; height: 48px; border-radius: 13px; } .sym.lg svg { width: 27px; height: 27px; }
+.sym.me { width: 38px; height: 38px; }
+.feat .sym { animation: symin .6s var(--spring) both; animation-delay: inherit; }
+@keyframes symin { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+.sosb .sym { animation: wob 2.6s ease-in-out infinite; } @keyframes wob { 50% { transform: rotate(-12deg) scale(1.06); } }
+/* شاشة البداية المتحركة */
+#splash { background: radial-gradient(circle at 50% 40%, #2E2780, #0B0A1F 70%) !important; }
+.sp-rings i { border-color: rgba(185,184,255,.35) !important; }
+.sp-s { color: #C9C8FF !important; } .sp-by b { color: #C9C8FF !important; }
+.sp-logo { width: 132px; height: 132px; border-radius: 30px; overflow: hidden; box-shadow: 0 24px 50px rgba(0,0,0,.5); animation: pop .8s var(--spring) both; position: relative; }
+.sp-logo svg { width: 100%; height: 100%; display: block; }
+.sp-logo .arc { stroke-dasharray: 1660 2212; stroke-dashoffset: 1660; animation: arcdraw 1.4s .35s cubic-bezier(.65,0,.35,1) forwards; }
+.sp-logo .cap { opacity: 0; animation: capin .4s 1.6s ease-out forwards; }
+.sp-logo .word { opacity: 0; transform-origin: 512px 540px; animation: wordin .7s .25s var(--spring) forwards; }
+@keyframes arcdraw { to { stroke-dashoffset: 0; } } @keyframes capin { to { opacity: 1; } } @keyframes wordin { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }

@@ -48,26 +48,26 @@ window.MZ3D = (function () {
 
   // ——— طريق الهدف: منحدر ثلاثي الأبعاد من وزن البداية إلى الهدف
   function path(o) {
-    const scene = new T.Scene(), camera = new T.PerspectiveCamera(38, 1, 0.1, 60); lights(scene, 0x22C55E, 0x38BDF8);
+    const scene = new T.Scene(), camera = new T.PerspectiveCamera(38, 1, 0.1, 60); lights(scene, 0x7D7AFF, 0xFF6FB5);
     const pts = [[-3.2, 1.9, 0], [-2.1, 1.55, 0.9], [-0.9, 1.0, -0.4], [0.2, 0.35, 0.8], [1.3, -0.2, -0.3], [2.2, -0.75, 0.7], [3.2, -1.25, 0]].map(p => new T.Vector3(...p));
     const curve = new T.CatmullRomCurve3(pts), tube = new T.TubeGeometry(curve, 160, 0.09, 14, false);
-    const cA = new T.Color('#F97316'), cB = new T.Color('#22C55E'), cols = [], pos = tube.attributes.position;
+    const cA = new T.Color('#F97316'), cB = new T.Color('#7D7AFF'), cols = [], pos = tube.attributes.position;
     for (let i = 0; i < pos.count; i++) { const u = Math.floor(i / 15) / 160, c = cA.clone().lerp(cB, u); cols.push(c.r, c.g, c.b); }
     tube.setAttribute('color', new T.Float32BufferAttribute(cols, 3));
     const road = new T.Mesh(tube, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.2, transparent: true, opacity: 0.35 })); scene.add(road);
-    const done = new T.Mesh(new T.TubeGeometry(curve, 160, 0.11, 14, false), new T.MeshStandardMaterial({ vertexColors: false, color: '#22C55E', emissive: '#16A34A', emissiveIntensity: 0.6, roughness: 0.3 }));
+    const done = new T.Mesh(new T.TubeGeometry(curve, 160, 0.11, 14, false), new T.MeshStandardMaterial({ vertexColors: false, color: '#8B88FF', emissive: '#5E5CE6', emissiveIntensity: 0.7, roughness: 0.3 }));
     done.geometry.setDrawRange(0, 0); scene.add(done);
     const idxPerSeg = done.geometry.index.count / 160;
     [0.25, 0.5, 0.75].forEach(u => { const m = new T.Mesh(new T.SphereGeometry(0.11, 16, 10), new T.MeshStandardMaterial({ color: '#fff', emissive: '#FDE68A', emissiveIntensity: o.pct >= u * 100 ? 0.9 : 0 })); m.position.copy(curve.getPoint(u)); scene.add(m); });
     // علم الهدف
     const end = curve.getPoint(1), flag = new T.Group(); flag.position.copy(end);
     const pole = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 1.1, 8), new T.MeshStandardMaterial({ color: '#E5E7EB', metalness: 0.6, roughness: 0.3 })); pole.position.y = 0.55;
-    const cloth = new T.Mesh(new T.PlaneGeometry(0.55, 0.34, 10, 4), new T.MeshStandardMaterial({ color: '#22C55E', side: T.DoubleSide, emissive: '#16A34A', emissiveIntensity: 0.4 })); cloth.position.set(-0.29, 0.92, 0);
-    flag.add(pole, cloth, glow(0x22C55E, 1.6)); scene.add(flag);
+    const cloth = new T.Mesh(new T.PlaneGeometry(0.55, 0.34, 10, 4), new T.MeshStandardMaterial({ color: '#FF9F0A', side: T.DoubleSide, emissive: '#FF6B00', emissiveIntensity: 0.4 })); cloth.position.set(-0.29, 0.92, 0);
+    flag.add(pole, cloth, glow(0xFF9F0A, 1.6)); scene.add(flag);
     const startM = new T.Mesh(new T.SphereGeometry(0.12, 16, 10), new T.MeshStandardMaterial({ color: '#F97316', emissive: '#F97316', emissiveIntensity: 0.6 })); startM.position.copy(curve.getPoint(0)); scene.add(startM);
-    const ball = new T.Mesh(new T.SphereGeometry(0.2, 32, 16), new T.MeshStandardMaterial({ color: '#fff', emissive: '#4ADE80', emissiveIntensity: 0.8, roughness: 0.2 })), bg = glow(0x4ADE80, 1.5);
+    const ball = new T.Mesh(new T.SphereGeometry(0.2, 32, 16), new T.MeshStandardMaterial({ color: '#fff', emissive: '#A5A3FF', emissiveIntensity: 0.8, roughness: 0.2 })), bg = glow(0xA5A3FF, 1.5);
     scene.add(ball, bg);
-    const floor = new T.Mesh(new T.CircleGeometry(5, 48).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: '#22C55E', transparent: true, opacity: 0.06 })); floor.position.y = -1.6; scene.add(floor);
+    const floor = new T.Mesh(new T.CircleGeometry(5, 48).rotateX(-Math.PI / 2), new T.MeshBasicMaterial({ color: '#7D7AFF', transparent: true, opacity: 0.08 })); floor.position.y = -1.6; scene.add(floor);
     const pct = Math.max(0, Math.min(100, o.pct || 0)) / 100, cp = cloth.geometry.attributes.position, base = cp.array.slice();
     return { scene, camera, update(t) {
       const k = ease((t - 0.3) / 1.8), u = Math.max(0.0001, pct * k), p = curve.getPoint(u);

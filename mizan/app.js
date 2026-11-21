@@ -83,7 +83,24 @@
     dumb: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>',
     trend: '<svg viewBox="0 0 24 24"><path d="M3 7l6 6 4-4 8 8M21 11v6h-6"/></svg>'
   };
-  const MEAL_IC = { b: '🌅', l: '☀️', d: '🌙', s: '🍎' };
+  const SY = {
+    sunrise: '<path d="M3 18.5h18M6.5 18.5a5.5 5.5 0 0 1 11 0"/><path d="M12 4v3M5.3 9.3l1.8 1.8M18.7 9.3l-1.8 1.8M9.5 14.5h5"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+    moon: '<path d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1z"/><path d="M16 4.5v2.6M14.7 5.8h2.6"/>',
+    apple: '<path d="M12 7.6c-1.6-1.3-5.2-1.6-6.6 1.5-1.3 3 0 7.3 2.4 9.9 1.5 1.6 3 1.3 4.2.7 1.2.6 2.7.9 4.2-.7 2.4-2.6 3.7-6.9 2.4-9.9-1.4-3.1-5-2.8-6.6-1.5z"/><path d="M12 7.6c0-2.2 1-3.6 3.2-4.1"/>',
+    nut: '<path d="M12 3c4 2.5 6 6 6 9.5S15.3 21 12 21s-6-5-6-8.5S8 5.5 12 3z"/><path d="M12 7v10"/>',
+    cube: '<path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/>',
+    bread: '<path d="M5 11.2a4.2 4.2 0 0 1 1.3-7.6C8 3.1 10 3.5 12 3.5s4-.4 5.7.1A4.2 4.2 0 0 1 19 11.2V19a1.2 1.2 0 0 1-1.2 1.2H6.2A1.2 1.2 0 0 1 5 19z"/><path d="M9 8.2l1.4 1.8M13.2 7.6l1.4 1.8"/>',
+    trophy: '<path d="M8 4h8v5.2a4 4 0 0 1-8 0z"/><path d="M8 5.5H5.2a3 3 0 0 0 3 4.3M16 5.5h2.8a3 3 0 0 1-3 4.3M12 13.2V17M8.5 20.5h7M10 17h4v3.5h-4z"/>',
+    buoy: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.8"/><path d="M5.9 5.9l3.4 3.4M14.7 14.7l3.4 3.4M18.1 5.9l-3.4 3.4M9.3 14.7l-3.4 3.4"/>',
+    bowl: '<path d="M3.5 11.5h17a8.5 8.5 0 0 1-17 0z"/><path d="M8.5 20.5h7M9 11.5c0-3 1.6-5.4 4-6.5M13 11.5c0-2.6 1.5-4.3 4-4.8"/>',
+    cart: '<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M3 4.5h2.6l2.2 10.8h10.4l2-7.8H6.6"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.8"/><circle cx="12" cy="12" r="1.2"/><path d="M12 12l6.5-6.5M16 5.5h2.5V8"/>',
+    lungs: '<path d="M12 4v7M12 11c-1.5 0-2.5 1-2.5 2.5M12 11c1.5 0 2.5 1 2.5 2.5"/><path d="M8.5 7.5C5.5 7.5 4 12 4 16c0 2.5 1.5 3.5 3 3.5 2 0 2.5-1.5 2.5-3V9.5c0-1.2-.4-2-1-2zM15.5 7.5c3 0 4.5 4.5 4.5 8.5 0 2.5-1.5 3.5-3 3.5-2 0-2.5-1.5-2.5-3V9.5c0-1.2.4-2 1-2z"/>'
+  };
+  const sym = (k, c, cls) => `<span class="sym ${cls || ''}" style="--c:${c}"><svg viewBox="0 0 24 24">${SY[k] || ic[k]}</svg></span>`;
+  const MEALC = { b: ['sunrise', '#FF9F0A'], l: ['sun', '#FFCC00'], d: ['moon', '#5E5CE6'], s: ['apple', '#FF375F'] };
+
 
   /* ===================== اليوم ===================== */
   let viewKey = today();
@@ -99,7 +116,7 @@
     const meals = M.meals.map(m => {
       const items = d.f.map((x, i) => [x, i]).filter(([x]) => x.m === m.id);
       const kc = items.reduce((a, [x]) => a + x.k * x.q, 0);
-      return `<div class="meal"><div class="meal-h"><span class="me">${MEAL_IC[m.id]}</span><b>${m.t}</b><span class="mk">${kc ? n(Math.round(kc)) + ' سعرة' : ''}</span>
+      return `<div class="meal"><div class="meal-h">${sym(MEALC[m.id][0], MEALC[m.id][1], "me")}<b>${m.t}</b><span class="mk">${kc ? n(Math.round(kc)) + ' سعرة' : ''}</span>
         <button class="add" data-act="food" data-m="${m.id}" aria-label="إضافة">${ic.plus}</button></div>
         ${items.map(([x, i]) => `<div class="fi"><div class="grow"><div class="fn">${esc(x.n)}${x.q !== 1 ? ` <small>×${n(x.q)}</small>` : ''}</div><div class="fp">${esc(x.u || '')}${x.p ? ` · بروتين ${n(r1(x.p * x.q))}غ` : ''}</div></div>
           <span class="fk">${n(Math.round(x.k * x.q))}</span><button class="del" data-act="delFood" data-i="${i}" aria-label="حذف">${ic.x}</button></div>`).join('')}</div>`;
@@ -151,9 +168,9 @@
   const sbStage = st => M.sb.stages.find(x => st + 1 >= x.a && st + 1 <= x.z) || M.sb.stages[0];
   function sbBtns() {
     const d = sbGet(today());
-    const b = (key, label, emoji) => `<div class="sbq"><span class="sbe">${emoji}</span><b>${label}</b>
+    const b = (key, label, emoji) => `<div class="sbq">${sym(emoji, key === 's' ? '#FF375F' : '#C2853D', 'sm')}<b>${label}</b>
       <div class="sbb"><button class="ok ${d[key] === 1 ? 'on' : ''}" data-act="sbMark" data-k="${key}" data-v="1">${ic.check} التزمت</button><button class="slip ${d[key] === 0 ? 'on' : ''}" data-act="sbMark" data-k="${key}" data-v="0">زلّة</button></div></div>`;
-    return b('s', 'بدون سكر اليوم', '🍬') + b('b', 'بدون خبز اليوم', '🍞');
+    return b('s', 'بدون سكر اليوم', 'cube') + b('b', 'بدون خبز اليوم', 'bread');
   }
   function sbCard() {
     const st = sbStreak('both');
@@ -173,13 +190,13 @@
     <section class="ch-hero" style="--c:${col}">
       <div class="slot3d gem" id="slot3d" data-kind="gem" data-days="${st}" data-color="${col}"></div>
       <div class="chh-in"><b data-count="${st}">${n(st)}</b><span>يوم متواصل</span><em>${stg.t}</em></div>
-      <div class="chh-row"><div><span>🍬 بدون سكر</span><b>${n(ss)}</b></div><div><span>🍞 بدون خبز</span><b>${n(sbb)}</b></div><div><span>🏆 الأفضل</span><b>${n(Math.max(SB.best, st))}</b></div></div>
+      <div class="chh-row"><div><span>بدون سكر</span><b>${n(ss)}</b></div><div><span>بدون خبز</span><b>${n(sbb)}</b></div><div><span>الأفضل</span><b>${n(Math.max(SB.best, st))}</b></div></div>
     </section>
     <div class="card"><b class="nt">سجّل يومك</b><div class="sbqs">${sbBtns()}</div><p class="hint">سجّل كل مساء. الزلّة ليست فشلاً؛ ارجع في الوجبة التالية.</p></div>
     <h2 class="label">رحلة الـ٢١ يوماً</h2>
     <div class="card days21">${cells.join('')}</div>
     <div class="card stage" style="--c:${col}"><span class="lbl2">المرحلة الآن</span><b>${stg.t}</b><p>${stg.h}</p></div>
-    <button class="card sosb" data-act="sos"><span>🆘</span><div class="grow"><b>تشتهي حلو أو خبز الآن؟</b><span>دقيقة واحدة تكفي لتهدأ الرغبة</span></div><span class="chev">${ic.chev}</span></button>
+    <button class="card sosb" data-act="sos">${sym("buoy", "#FF3B30")}<div class="grow"><b>تشتهي حلو أو خبز الآن؟</b><span>دقيقة واحدة تكفي لتهدأ الرغبة</span></div><span class="chev">${ic.chev}</span></button>
     <h2 class="label">ما الممنوع وما المسموح؟</h2>
     <div class="card list">${M.sb.what.map(w => `<div class="li"><div class="grow"><b>${w[0]}</b><span>${w[1]}</span></div></div>`).join('')}</div>
     <h2 class="label">بدائل السكر</h2>
@@ -195,17 +212,17 @@
   const mealSum = m => m.i.reduce((a, x) => ({ k: a.k + x[2], p: a.p + x[3] }), { k: 0, p: 0 });
   function planMini() {
     const d = M.plan.day(planIdx()), t = targets();
-    return `<button class="card planmini" data-act="tab" data-tab="plan"><span class="pm-ic">🥗</span><div class="grow"><b>خطة اليوم</b><span>${d.b.t} · ${d.l.t} · ${d.d.t}</span></div><span class="chev">${ic.chev}</span></button>`;
+    return `<button class="card planmini" data-act="tab" data-tab="plan">${sym("bowl", "#34C759")}<div class="grow"><b>خطة اليوم</b><span>${d.b.t} · ${d.l.t} · ${d.d.t}</span></div><span class="chev">${ic.chev}</span></button>`;
   }
   function viewPlan() {
     const i = planIdx(), d = M.plan.day(i), t = targets(), isT = i === (new Date().getDay() + 1) % 7;
-    const rows = [['b', '🌅', 'الفطور', d.b], ['s', '🍎', 'سناك الضحى', d.s1], ['l', '☀️', 'الغداء', d.l], ['s', '🥜', 'سناك العصر', d.s2], ['d', '🌙', 'العشاء', d.d]];
+    const rows = [['b', ['sunrise', '#FF9F0A'], 'الفطور', d.b], ['s', ['apple', '#FF375F'], 'سناك الضحى', d.s1], ['l', ['sun', '#FFCC00'], 'الغداء', d.l], ['s', ['nut', '#AC8E68'], 'سناك العصر', d.s2], ['d', ['moon', '#5E5CE6'], 'العشاء', d.d]];
     const tot = rows.reduce((a, r) => { const m = mealSum(r[3]); return { k: a.k + m.k, p: a.p + m.p }; }, { k: 0, p: 0 });
     const diff = t.kcal - tot.k, adds = []; let left = diff; for (const a of M.plan.ADD) { if (left < 60) break; adds.push(a); left -= a[2]; }
     const logged = (dayLog(today()).planned || []);
     return `
     <header class="hd"><div class="grow"><div class="eyebrow">بدون سكر · بدون خبز</div><h1>خطتي الغذائية</h1><div class="sub">محسوبة على هدفك ${n(t.kcal)} سعرة و${n(t.protein)} غ بروتين</div></div>
-      <button class="icon-b" data-act="shop" aria-label="قائمة المشتريات">🛒</button></header>
+      <button class="icon-b" data-act="shop" aria-label="قائمة المشتريات"><svg viewBox="0 0 24 24">${SY.cart}</svg></button></header>
     <div class="dchips">${M.plan.DAYS.map((x, j) => `<button class="${j === i ? 'on' : ''} ${j === (new Date().getDay() + 1) % 7 ? 'tdy' : ''}" data-act="planDay" data-i="${j}">${x}</button>`).join('')}</div>
     <section class="plan-sum">
       <div><span>مجموع الخطة</span><b data-count="${tot.k}">${n(tot.k)}</b><small>سعرة</small></div>
@@ -214,7 +231,7 @@
     </section>
     ${diff >= 60 ? `<div class="card adjust">➕ <span>لتصل لهدفك أضف: ${adds.map(a => `<b>${a[0]} (${a[1]})</b>`).join(' + ')}</span></div>` : diff <= -60 ? `<div class="card adjust">➖ <span>الخطة أعلى من هدفك بـ${n(-diff)} سعرة — احذف سناك العصر.</span></div>` : ''}
     ${rows.map(([m, e, lbl, meal], j) => { const s2 = mealSum(meal), done = isT && logged.includes(j);
-      return `<div class="card pmeal ${done ? 'done' : ''}" style="--i:${j}"><div class="pmh"><span class="me">${e}</span><div class="grow"><span class="lbl2">${lbl}</span><b>${meal.t}</b></div><span class="pk">${n(s2.k)}<small> سعرة</small></span></div>
+      return `<div class="card pmeal ${done ? 'done' : ''}" style="--i:${j}"><div class="pmh">${sym(e[0], e[1], "me")}<div class="grow"><span class="lbl2">${lbl}</span><b>${meal.t}</b></div><span class="pk">${n(s2.k)}<small> سعرة</small></span></div>
         <ul>${meal.i.map(x => `<li><span>${x[0]}</span><em>${x[1]}</em><i>${n(x[2])}</i></li>`).join('')}</ul>
         ${isT ? `<button class="btn ${done ? 'ghost' : 'primary'} sm block" data-act="logPlan" data-j="${j}" data-m="${m}" ${done ? 'disabled' : ''}>${done ? ic.check + ' سُجّلت في يومك' : 'أكلتها — سجّلها'}</button>` : ''}</div>`; }).join('')}
     <div class="card tipc">${ic.bulb}<span>تقدر تبدّل وجبة بأخرى من نفس النوع في أي يوم. المهم: بروتين في كل وجبة، نصف الصحن خضار، وبدون سكر أو خبز.</span></div>`;
@@ -297,7 +314,7 @@
     <section class="card numbers"><b class="nt">أرقامك الشخصية</b>
       <div class="nums"><div><span>الحرق الأساسي</span><b>${n(t.bmr)}</b></div><div><span>حرقك اليومي</span><b>${n(t.tdee)}</b></div><div><span>هدف السعرات</span><b class="ok">${n(t.kcal)}</b></div><div><span>البروتين</span><b>${n(t.protein)} غ</b></div></div>
       <p class="hint" style="margin:10px 0 0">الحرق اليومي = الحرق الأساسي × مستوى نشاطك. والهدف = الحرق اليومي − عجز يناسب سرعة ${n(r1(t.pace))} كجم أسبوعيًا${t.floored ? `، مع حد أدنى آمن ${n(t.floor)} سعرة` : ''}.</p></section>
-    <button class="card planmini" data-act="tab" data-tab="workout"><span class="pm-ic">💪</span><div class="grow"><b>برنامج التمارين في البيت</b><span>٣ أيام في الأسبوع + مشي يومي</span></div><span class="chev">${ic.chev}</span></button>
+    <button class="card planmini" data-act="tab" data-tab="workout">${sym("dumb", "#30B0C7")}<div class="grow"><b>برنامج التمارين في البيت</b><span>٣ أيام في الأسبوع + مشي يومي</span></div><span class="chev">${ic.chev}</span></button>
     <h2 class="label">طريقة الصحن</h2>
     <div class="card plate"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="var(--soft)"/><circle cx="100" cy="100" r="80" fill="var(--card)"/>
       <path d="M100 100 L100 20 A80 80 0 0 1 100 180Z" fill="#4ADE80"/><path d="M100 100 L100 180 A80 80 0 0 1 20 100Z" fill="#FB923C"/><path d="M100 100 L20 100 A80 80 0 0 1 100 20Z" fill="#F87171"/></svg>
@@ -319,7 +336,7 @@
       <div class="li tog" data-act="export"><div class="grow"><b class="tint">تصدير نسخة احتياطية</b></div></div>
       <div class="li tog" data-act="import"><div class="grow"><b class="tint">استيراد نسخة</b></div></div>
       <div class="li tog" data-act="reset"><div class="grow"><b class="red">مسح كل البيانات</b></div></div>
-    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p><div class="credit"><img src="icon-180.png?v=4" alt=""><div><small>تطبيق «بسك» · تصميم وتطوير</small><b>الأزهر الناعبي</b></div></div>`;
+    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p><div class="credit"><img src="icon-180.png?v=5" alt=""><div><small>تطبيق «بسك» · تصميم وتطوير</small><b>الأزهر الناعبي</b></div></div>`;
   }
 
   /* ===================== إضافة الطعام ===================== */
@@ -359,11 +376,11 @@
   function onboard(step) {
     const m = OB;
     if (step === 1) Object.assign(OB, { sex: OB.sex || 'm', h: OB.h || 168, w0: OB.w0 || 85 });
-    if (step === 1) sheetFull(`<div class="ob ios-welcome"><img src="icon-180.png?v=4" class="ob-ic" alt=""><h2>أهلاً بك في «بسك»</h2>
-      <div class="feat"><span class="fi1">🎯</span><div><b>سعرات محسوبة لجسمك</b><p>هدف يومي واضح للسعرات والبروتين والماء.</p></div></div>
-      <div class="feat"><span class="fi2">🥗</span><div><b>خطة بدون سكر وخبز</b><p>وجبات ٧ أيام بمقاديرها، وقائمة مشتريات.</p></div></div>
-      <div class="feat"><span class="fi3">🔥</span><div><b>تحدّي ٢١ يوماً</b><p>سجّل التزامك كل يوم، وزر SOS لوقت الرغبة.</p></div></div>
-      <div class="feat"><span class="fi4">📈</span><div><b>تقدّم حقيقي</b><p>الوزن الحقيقي وتاريخ وصولك المتوقع.</p></div></div>
+    if (step === 1) sheetFull(`<div class="ob ios-welcome"><img src="icon-180.png?v=5" class="ob-ic" alt=""><h2>أهلاً بك في «بسك»</h2>
+      <div class="feat">${sym("target", "#5E5CE6", "lg")}<div><b>سعرات محسوبة لجسمك</b><p>هدف يومي واضح للسعرات والبروتين والماء.</p></div></div>
+      <div class="feat">${sym("bowl", "#34C759", "lg")}<div><b>خطة بدون سكر وخبز</b><p>وجبات ٧ أيام بمقاديرها، وقائمة مشتريات.</p></div></div>
+      <div class="feat">${sym("flame", "#FF9F0A", "lg")}<div><b>تحدّي ٢١ يوماً</b><p>سجّل التزامك كل يوم، وزر SOS لوقت الرغبة.</p></div></div>
+      <div class="feat">${sym("trend", "#FF375F", "lg")}<div><b>تقدّم حقيقي</b><p>الوزن الحقيقي وتاريخ وصولك المتوقع.</p></div></div>
       <p class="ob-note">إن كان لديك مرض مزمن أو تتناول أدوية، أو عمرك أقل من ١٨ سنة، فاستشر الطبيب قبل البدء.</p>
       <button class="btn primary block ios-cta" data-act="ob" data-s="2">متابعة</button><p class="ob-by">تصميم الأزهر الناعبي</p></div>`);
     if (step === 2) sheetFull(`<div class="ob"><div class="obs">١ من ٣</div><h2>عرّفنا بك</h2>
@@ -413,7 +430,7 @@
   function countUp() { document.querySelectorAll('[data-count]').forEach(el => { const to = +el.dataset.count, t0 = performance.now();
     const st = t => { const k = Math.min(1, (t - t0) / 1000), e = 1 - Math.pow(1 - k, 3); el.textContent = n(Math.round(to * e)); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }); }
   function breathe() {
-    sheet(`<div class="sos-s"><h2>خذ دقيقة 🫁</h2><p>الرغبة موجة؛ ترتفع ثم تهدأ. تنفّس مع الدائرة:</p>
+    sheet(`<div class="sos-s"><h2>خذ دقيقة</h2><p>الرغبة موجة؛ ترتفع ثم تهدأ. تنفّس مع الدائرة:</p>
       <div class="breath"><i></i><b id="brT">شهيق</b></div><div class="brc" id="brC">٦٠</div>
       <ol class="steps2"><li>اشرب كوب ماء كامل الآن.</li><li>اقرأ هدفك: ${n(P.goal)} كجم — كل يوم التزام يقرّبك.</li><li>قم وامشِ ٥ دقائق أو غيّر مكانك.</li><li>جائع فعلاً؟ كُل بروتين: بيضة أو زبادي يوناني أو حفنة لوز.</li></ol>
       <button class="btn primary block" data-act="closeSheet">هدأت الرغبة 💪</button></div>`);
