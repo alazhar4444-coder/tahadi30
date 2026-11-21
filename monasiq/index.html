@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>منسّق</title>
+<meta name="theme-color" content="#F2F2F7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="منسّق">
+<link rel="apple-touch-icon" href="icon-180.png?v=1">
+<link rel="icon" href="icon-180.png?v=1">
+<link rel="manifest" href="manifest.webmanifest?v=1">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<div id="splash">
+  <div class="sp-glow"></div>
+  <div class="sp-logo"><img src="mark.png?v=1" alt=""></div>
+  <div class="sp-me"><img src="me.png?v=1" alt=""><span class="sp-ring"></span></div>
+  <h1 class="sp-t">منسّق</h1>
+  <p class="sp-s">مدرسة معاذ بن جبل للتعليم الأساسي</p>
+  <p class="sp-c">تصميم وتطوير: الأزهر الناعبي</p>
+</div>
+
+<main id="view"></main>
+
+<button id="fab" aria-label="مهمة جديدة"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+
+<nav id="tabs">
+  <button data-tab="home" class="on"><svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8.5a1 1 0 0 1-1 1h-4.5V15h-5v5.5H5a1 1 0 0 1-1-1z"/></svg><span>الرئيسية</span></button>
+  <button data-tab="all"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg><span>المهام</span></button>
+  <span class="tab-gap"></span>
+  <button data-tab="week"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>الأسبوع</span></button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6"/></svg><span>حسابي</span></button>
+</nav>
+
+<div id="sheet" hidden><div class="sheet-bg"></div><div class="sheet-card" id="sheetBody"></div></div>
+<div id="toast"></div>
+<div id="banner"></div>
+
+<script>
+setTimeout(function(){var s=document.getElementById('splash');s.classList.add('out');setTimeout(function(){s.remove()},700)},2300);
+</script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

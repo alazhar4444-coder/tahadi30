@@ -33,6 +33,7 @@ jobs:
           cp -r tartan _site/tartan
           cp -r shawari _site/shawari
           cp -r hara _site/hara
+          cp -r monasiq _site/monasiq
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
