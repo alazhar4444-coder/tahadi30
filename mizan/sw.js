@@ -1,6 +1,6 @@
 /* ميزان — يعمل بدون إنترنت بعد أول فتح */
-const CACHE = 'mizan-v1';
-const FILES = ['./', 'index.html', 'app.css?v=1', 'app.js?v=1', 'content.js?v=1', 'fonts/thmanyah-regular.otf', 'fonts/thmanyah-bold.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
+const CACHE = 'mizan-v2';
+const FILES = ['./', 'index.html', 'app.css?v=2', 'app.js?v=2', 'content.js?v=2', 'plan.js?v=2', 'mz3d.js?v=2', 'three.min.js?v=2', 'fonts/thmanyah-regular.otf', 'fonts/thmanyah-bold.otf', 'icon-180.png', 'icon-512.png', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('mizan-') && k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', e => {

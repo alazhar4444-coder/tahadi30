@@ -11,10 +11,12 @@
   let W = Store.get('w', {});                // الأوزان
   let RECENT = Store.get('recent', []);
   let THEME = Store.get('theme', 'auto');
-  const save = () => { Store.set('p', P); Store.set('log', L); Store.set('w', W); Store.set('recent', RECENT); };
+  let SB = Store.get('sb', { start: null, d: {}, best: 0 }); // تحدي السكر والخبز
+  let PLANDAY = null;
+  const save = () => { Store.set('sb', SB); Store.set('p', P); Store.set('log', L); Store.set('w', W); Store.set('recent', RECENT); };
 
   /* أدوات */
-  const AR = '٠١٢٣٤٥٦٧٨٩', n = x => String(x).replace(/\d/g, d => AR[d]).replace('.', '٫');
+  const AR = '٠١٢٣٤٥٦٧٨٩', n = x => String(x).replace(/\d/g, d => AR[d]);
   const r1 = x => Math.round(x * 10) / 10;
   const pad = x => String(x).padStart(2, '0');
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -92,7 +94,7 @@
     const pFrac = Math.min(1, tot.p / t.protein);
     const hr = new Date().getHours();
     const hi = hr < 12 ? 'صباح الخير' : 'مساء الخير';
-    const tip = M.tips[new Date(k).getDate() % M.tips.length];
+    const allTips = M.tips2.concat(M.tips), tip = allTips[fromKey(k).getDate() % allTips.length];
     const s = trendSeries(), w = W[k];
     const meals = M.meals.map(m => {
       const items = d.f.map((x, i) => [x, i]).filter(([x]) => x.m === m.id);
@@ -117,6 +119,8 @@
       </div>
     </section>
 
+    ${isToday ? sbCard() : ''}
+    ${isToday ? planMini() : ''}
     <div class="duo">
       <div class="card water"><div class="ch">${ic.drop}<b>الماء</b><span>${n(d.water)} / ${n(t.water)} أكواب</span></div><div class="cups">${cups}</div></div>
       <div class="card stepsc"><div class="ch">${ic.steps}<b>الخطوات</b></div><div class="st-v">${n(d.steps.toLocaleString('en'))}<small> / ${n('8,000')}</small></div>
@@ -134,6 +138,86 @@
     </div>
 
     <div class="card tipc">${ic.bulb}<span>${tip}</span></div>`;
+  }
+
+
+  /* ===================== تحدي السكر والخبز ===================== */
+  const sbGet = k => (SB.d[k] || {});
+  function sbStreak(key) {
+    const ok = k => { const d = SB.d[k]; return d && (key === 'both' ? d.s === 1 && d.b === 1 : d[key] === 1); };
+    let d = new Date(), c = 0; if (!ok(today())) d = new Date(Date.now() - DAY);
+    while (ok(keyOf(d))) { c++; d = new Date(d.getTime() - DAY); } return c;
+  }
+  const sbStage = st => M.sb.stages.find(x => st + 1 >= x.a && st + 1 <= x.z) || M.sb.stages[0];
+  function sbBtns() {
+    const d = sbGet(today());
+    const b = (key, label, emoji) => `<div class="sbq"><span class="sbe">${emoji}</span><b>${label}</b>
+      <div class="sbb"><button class="ok ${d[key] === 1 ? 'on' : ''}" data-act="sbMark" data-k="${key}" data-v="1">${ic.check} التزمت</button><button class="slip ${d[key] === 0 ? 'on' : ''}" data-act="sbMark" data-k="${key}" data-v="0">زلّة</button></div></div>`;
+    return b('s', 'بدون سكر اليوم', '🍬') + b('b', 'بدون خبز اليوم', '🍞');
+  }
+  function sbCard() {
+    const st = sbStreak('both');
+    return `<section class="card sbcard" data-act="tab" data-tab="challenge">
+      <div class="sbh"><div class="flame">${ic.flame}</div><div class="grow"><b>تحدي السكر والخبز</b><span>${SB.start ? `${sbStage(st).t} · أفضل سلسلة ${n(Math.max(SB.best, st))} يوم` : 'ابدأ اليوم — سجّل التزامك كل مساء'}</span></div><div class="sbn"><b data-count="${st}">${n(st)}</b><small>يوم</small></div></div>
+      <div class="sbqs">${sbBtns()}</div></section>`;
+  }
+  function viewChallenge() {
+    const st = sbStreak('both'), ss = sbStreak('s'), sbb = sbStreak('b'), stg = sbStage(st);
+    const start = SB.start ? fromKey(SB.start) : new Date(), cells = [];
+    for (let i = 0; i < 21; i++) { const k = keyOf(new Date(start.getTime() + i * DAY)), d = SB.d[k], fut = k > today();
+      const cls = fut ? 'fut' : d && d.s === 1 && d.b === 1 ? 'ok' : d && (d.s === 0 || d.b === 0) ? 'slip' : d ? 'half' : k === today() ? 'now' : 'miss';
+      cells.push(`<div class="dc ${cls}" style="--i:${i}"><b>${n(i + 1)}</b></div>`); }
+    const colors = ['#F97316', '#FACC15', '#22C55E', '#14B8A6', '#8B5CF6'], col = colors[M.sb.stages.indexOf(stg)];
+    return `
+    <header class="hd"><div class="grow"><div class="eyebrow">٢١ يوماً لعادة جديدة</div><h1>بدون سكر وخبز</h1></div><button class="icon-b sos" data-act="sos" aria-label="أشتهي الآن">SOS</button></header>
+    <section class="ch-hero" style="--c:${col}">
+      <div class="slot3d gem" id="slot3d" data-kind="gem" data-days="${st}" data-color="${col}"></div>
+      <div class="chh-in"><b data-count="${st}">${n(st)}</b><span>يوم متواصل</span><em>${stg.t}</em></div>
+      <div class="chh-row"><div><span>🍬 بدون سكر</span><b>${n(ss)}</b></div><div><span>🍞 بدون خبز</span><b>${n(sbb)}</b></div><div><span>🏆 الأفضل</span><b>${n(Math.max(SB.best, st))}</b></div></div>
+    </section>
+    <div class="card"><b class="nt">سجّل يومك</b><div class="sbqs">${sbBtns()}</div><p class="hint">سجّل كل مساء. الزلّة ليست فشلاً؛ ارجع في الوجبة التالية.</p></div>
+    <h2 class="label">رحلة الـ٢١ يوماً</h2>
+    <div class="card days21">${cells.join('')}</div>
+    <div class="card stage" style="--c:${col}"><span class="lbl2">المرحلة الآن</span><b>${stg.t}</b><p>${stg.h}</p></div>
+    <button class="card sosb" data-act="sos"><span>🆘</span><div class="grow"><b>تشتهي حلو أو خبز الآن؟</b><span>دقيقة واحدة تكفي لتهدأ الرغبة</span></div><span class="chev">${ic.chev}</span></button>
+    <h2 class="label">ما الممنوع وما المسموح؟</h2>
+    <div class="card list">${M.sb.what.map(w => `<div class="li"><div class="grow"><b>${w[0]}</b><span>${w[1]}</span></div></div>`).join('')}</div>
+    <h2 class="label">بدائل السكر</h2>
+    <div class="swaps">${M.sb.swapsSugar.map((w, i) => `<div class="sw" style="--i:${i}"><s>${w[0]}</s><span>${w[1]}</span></div>`).join('')}</div>
+    <h2 class="label">بدائل الخبز</h2>
+    <div class="swaps">${M.sb.swapsBread.map((w, i) => `<div class="sw b" style="--i:${i}"><s>${w[0]}</s><span>${w[1]}</span></div>`).join('')}</div>
+    <h2 class="label">سكر مخفي انتبه له</h2>
+    <div class="card chips">${M.sb.hidden.map(h => `<span>${h}</span>`).join('')}</div>`;
+  }
+
+  /* ===================== الخطة الغذائية ===================== */
+  const planIdx = () => PLANDAY == null ? (new Date().getDay() + 1) % 7 : PLANDAY;
+  const mealSum = m => m.i.reduce((a, x) => ({ k: a.k + x[2], p: a.p + x[3] }), { k: 0, p: 0 });
+  function planMini() {
+    const d = M.plan.day(planIdx()), t = targets();
+    return `<button class="card planmini" data-act="tab" data-tab="plan"><span class="pm-ic">🥗</span><div class="grow"><b>خطة اليوم</b><span>${d.b.t} · ${d.l.t} · ${d.d.t}</span></div><span class="chev">${ic.chev}</span></button>`;
+  }
+  function viewPlan() {
+    const i = planIdx(), d = M.plan.day(i), t = targets(), isT = i === (new Date().getDay() + 1) % 7;
+    const rows = [['b', '🌅', 'الفطور', d.b], ['s', '🍎', 'سناك الضحى', d.s1], ['l', '☀️', 'الغداء', d.l], ['s', '🥜', 'سناك العصر', d.s2], ['d', '🌙', 'العشاء', d.d]];
+    const tot = rows.reduce((a, r) => { const m = mealSum(r[3]); return { k: a.k + m.k, p: a.p + m.p }; }, { k: 0, p: 0 });
+    const diff = t.kcal - tot.k, adds = []; let left = diff; for (const a of M.plan.ADD) { if (left < 60) break; adds.push(a); left -= a[2]; }
+    const logged = (dayLog(today()).planned || []);
+    return `
+    <header class="hd"><div class="grow"><div class="eyebrow">بدون سكر · بدون خبز</div><h1>خطتي الغذائية</h1><div class="sub">محسوبة على هدفك ${n(t.kcal)} سعرة و${n(t.protein)} غ بروتين</div></div>
+      <button class="icon-b" data-act="shop" aria-label="قائمة المشتريات">🛒</button></header>
+    <div class="dchips">${M.plan.DAYS.map((x, j) => `<button class="${j === i ? 'on' : ''} ${j === (new Date().getDay() + 1) % 7 ? 'tdy' : ''}" data-act="planDay" data-i="${j}">${x}</button>`).join('')}</div>
+    <section class="plan-sum">
+      <div><span>مجموع الخطة</span><b data-count="${tot.k}">${n(tot.k)}</b><small>سعرة</small></div>
+      <div><span>البروتين</span><b>${n(Math.round(tot.p))}</b><small>غرام</small></div>
+      <div><span>هدفك</span><b>${n(t.kcal)}</b><small>سعرة</small></div>
+    </section>
+    ${diff >= 60 ? `<div class="card adjust">➕ <span>لتصل لهدفك أضف: ${adds.map(a => `<b>${a[0]} (${a[1]})</b>`).join(' + ')}</span></div>` : diff <= -60 ? `<div class="card adjust">➖ <span>الخطة أعلى من هدفك بـ${n(-diff)} سعرة — احذف سناك العصر.</span></div>` : ''}
+    ${rows.map(([m, e, lbl, meal], j) => { const s2 = mealSum(meal), done = isT && logged.includes(j);
+      return `<div class="card pmeal ${done ? 'done' : ''}" style="--i:${j}"><div class="pmh"><span class="me">${e}</span><div class="grow"><span class="lbl2">${lbl}</span><b>${meal.t}</b></div><span class="pk">${n(s2.k)}<small> سعرة</small></span></div>
+        <ul>${meal.i.map(x => `<li><span>${x[0]}</span><em>${x[1]}</em><i>${n(x[2])}</i></li>`).join('')}</ul>
+        ${isT ? `<button class="btn ${done ? 'ghost' : 'primary'} sm block" data-act="logPlan" data-j="${j}" data-m="${m}" ${done ? 'disabled' : ''}>${done ? ic.check + ' سُجّلت في يومك' : 'أكلتها — سجّلها'}</button>` : ''}</div>`; }).join('')}
+    <div class="card tipc">${ic.bulb}<span>تقدر تبدّل وجبة بأخرى من نفس النوع في أي يوم. المهم: بروتين في كل وجبة، نصف الصحن خضار، وبدون سكر أو خبز.</span></div>`;
   }
 
   /* ===================== التقدّم ===================== */
@@ -170,6 +254,7 @@
     return `
     <header class="hd"><div class="grow"><h1>التقدّم</h1><div class="sub">الوزن الحقيقي يتجاهل تقلّبات الماء اليومية</div></div></header>
     <section class="prog-hero">
+      <div class="slot3d path" id="slot3d" data-kind="path" data-pct="${pct}"><div class="p3-l s">البداية<b>${n(P.w0)}</b></div><div class="p3-l g">الهدف<b>${n(P.goal)}</b></div></div>
       <div class="ph-row"><div><span>الوزن الحقيقي</span><b>${n(r1(cur))}<small> كجم</small></b></div><div><span>نزلت</span><b class="ok">${lost > 0 ? n(r1(lost)) : '٠'}<small> كجم</small></b></div><div><span>الهدف</span><b>${n(P.goal)}<small> كجم</small></b></div></div>
       <div class="pbar"><i style="width:${pct}%"></i></div>
       <div class="ph-foot">${pr.done ? '🎉 وصلت إلى هدفك! ما شاء الله' : `${n(Math.round(pct))}٪ من الطريق · الوصول المتوقع: <b>${shortDate(pr.date)}</b>`}</div>
@@ -212,6 +297,7 @@
     <section class="card numbers"><b class="nt">أرقامك الشخصية</b>
       <div class="nums"><div><span>الحرق الأساسي</span><b>${n(t.bmr)}</b></div><div><span>حرقك اليومي</span><b>${n(t.tdee)}</b></div><div><span>هدف السعرات</span><b class="ok">${n(t.kcal)}</b></div><div><span>البروتين</span><b>${n(t.protein)} غ</b></div></div>
       <p class="hint" style="margin:10px 0 0">الحرق اليومي = الحرق الأساسي × مستوى نشاطك. والهدف = الحرق اليومي − عجز يناسب سرعة ${n(r1(t.pace))} كجم أسبوعيًا${t.floored ? `، مع حد أدنى آمن ${n(t.floor)} سعرة` : ''}.</p></section>
+    <button class="card planmini" data-act="tab" data-tab="workout"><span class="pm-ic">💪</span><div class="grow"><b>برنامج التمارين في البيت</b><span>٣ أيام في الأسبوع + مشي يومي</span></div><span class="chev">${ic.chev}</span></button>
     <h2 class="label">طريقة الصحن</h2>
     <div class="card plate"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="var(--soft)"/><circle cx="100" cy="100" r="80" fill="var(--card)"/>
       <path d="M100 100 L100 20 A80 80 0 0 1 100 180Z" fill="#4ADE80"/><path d="M100 100 L100 180 A80 80 0 0 1 20 100Z" fill="#FB923C"/><path d="M100 100 L20 100 A80 80 0 0 1 100 20Z" fill="#F87171"/></svg>
@@ -272,8 +358,9 @@
   let OB = {};
   function onboard(step) {
     const m = OB;
+    if (step === 1) Object.assign(OB, { sex: OB.sex || 'm', h: OB.h || 168, w0: OB.w0 || 85 });
     if (step === 1) sheetFull(`<div class="ob"><img src="icon-180.png" class="ob-ic" alt=""><h2>أهلًا بك في «ميزان»</h2>
-      <p>إنقاص الوزن بالطريقة الصحيحة: سعرات محسوبة لجسمك، بروتين كافٍ، حركة، وتقدّم واضح — بدون حرمان قاسٍ.</p>
+      <p>إنقاص الوزن بالطريقة الصحيحة: سعرات محسوبة لجسمك، خطة غذائية بدون سكر ولا خبز، تحدّي ٢١ يوماً، وتقدّم واضح — بدون حرمان قاسٍ.</p>
       <div class="note">⚕️ إن كان لديك مرض مزمن أو تتناول أدوية، أو كنتِ حاملًا أو مرضعًا، أو عمرك أقل من ١٨ سنة، فاستشر الطبيب قبل البدء.</div>
       <button class="btn primary block" data-act="ob" data-s="2">لنبدأ</button></div>`);
     if (step === 2) sheetFull(`<div class="ob"><div class="obs">١ من ٣</div><h2>عرّفنا بك</h2>
@@ -310,12 +397,25 @@
   function render(anim) {
     if (anim === undefined) anim = true;
     const v = $('#view'), y = scrollY;
-    v.innerHTML = tab === 'today' ? viewToday() : tab === 'progress' ? viewProgress() : tab === 'workout' ? viewWorkout() : tab === 'guide' ? viewGuide() : viewSettings();
+    v.innerHTML = tab === 'today' ? viewToday() : tab === 'plan' ? viewPlan() : tab === 'challenge' ? viewChallenge() : tab === 'progress' ? viewProgress() : tab === 'workout' ? viewWorkout() : tab === 'guide' ? viewGuide() : viewSettings();
     if (anim) { v.classList.remove('enter'); void v.offsetWidth; v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 10))); scrollTo(0, 0); }
     else { v.classList.remove('enter'); scrollTo(0, y); }
-    document.querySelectorAll('#tabs button[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+    document.querySelectorAll('#tabs button[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === (tab === 'workout' || tab === 'settings' ? 'guide' : tab)));
+    const sl = $('#slot3d'); if (sl && window.MZ3D) MZ3D.mount(sl, sl.dataset.kind, { days: +sl.dataset.days || 0, color: sl.dataset.color, pct: +sl.dataset.pct || 0 });
+    if (anim) countUp(); else document.querySelectorAll('[data-count]').forEach(e => { e.textContent = n(e.dataset.count); });
+    const rf = document.querySelector('.rf'); if (rf && anim) { const to = rf.style.strokeDashoffset; rf.style.transition = 'none'; rf.style.strokeDashoffset = rf.style.strokeDasharray; requestAnimationFrame(() => requestAnimationFrame(() => { rf.style.transition = ''; rf.style.strokeDashoffset = to; })); }
     const ts = document.querySelector('[data-theme-sel]'); if (ts) ts.addEventListener('change', () => { THEME = ts.value; Store.set('theme', THEME); applyTheme(); });
     $('#fab').hidden = tab !== 'today';
+  }
+  function countUp() { document.querySelectorAll('[data-count]').forEach(el => { const to = +el.dataset.count, t0 = performance.now();
+    const st = t => { const k = Math.min(1, (t - t0) / 1000), e = 1 - Math.pow(1 - k, 3); el.textContent = n(Math.round(to * e)); if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }); }
+  function breathe() {
+    sheet(`<div class="sos-s"><h2>خذ دقيقة 🫁</h2><p>الرغبة موجة؛ ترتفع ثم تهدأ. تنفّس مع الدائرة:</p>
+      <div class="breath"><i></i><b id="brT">شهيق</b></div><div class="brc" id="brC">٦٠</div>
+      <ol class="steps2"><li>اشرب كوب ماء كامل الآن.</li><li>اقرأ هدفك: ${n(P.goal)} كجم — كل يوم التزام يقرّبك.</li><li>قم وامشِ ٥ دقائق أو غيّر مكانك.</li><li>جائع فعلاً؟ كُل بروتين: بيضة أو زبادي يوناني أو حفنة لوز.</li></ol>
+      <button class="btn primary block" data-act="closeSheet">هدأت الرغبة 💪</button></div>`);
+    let sec = 60; const ph = ['شهيق', 'احبس', 'زفير'], dur = [4, 4, 6]; let pi = 0, pt = 0;
+    clearInterval(breathe._t); breathe._t = setInterval(() => { const c = $('#brC'), tx = $('#brT'); if (!c) return clearInterval(breathe._t); sec--; pt++; if (pt >= dur[pi]) { pt = 0; pi = (pi + 1) % 3; } tx.textContent = ph[pi]; c.textContent = n(Math.max(0, sec)); if (sec <= 0) { clearInterval(breathe._t); tx.textContent = 'أحسنت'; } }, 1000);
   }
   function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); }
   function sheet(html) { $('#sheetBody').innerHTML = html; $('#sheet').classList.remove('full'); $('#sheet').hidden = false; }
@@ -351,6 +451,17 @@
     woDone: el => { const d = dayLog(today()); d.wo = d.wo || []; d.wo.push(el.dataset.id); save(); confetti(50); toast('أحسنت! تمرين مكتمل 💪'); render(false); },
     lesson: el => { const l = M.lessons[+el.dataset.i]; sheet(`<article class="les"><span class="lbl2">درس ${n(+el.dataset.i + 1)}</span><h2>${l.t}</h2>${l.body.map(p => `<p>${p}</p>`).join('')}<button class="btn primary block" data-act="closeSheet">فهمت</button></article>`); },
     closeSheet,
+    sbMark: el => { const k = today(), d = SB.d[k] || (SB.d[k] = {}), key = el.dataset.k, v = +el.dataset.v; if (!SB.start) SB.start = k;
+      d[key] = d[key] === v ? undefined : v; if (d[key] === undefined) delete d[key];
+      const st = sbStreak('both'); if (st > SB.best) SB.best = st; save(); render(false); haptic();
+      if (v === 1 && d.s === 1 && d.b === 1) { confetti(st % 7 === 0 ? 120 : 45); toast(st % 7 === 0 ? `🏆 ${n(st)} أيام بدون سكر وخبز!` : `🔥 ${n(st)} يوم متواصل`); }
+      else if (v === 0) toast('لا بأس — المهم ترجع في الوجبة التالية'); },
+    sos: () => breathe(),
+    planDay: el => { PLANDAY = +el.dataset.i; render(false); },
+    logPlan: el => { const j = +el.dataset.j, d = M.plan.day(planIdx()), meal = [d.b, d.s1, d.l, d.s2, d.d][j], dl = dayLog(today());
+      meal.i.forEach(x => dl.f.push({ m: el.dataset.m, n: x[0], u: x[1], k: x[2], p: x[3], q: 1 })); dl.planned = (dl.planned || []).concat(j); save(); render(false); toast(`سُجّلت: ${meal.t}`); haptic(); },
+    shop: () => { const items = {}; for (let i = 0; i < 7; i++) { const d = M.plan.day(i); [d.b, d.s1, d.l, d.s2, d.d].forEach(m => m.i.forEach(x => { const nm = x[0].replace(/\s*\(.*\)/, ''); items[nm] = (items[nm] || 0) + 1; })); }
+      sheet(`<h2>🛒 مشتريات الأسبوع</h2><p>كل ما تحتاجه لخطة ٧ أيام بدون سكر وخبز:</p><div class="shop">${Object.keys(items).sort().map(x => `<label><input type="checkbox"><span>${x}</span><em>×${n(items[x])}</em></label>`).join('')}</div><button class="btn primary block" data-act="closeSheet">تم</button>`); },
     editProfile: () => { OB = Object.assign({}, P); onboard(2); },
     export: () => { const d = JSON.stringify({ p: P, log: L, w: W }); if (navigator.share) navigator.share({ text: d }).catch(() => {}); else { navigator.clipboard && navigator.clipboard.writeText(d); toast('نُسخت'); } },
     import: () => sheet(`<h2>استيراد</h2><textarea class="inp" id="impIn" style="min-height:140px;direction:ltr"></textarea><button class="btn primary block" data-act="doImport" style="margin-top:10px">استيراد</button>`),
