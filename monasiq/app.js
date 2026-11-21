@@ -22,8 +22,8 @@
     const tx = (mode, fn) => open().then(db => new Promise((res, rej) => { const t = db.transaction('a', mode), s = t.objectStore('a'), q = fn(s); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
     return { put: (k, v) => tx('readwrite', s => s.put(v, k)), get: k => tx('readonly', s => s.get(k)), del: k => tx('readwrite', s => s.delete(k)) }; })();
 
-  const PR = { h: { t: 'عالية', c: '#FF3B30', s: 'flag' }, m: { t: 'متوسطة', c: '#FF9F0A', s: 'flag' }, l: { t: 'منخفضة', c: '#34C759', s: 'flag' } };
-  const CATS = [['cover', 'تغطية فعالية', '#FF375F', 'camera'], ['post', 'نشر في الحساب', '#0A84FF', 'send'], ['photo', 'تصوير وفيديو', '#FF9F0A', 'video'], ['design', 'تصميم', '#AF52DE', 'pen'], ['content', 'كتابة محتوى', '#30B0C7', 'doc'], ['meet', 'اجتماعات', '#5E5CE6', 'people'], ['admin', 'شؤون إدارية', '#8E8E93', 'folder'], ['personal', 'شخصي', '#34C759', 'heart']];
+  const PR = { h: { t: 'عالية', c: '#FF3B30', s: 'flag' }, m: { t: 'متوسطة', c: '#FF9F0A', s: 'flag' }, l: { t: 'منخفضة', c: '#0A84FF', s: 'flag' } };
+  const CATS = [['cover', 'تغطية فعالية', '#FF375F', 'camera'], ['post', 'نشر في الحساب', '#0A84FF', 'send'], ['photo', 'تصوير وفيديو', '#FF9F0A', 'video'], ['design', 'تصميم', '#AF52DE', 'pen'], ['content', 'كتابة محتوى', '#30B0C7', 'doc'], ['meet', 'اجتماعات', '#5E5CE6', 'people'], ['admin', 'شؤون إدارية', '#8E8E93', 'folder'], ['personal', 'شخصي', '#64D2FF', 'heart']];
   const CAT = id => CATS.find(c => c[0] === id) || CATS.find(c => c[0] === 'admin');
 
   /* ——— الرموز ——— */
@@ -88,7 +88,7 @@
     const now = Date.now();
     T.forEach(t => { if (t.done || !t.date || !t.time) return; const due = dueTs(t), pre = due - ST.remind * 60000, key = t.id + '@' + t.date + t.time;
       if (now >= pre && now < due + 3600000 && !notified.has(key)) { notified.add(key); localStorage.setItem(K + 'notified', JSON.stringify([...notified].slice(-200)));
-        banner(t); try { if (window.Notification && Notification.permission === 'granted') navigator.serviceWorker && navigator.serviceWorker.ready.then(r => r.showNotification('منسّق: ' + t.title, { body: (PR[t.pr].t) + ' · ' + dueStr(t), icon: 'icon-180.png?v=3', tag: t.id })); } catch (e) {} } });
+        banner(t); try { if (window.Notification && Notification.permission === 'granted') navigator.serviceWorker && navigator.serviceWorker.ready.then(r => r.showNotification('منسّق: ' + t.title, { body: (PR[t.pr].t) + ' · ' + dueStr(t), icon: 'icon-180.png?v=4', tag: t.id })); } catch (e) {} } });
   }
   function banner(t) { const el = $('#banner'); el.innerHTML = `${sym('bell', PR[t.pr].c, 'sm')}<div class="grow"><b>${esc(t.title)}</b><span>${dueStr(t)} · أولوية ${PR[t.pr].t}</span></div><button data-act="open" data-id="${t.id}">عرض</button>`; el.classList.add('on'); haptic(); sfx(); clearTimeout(banner.t); banner.t = setTimeout(() => el.classList.remove('on'), 7000); }
   let AC; function sfx() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const t = AC.currentTime; [880, 1320].forEach((f, i) => { const o = AC.createOscillator(), g = AC.createGain(); o.frequency.value = f; o.type = 'sine'; o.connect(g); g.connect(AC.destination); g.gain.setValueAtTime(0.0001, t + i * 0.12); g.gain.exponentialRampToValueAtTime(0.15, t + i * 0.12 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.12 + 0.35); o.start(t + i * 0.12); o.stop(t + i * 0.12 + 0.4); }); } catch (e) {} }
@@ -149,7 +149,7 @@
     const cnt = p => open.filter(t => t.pr === p).length, over = open.filter(isOver).length;
     const R = 46, C = 2 * Math.PI * R, h = new Date().getHours();
     return `
-    <header class="hd home-hd"><button class="av" data-act="settings" aria-label="الملف الشخصي"><img src="me.png?v=1" alt=""></button><div class="grow"><div class="eyebrow"><img src="mark.png?v=1" class="mk" alt="">${esc(ST.school)}</div><h1>${h < 12 ? 'صباح الخير' : 'مساء الخير'}، أ. ${esc((ST.name || '').split(' ')[0])}</h1></div><button class="icon-b" data-act="settings" aria-label="الإعدادات">${svg('gear')}</button></header>
+    <header class="hd home-hd"><button class="av" data-act="settings" aria-label="الملف الشخصي"><img src="me.png?v=1" alt=""></button><div class="grow"><div class="eyebrow"><img src="mark-g.png?v=1" class="mk" alt="">${esc(ST.school)}</div><h1>${h < 12 ? 'صباح الخير' : 'مساء الخير'}، أ. ${esc((ST.name || '').split(' ')[0])}</h1></div><button class="icon-b" data-act="settings" aria-label="الإعدادات">${svg('gear')}</button></header>
     <section class="hero"><img class="hero-wm" src="logo-w.png?v=1" alt="">
       <div class="hring"><svg viewBox="0 0 110 110" class="art"><circle cx="55" cy="55" r="${R}" class="rt"/><circle cx="55" cy="55" r="${R}" class="rf" style="stroke-dasharray:${C};stroke-dashoffset:${C * (1 - pct)}" transform="rotate(-90 55 55)"/></svg>
         <div class="hri"><b data-count="${Math.round(pct * 100)}">${n(Math.round(pct * 100))}</b><span>٪ اليوم</span></div></div>
@@ -160,7 +160,7 @@
     ${todayT.length ? `<h2 class="label">اليوم والمتأخرة</h2><div class="group">${todayT.map(row).join('')}</div>` : `<div class="empty card"><div class="e-ic">${svg('check')}</div><b>لا مهام لليوم</b><span>أضف مهمة بالصوت أو بالكتابة من زر +</span></div>`}
     ${soon.length ? `<h2 class="label">الأيام القادمة</h2><div class="group">${soon.slice(0, 8).map(row).join('')}</div>` : ''}
     ${noDate.length ? `<h2 class="label">بدون موعد</h2><div class="group">${noDate.slice(0, 6).map(row).join('')}</div>` : ''}
-    <div class="credit-card"><img src="mark.png?v=1" alt=""><div><b>منسّق</b><span>برنامج خاص بالمنسّق الإعلامي لمدرسة معاذ بن جبل</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div>`;
+    <div class="credit-card"><img src="mark-g.png?v=1" alt=""><div><b>منسّق</b><span>برنامج خاص بالمنسّق الإعلامي لمدرسة معاذ بن جبل</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div>`;
   }
   function viewAll() {
     let L = T.slice();
@@ -192,7 +192,7 @@
       <div class="group"><div class="seg">${[['auto', 'تلقائي'], ['light', 'فاتح'], ['dark', 'داكن']].map(([k, t]) => `<button class="${ST.theme === k ? 'on' : ''}" data-act="theme" data-k="${k}">${t}</button>`).join('')}</div></div>
       <h2 class="label">البيانات</h2>
       <div class="group"><button class="li" data-act="export"><span class="grow">حفظ نسخة احتياطية</span></button><button class="li" data-act="import"><span class="grow">استرجاع نسخة</span></button><button class="li red" data-act="clearDone"><span class="grow">حذف المهام المنجزة</span></button></div>
-      <div class="credit-card"><img src="mark.png?v=1" alt=""><div><b>منسّق</b><span>بياناتك محفوظة على جوالك فقط</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div><input type="file" id="impF" accept=".json,application/json" hidden>`;
+      <div class="credit-card"><img src="mark-g.png?v=1" alt=""><div><b>منسّق</b><span>بياناتك محفوظة على جوالك فقط</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div><input type="file" id="impF" accept=".json,application/json" hidden>`;
   }
 
   /* ——— إضافة وتعديل ——— */
@@ -248,7 +248,7 @@
   function openSheet(html) { $('#sheetBody').innerHTML = html; $('#sheet').hidden = false; requestAnimationFrame(() => $('#sheet').classList.add('on')); }
   function closeSheet() { stopVoice(); const s = $('#sheet'); s.classList.remove('on'); setTimeout(() => { s.hidden = true; }, 320); }
   function toast(m) { const el = $('#toast'); el.textContent = m; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2300); }
-  function confetti() { const b = document.createElement('div'); b.className = 'conf'; b.innerHTML = Array.from({ length: 18 }, (_, i) => `<i style="--x:${Math.cos(i / 18 * 6.28) * (60 + i % 3 * 25)}px;--y:${Math.sin(i / 18 * 6.28) * (60 + i % 3 * 25)}px;--c:${['#2E8B57', '#C9A04A', '#34C759', '#FF9F0A', '#E8C877'][i % 5]}"></i>`).join(''); return b; }
+  function confetti() { const b = document.createElement('div'); b.className = 'conf'; b.innerHTML = Array.from({ length: 18 }, (_, i) => `<i style="--x:${Math.cos(i / 18 * 6.28) * (60 + i % 3 * 25)}px;--y:${Math.sin(i / 18 * 6.28) * (60 + i % 3 * 25)}px;--c:${['#C9A04A', '#E8C877', '#FF9F0A', '#0A84FF', '#FFFFFF'][i % 5]}"></i>`).join(''); return b; }
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   function nextRep(t) { if (!t.rep || t.rep === 'none' || !t.date) return; const nt = Object.assign({}, t, { id: uid(), done: null, created: Date.now(), date: addD(t.date, t.rep === 'daily' ? 1 : 7), sub: (t.sub || []).map(s => ({ t: s.t, d: false })) }); T.push(nt); }
 
