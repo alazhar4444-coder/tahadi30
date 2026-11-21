@@ -178,7 +178,7 @@ background:color-mix(in srgb,var(--card) 78%,transparent);backdrop-filter:satura
 .quick button{padding:6px 12px;border-radius:14px;background:var(--fill);font-size:13.5px;font-weight:700}
 .quick button.on{background:var(--p,var(--ac));color:#fff}
 .dt{display:flex;gap:8px;margin-top:8px}
-.dt input{flex:1;border:0;background:var(--fill);border-radius:10px;padding:8px 10px;font-size:15px;min-height:38px;outline:0}
+.dt label{flex:1;display:flex;flex-direction:column;gap:4px}.dt small{font-size:12px;color:var(--t2);font-weight:700;padding-right:4px}.dt input{width:100%;-webkit-appearance:none;appearance:none;border:0;background:var(--fill);border-radius:10px;padding:8px 10px;font-size:15px;min-height:38px;outline:0}
 .ed textarea{border:0;background:var(--fill);border-radius:10px;padding:10px;outline:0;resize:none;font-size:15px}
 .ed select{border:0;background:var(--fill);border-radius:8px;padding:6px 8px;font-size:15px;outline:0;color:var(--ac)}
 .hint{font-size:13px;color:var(--t2);padding:12px 6px 0;line-height:1.7}
@@ -220,3 +220,7 @@ background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(2
 .sp-c{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));font-size:13px;color:var(--gd);font-weight:700;animation:rise .6s 1.45s both}
 
 .vb-ic svg{color:var(--gd2)}.chips button.on{background:var(--ac2);color:var(--gd2)}.act.cal{color:var(--gd2)}.wstrip a.tdy b{color:var(--gd2)}#banner button{background:var(--ac2);color:var(--gd2)}.hs em{background:rgba(255,59,48,.95)}
+.vfb{margin-top:10px;padding:14px;border-radius:16px;background:var(--card);box-shadow:var(--sh);border:1px solid rgba(201,160,74,.35);animation:rise .3s both}
+.vfb[hidden]{display:none}.vfb b{display:block;font-size:15px;color:var(--gd)}.vfb span{display:block;font-size:13.5px;color:var(--t2);line-height:1.7;margin:4px 0 10px}
+.vfb-b{display:flex;flex-wrap:wrap;gap:8px}.vfb-b button{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:var(--fill);font-size:14px;font-weight:700}
+.vfb-b button:first-child{background:linear-gradient(145deg,var(--gd2),var(--gd));color:#1a1408}

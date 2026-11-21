@@ -112,16 +112,31 @@
   /* ——— الصوت: تحويل الكلام إلى نص أو تسجيل مذكرة ——— */
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null, mr = null, chunks = [], recBlob = null;
+  // الاستماع: تحويل مباشر إذا دعمه الجهاز، وإلا بديل مضمون (إملاء الكيبورد أو مذكرة صوتية)
+  let vWatch = null, vSil = null, gotText = false;
+  function voiceUI(on) { const mb = $('#micB'), w = $('#vwave'); mb && mb.classList.toggle('on', on); w && w.classList.toggle('on', on); }
   function startVoice() {
-    const inp = $('#aT'), mb = $('#micB');
+    const inp = $('#aT');
     if (rec || mr) return stopVoice();
-    if (SR) {
-      rec = new SR(); rec.lang = 'ar-SA'; rec.interimResults = true; rec.continuous = false; const base = inp.value ? inp.value + ' ' : '';
-      rec.onresult = e => { let s = ''; for (const r of e.results) s += r[0].transcript; inp.value = base + s; preview(); };
-      rec.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { rec = null; recordMemo(); } else toast('لم أسمع جيداً، حاول مرة أخرى'); };
-      rec.onend = () => { rec = null; mb.classList.remove('on'); $('#vwave').classList.remove('on'); preview(); };
-      try { rec.start(); mb.classList.add('on'); $('#vwave').classList.add('on'); } catch (e) { rec = null; recordMemo(); }
-    } else recordMemo();
+    if (!SR || localStorage.getItem(K + 'srBad')) return voiceFallback(false);
+    gotText = false; const base = inp.value ? inp.value + ' ' : '';
+    try {
+      rec = new SR(); rec.lang = 'ar-SA'; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+      rec.onresult = e => { let s = ''; for (const r of e.results) s += r[0].transcript; if (s.trim()) gotText = true; inp.value = base + s; preview();
+        clearTimeout(vWatch); clearTimeout(vSil); vSil = setTimeout(() => { try { rec && rec.stop(); } catch (x) {} }, 2200); };
+      rec.onerror = e => { rec._err = e.error; };
+      rec.onend = () => { const err = rec && rec._err; rec = null; clearTimeout(vWatch); clearTimeout(vSil); voiceUI(false); preview();
+        if (!gotText) { if (err === 'not-allowed' || err === 'service-not-allowed' || err === 'audio-capture') localStorage.setItem(K + 'srBad', '1'); voiceFallback(true); } else haptic(); };
+      rec.start(); voiceUI(true);
+      vWatch = setTimeout(() => { if (!gotText) { try { rec && rec.abort(); } catch (x) {} } }, 7000);
+    } catch (e) { rec = null; voiceUI(false); voiceFallback(true); }
+  }
+  function voiceFallback(failed) {
+    const box = $('#vfb'); if (!box) return;
+    box.innerHTML = `<b>${failed ? 'ما قدرت أسمعك هنا' : 'الاستماع المباشر غير متاح في هذا الجهاز'}</b>
+      <span>الطريقة المضمونة في الآيفون: اضغط على الحقل ثم زر المايك 🎙 في الكيبورد وتكلّم، ويكتب لك الكلام مباشرة.</span>
+      <div class="vfb-b"><button data-act="dictate">${svg('mic')} إملاء من الكيبورد</button><button data-act="memo">${svg('play')} تسجيل مذكرة صوتية</button>${failed ? `<button data-act="retryV">إعادة المحاولة</button>` : ''}</div>`;
+    box.hidden = false;
   }
   async function recordMemo() {
     const mb = $('#micB');
@@ -131,7 +146,7 @@
       mr.start(); mb.classList.add('on'); $('#vwave').classList.add('on'); toast('يسجّل… اضغط مرة أخرى للإيقاف');
     } catch (e) { toast('اسمح للتطبيق باستخدام المايكروفون، أو استخدم مايك الكيبورد'); }
   }
-  function stopVoice() { try { rec && rec.stop(); } catch (e) {} try { mr && mr.stop(); } catch (e) {} }
+  function stopVoice() { clearTimeout(vWatch); clearTimeout(vSil); try { rec && rec.stop(); } catch (e) {} try { mr && mr.stop(); } catch (e) {} }
 
   /* ——— الشاشات ——— */
   let tab = 'home', filter = 'all', q = '', weekOff = 0;
@@ -202,6 +217,7 @@
     openSheet(`<div class="grab"></div><div class="sh-h"><button class="tx" data-act="close">إلغاء</button><b>مهمة جديدة</b><button class="tx bold" data-act="saveNew">إضافة</button></div>
       <div class="ain"><textarea id="aT" rows="2" placeholder="ماذا تريد أن تتذكر؟">${esc(draft.title || '')}</textarea><button class="mic" id="micB" data-act="mic" aria-label="تسجيل صوتي">${svg('mic')}</button></div>
       <div class="vwave" id="vwave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>أستمع…</span></div>
+      <div id="vfb" class="vfb" hidden></div>
       <div id="memo" class="memo" hidden>${svg('mic')} تسجيل صوتي مرفق</div>
       <div id="pv" class="pv"></div>
       ${editorFields()}
@@ -214,7 +230,7 @@
     return `<div class="group ed">
       <div class="li"><span class="lbl">${sym('flag', PR[d.pr].c, 'sm')}الأهمية</span><div class="seg sm">${['h', 'm', 'l'].map(p => `<button class="${d.pr === p ? 'on' : ''}" data-act="dpr" data-p="${p}" style="--p:${PR[p].c}">${PR[p].t}</button>`).join('')}</div></div>
       <div class="li col"><span class="lbl">${sym('cal', '#FF3B30', 'sm')}الموعد</span><div class="quick">${[['اليوم', t0], ['غداً', addD(t0, 1)], ['بعد غد', addD(t0, 2)], ['الأسبوع القادم', addD(t0, 7)], ['بدون', '']].map(([l, v]) => `<button class="${d.date === v ? 'on' : ''}" data-act="ddate" data-v="${v}">${l}</button>`).join('')}</div>
-        <div class="dt"><input type="date" id="dD" value="${d.date}"><input type="time" id="dTm" value="${d.time}"></div></div>
+        <div class="dt"><label><small>التاريخ</small><input type="date" id="dD" value="${d.date}"></label><label><small>الوقت</small><input type="time" id="dTm" value="${d.time}"></label></div></div>
       <div class="li col"><span class="lbl">${sym(CAT(d.cat)[3], CAT(d.cat)[2], 'sm')}التصنيف</span><div class="quick">${CATS.map(c => `<button class="${d.cat === c[0] ? 'on' : ''}" data-act="dcat" data-v="${c[0]}" style="--p:${c[2]}">${c[1]}</button>`).join('')}</div></div>
       <div class="li"><span class="lbl">${sym('repeat', '#8E8E93', 'sm')}التكرار</span><select id="dRep">${[['none', 'لا يتكرر'], ['daily', 'يومياً'], ['weekly', 'أسبوعياً']].map(([v, t]) => `<option value="${v}" ${d.rep === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
       <div class="li col"><span class="lbl">${sym('doc', '#0A84FF', 'sm')}ملاحظات</span><textarea id="dN" rows="2" placeholder="تفاصيل إضافية">${esc(d.notes)}</textarea></div></div>`;
@@ -258,7 +274,10 @@
     settings: () => { tab = 'settings'; render(); },
     add: el => addSheet(el && el.dataset.date ? { date: el.dataset.date } : {}),
     addVoice: () => addSheet({}, true),
-    mic: () => startVoice(),
+    mic: () => { const f = $('#vfb'); if (f) f.hidden = true; startVoice(); },
+    dictate: () => { $('#vfb').hidden = true; const i = $('#aT'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); toast('اضغط 🎙 في الكيبورد وتكلّم'); },
+    memo: () => { $('#vfb').hidden = true; recordMemo(); },
+    retryV: () => { localStorage.removeItem(K + 'srBad'); $('#vfb').hidden = true; startVoice(); },
     close: closeSheet,
     dpr: el => { readFields(); draft.pr = el.dataset.p; refreshEditor(); haptic(); },
     ddate: el => { readFields(); draft.date = el.dataset.v; if (!draft.date) draft.time = ''; refreshEditor(); },
