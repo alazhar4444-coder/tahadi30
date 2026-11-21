@@ -319,7 +319,7 @@
       <div class="li tog" data-act="export"><div class="grow"><b class="tint">تصدير نسخة احتياطية</b></div></div>
       <div class="li tog" data-act="import"><div class="grow"><b class="tint">استيراد نسخة</b></div></div>
       <div class="li tog" data-act="reset"><div class="grow"><b class="red">مسح كل البيانات</b></div></div>
-    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p><div class="credit"><img src="icon-180.png" alt=""><div><small>تطبيق «بسك» · تصميم وتطوير</small><b>الأزهر الناعبي</b></div></div>`;
+    </div><p class="foot">🔒 بياناتك محفوظة على جوالك فقط.</p><div class="credit"><img src="icon-180.png?v=4" alt=""><div><small>تطبيق «بسك» · تصميم وتطوير</small><b>الأزهر الناعبي</b></div></div>`;
   }
 
   /* ===================== إضافة الطعام ===================== */
@@ -359,10 +359,13 @@
   function onboard(step) {
     const m = OB;
     if (step === 1) Object.assign(OB, { sex: OB.sex || 'm', h: OB.h || 168, w0: OB.w0 || 85 });
-    if (step === 1) sheetFull(`<div class="ob"><img src="icon-180.png" class="ob-ic" alt=""><h2>أهلًا بك في «بسك»</h2>
-      <p>إنقاص الوزن بالطريقة الصحيحة: سعرات محسوبة لجسمك، خطة غذائية بدون سكر ولا خبز، تحدّي ٢١ يوماً، وتقدّم واضح — بدون حرمان قاسٍ.</p>
-      <div class="note">⚕️ إن كان لديك مرض مزمن أو تتناول أدوية، أو كنتِ حاملًا أو مرضعًا، أو عمرك أقل من ١٨ سنة، فاستشر الطبيب قبل البدء.</div>
-      <button class="btn primary block" data-act="ob" data-s="2">لنبدأ</button></div>`);
+    if (step === 1) sheetFull(`<div class="ob ios-welcome"><img src="icon-180.png?v=4" class="ob-ic" alt=""><h2>أهلاً بك في «بسك»</h2>
+      <div class="feat"><span class="fi1">🎯</span><div><b>سعرات محسوبة لجسمك</b><p>هدف يومي واضح للسعرات والبروتين والماء.</p></div></div>
+      <div class="feat"><span class="fi2">🥗</span><div><b>خطة بدون سكر وخبز</b><p>وجبات ٧ أيام بمقاديرها، وقائمة مشتريات.</p></div></div>
+      <div class="feat"><span class="fi3">🔥</span><div><b>تحدّي ٢١ يوماً</b><p>سجّل التزامك كل يوم، وزر SOS لوقت الرغبة.</p></div></div>
+      <div class="feat"><span class="fi4">📈</span><div><b>تقدّم حقيقي</b><p>الوزن الحقيقي وتاريخ وصولك المتوقع.</p></div></div>
+      <p class="ob-note">إن كان لديك مرض مزمن أو تتناول أدوية، أو عمرك أقل من ١٨ سنة، فاستشر الطبيب قبل البدء.</p>
+      <button class="btn primary block ios-cta" data-act="ob" data-s="2">متابعة</button><p class="ob-by">تصميم الأزهر الناعبي</p></div>`);
     if (step === 2) sheetFull(`<div class="ob"><div class="obs">١ من ٣</div><h2>عرّفنا بك</h2>
       <div class="seg2"><button class="${m.sex === 'm' ? 'on' : ''}" data-act="obSex" data-v="m">ذكر</button><button class="${m.sex === 'f' ? 'on' : ''}" data-act="obSex" data-v="f">أنثى</button></div>
       <div class="fld"><label>العمر</label><input class="inp" id="oAge" type="number" inputmode="numeric" value="${m.age || ''}" placeholder="سنة"></div>
