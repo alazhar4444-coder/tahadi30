@@ -23,8 +23,8 @@
     return { put: (k, v) => tx('readwrite', s => s.put(v, k)), get: k => tx('readonly', s => s.get(k)), del: k => tx('readwrite', s => s.delete(k)) }; })();
 
   const PR = { h: { t: 'عالية', c: '#FF3B30', s: 'flag' }, m: { t: 'متوسطة', c: '#FF9F0A', s: 'flag' }, l: { t: 'منخفضة', c: '#34C759', s: 'flag' } };
-  const CATS = [['meet', 'اجتماعات', '#5E5CE6', 'people'], ['report', 'تقارير', '#0A84FF', 'doc'], ['students', 'الطلاب', '#FF9F0A', 'cap'], ['teachers', 'المعلمون', '#30B0C7', 'person'], ['events', 'أنشطة وفعاليات', '#FF375F', 'star'], ['admin', 'شؤون إدارية', '#8E8E93', 'folder'], ['personal', 'شخصي', '#AF52DE', 'heart']];
-  const CAT = id => CATS.find(c => c[0] === id) || CATS[5];
+  const CATS = [['cover', 'تغطية فعالية', '#FF375F', 'camera'], ['post', 'نشر في الحساب', '#0A84FF', 'send'], ['photo', 'تصوير وفيديو', '#FF9F0A', 'video'], ['design', 'تصميم', '#AF52DE', 'pen'], ['content', 'كتابة محتوى', '#30B0C7', 'doc'], ['meet', 'اجتماعات', '#5E5CE6', 'people'], ['admin', 'شؤون إدارية', '#8E8E93', 'folder'], ['personal', 'شخصي', '#34C759', 'heart']];
+  const CAT = id => CATS.find(c => c[0] === id) || CATS.find(c => c[0] === 'admin');
 
   /* ——— الرموز ——— */
   const SY = {
@@ -39,6 +39,8 @@
     search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4-4"/>', trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>', share: '<path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/>',
     repeat: '<path d="M4 9a5 5 0 0 1 5-5h9l-3-3M20 15a5 5 0 0 1-5 5H6l3 3"/>', play: '<path d="M7 4.5v15l12-7.5z"/>', stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
     sub: '<path d="M5 4v9a3 3 0 0 0 3 3h11M15 12l4 4-4 4"/>', fire: '<path d="M12 21c4 0 6.5-2.6 6.5-6.3 0-4-3.3-6.6-4.3-10.7-2.2 1.6-3.2 4-3 6.5C10 9.5 9.2 8.4 9 7c-2 1.8-3.5 4.4-3.5 7.7C5.5 18.4 8 21 12 21z"/>',
+    camera: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.5-2h5.4l1.5 2h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/>',
+    send: '<path d="M21 3 10 14M21 3l-6.5 18-4.5-7-7-4.5z"/>', video: '<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="m16 10.5 5-3v9l-5-3z"/>', pen: '<path d="M4 20l1.2-4.6L15.6 5a2 2 0 0 1 2.8 0l.6.6a2 2 0 0 1 0 2.8L8.6 18.8z"/><path d="M13.5 7l3.5 3.5"/>',
     sparkle: '<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 3v3M17.5 4.5h3"/>',
   };
   const svg = k => `<svg viewBox="0 0 24 24">${SY[k]}</svg>`;
@@ -69,7 +71,7 @@
     if (h != null) { if (/ونص|والنصف/.test(s)) mn = 30; else if (/وربع/.test(s)) mn = 15;
       if (/مساء|مساءً|بالليل|الليل|العصر|عصرا|المغرب|العشاء/.test(s) && h < 12) h += 12; else if (/الظهر/.test(s) && h < 6) h += 12; else if (!/صباح|الصبح|صباحا|الفجر/.test(s) && h >= 1 && h <= 5) h += 12;
       r.time = `${pad(h % 24)}:${pad(mn)}`; if (!r.date) r.date = (h * 60 + mn) > new Date().getHours() * 60 + new Date().getMinutes() ? t0 : addD(t0, 1); }
-    const cm = [[/اجتماع|لقاء|مجلس/, 'meet'], [/تقرير|كشف|خطة|رصد|إحصائي|احصائية/, 'report'], [/طالب|طلاب|الطلبة|ولي امر|ولي أمر|أولياء/, 'students'], [/معلم|المعلمين|معلمين|زيارة صفية|الأساتذة|استاذ/, 'teachers'], [/فعالية|نشاط|مسابقة|حفل|احتفال|طابور|إذاعة/, 'events']];
+    const cm = [[/تصميم|صمم|بوستر|إعلان|اعلان|بطاقة|انفوجراف|شعار|قالب/, 'design'], [/نشر|انشر|بوست|منشور|ستوري|انستقرام|انستغرام|تويتر|إكس|اكس|سناب|تيك ?توك|الحساب|واتساب/, 'post'], [/تغطية|غطي/, 'cover'], [/تصوير|صور|فيديو|مونتاج|ريلز|ريل|مقطع|كاميرا/, 'photo'], [/حفل|فعالية|طابور|إذاعة|اذاعة|مسابقة|احتفال|زيارة|تكريم/, 'cover'], [/كتابة|اكتب|خبر|نص|محتوى|تقرير|كابشن|تعليق/, 'content'], [/اجتماع|لقاء|مجلس/, 'meet']];
     for (const [re, c] of cm) if (re.test(s)) { r.cat = c; break; }
     let title = toEn(text).replace(/^(ذكرني|ذكّرني|تذكير|لازم|سجل|سجّل)\s*(ب|ان|أن)?\s*/, '');
     DRE.forEach(re => { title = title.replace(re, ' '); });
@@ -86,7 +88,7 @@
     const now = Date.now();
     T.forEach(t => { if (t.done || !t.date || !t.time) return; const due = dueTs(t), pre = due - ST.remind * 60000, key = t.id + '@' + t.date + t.time;
       if (now >= pre && now < due + 3600000 && !notified.has(key)) { notified.add(key); localStorage.setItem(K + 'notified', JSON.stringify([...notified].slice(-200)));
-        banner(t); try { if (window.Notification && Notification.permission === 'granted') navigator.serviceWorker && navigator.serviceWorker.ready.then(r => r.showNotification('منسّق: ' + t.title, { body: (PR[t.pr].t) + ' · ' + dueStr(t), icon: 'icon-180.png?v=2', tag: t.id })); } catch (e) {} } });
+        banner(t); try { if (window.Notification && Notification.permission === 'granted') navigator.serviceWorker && navigator.serviceWorker.ready.then(r => r.showNotification('منسّق: ' + t.title, { body: (PR[t.pr].t) + ' · ' + dueStr(t), icon: 'icon-180.png?v=3', tag: t.id })); } catch (e) {} } });
   }
   function banner(t) { const el = $('#banner'); el.innerHTML = `${sym('bell', PR[t.pr].c, 'sm')}<div class="grow"><b>${esc(t.title)}</b><span>${dueStr(t)} · أولوية ${PR[t.pr].t}</span></div><button data-act="open" data-id="${t.id}">عرض</button>`; el.classList.add('on'); haptic(); sfx(); clearTimeout(banner.t); banner.t = setTimeout(() => el.classList.remove('on'), 7000); }
   let AC; function sfx() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const t = AC.currentTime; [880, 1320].forEach((f, i) => { const o = AC.createOscillator(), g = AC.createGain(); o.frequency.value = f; o.type = 'sine'; o.connect(g); g.connect(AC.destination); g.gain.setValueAtTime(0.0001, t + i * 0.12); g.gain.exponentialRampToValueAtTime(0.15, t + i * 0.12 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.12 + 0.35); o.start(t + i * 0.12); o.stop(t + i * 0.12 + 0.4); }); } catch (e) {} }
@@ -154,11 +156,11 @@
       <div class="hs grow"><b>${todayT.length ? `${n(todayT.length)} ${todayT.length > 2 && todayT.length < 11 ? 'مهام' : 'مهمة'} لليوم` : 'يومك فاضي ✨'}</b><span>${over ? `<em>${n(over)} متأخرة</em> · ` : ''}أنجزت ${n(doneToday)} اليوم</span>
         <div class="prs">${['h', 'm', 'l'].map(p => `<button data-act="filter" data-f="${p}" style="--p:${PR[p].c}"><i></i>${PR[p].t}<b>${n(cnt(p))}</b></button>`).join('')}</div></div>
     </section>
-    <button class="voicebar" data-act="addVoice"><span class="vb-ic">${svg('mic')}</span><span class="grow"><b>قل مهمتك…</b><small>«ذكرني باجتماع المعلمين بكرة الساعة ٩ مهم»</small></span>${svg('sparkle')}</button>
+    <button class="voicebar" data-act="addVoice"><span class="vb-ic">${svg('mic')}</span><span class="grow"><b>قل مهمتك…</b><small>«ذكرني بنشر صور الطابور بكرة الساعة ٧ مهم»</small></span>${svg('sparkle')}</button>
     ${todayT.length ? `<h2 class="label">اليوم والمتأخرة</h2><div class="group">${todayT.map(row).join('')}</div>` : `<div class="empty card"><div class="e-ic">${svg('check')}</div><b>لا مهام لليوم</b><span>أضف مهمة بالصوت أو بالكتابة من زر +</span></div>`}
     ${soon.length ? `<h2 class="label">الأيام القادمة</h2><div class="group">${soon.slice(0, 8).map(row).join('')}</div>` : ''}
     ${noDate.length ? `<h2 class="label">بدون موعد</h2><div class="group">${noDate.slice(0, 6).map(row).join('')}</div>` : ''}
-    <div class="credit-card"><img src="mark.png?v=1" alt=""><div><b>منسّق</b><span>برنامج خاص بمنسّق مدرسة معاذ بن جبل</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div>`;
+    <div class="credit-card"><img src="mark.png?v=1" alt=""><div><b>منسّق</b><span>برنامج خاص بالمنسّق الإعلامي لمدرسة معاذ بن جبل</span><small>تصميم وتطوير: الأزهر الناعبي</small></div></div>`;
   }
   function viewAll() {
     let L = T.slice();
@@ -180,7 +182,7 @@
   }
   function viewSettings() {
     return `<header class="hd"><div class="grow"><h1>الإعدادات</h1></div></header>
-      <div class="profile"><img class="pf-logo" src="logo-w.png?v=1" alt=""><img class="pf-me" src="me.png?v=1" alt=""><b>أ. ${esc(ST.name)}</b><span>منسّق · ${esc(ST.school)}</span><div class="pf-st"><div><b>${n(T.filter(t => !t.done).length)}</b><small>مفتوحة</small></div><div><b>${n(T.filter(t => t.done).length)}</b><small>منجزة</small></div><div><b>${n(T.filter(t => !t.done && t.pr === 'h').length)}</b><small>عالية</small></div></div></div>
+      <div class="profile"><img class="pf-logo" src="logo-w.png?v=1" alt=""><img class="pf-me" src="me.png?v=1" alt=""><b>أ. ${esc(ST.name)}</b><span>المنسّق الإعلامي · حساب ${esc(ST.school)}</span><div class="pf-st"><div><b>${n(T.filter(t => !t.done).length)}</b><small>مفتوحة</small></div><div><b>${n(T.filter(t => t.done).length)}</b><small>منجزة</small></div><div><b>${n(T.filter(t => !t.done && t.pr === 'h').length)}</b><small>عالية</small></div></div></div>
       <div class="group form"><label>الاسم<input id="sN" value="${esc(ST.name)}"></label><label>المدرسة<input id="sS" value="${esc(ST.school)}"></label></div>
       <h2 class="label">التذكير</h2>
       <div class="group"><div class="li"><span class="grow">التنبيه قبل الموعد</span><select id="sR">${[[0, 'في الموعد'], [5, '٥ دقائق'], [15, '١٥ دقيقة'], [30, '٣٠ دقيقة'], [60, 'ساعة']].map(([v, t]) => `<option value="${v}" ${ST.remind == v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
@@ -196,14 +198,14 @@
   /* ——— إضافة وتعديل ——— */
   let draft = null;
   function addSheet(pre = {}, voice) {
-    draft = Object.assign({ pr: 'm', cat: 'admin', date: '', time: '', rep: 'none', notes: '' }, pre); recBlob = null;
+    draft = Object.assign({ pr: 'm', cat: 'post', date: '', time: '', rep: 'none', notes: '' }, pre); recBlob = null;
     openSheet(`<div class="grab"></div><div class="sh-h"><button class="tx" data-act="close">إلغاء</button><b>مهمة جديدة</b><button class="tx bold" data-act="saveNew">إضافة</button></div>
       <div class="ain"><textarea id="aT" rows="2" placeholder="ماذا تريد أن تتذكر؟">${esc(draft.title || '')}</textarea><button class="mic" id="micB" data-act="mic" aria-label="تسجيل صوتي">${svg('mic')}</button></div>
       <div class="vwave" id="vwave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>أستمع…</span></div>
       <div id="memo" class="memo" hidden>${svg('mic')} تسجيل صوتي مرفق</div>
       <div id="pv" class="pv"></div>
       ${editorFields()}
-      <p class="hint">تكلّم بطبيعتك: «اجتماع أولياء الأمور الأحد الساعة ١٠ مهم» — يفهم التطبيق اليوم والوقت والأهمية والتصنيف.</p>`);
+      <p class="hint">تكلّم بطبيعتك: «تغطية حفل التكريم الأحد الساعة ١٠ مهم» أو «تصميم بوستر اليوم الوطني بكرة» — يفهم التطبيق اليوم والوقت والأهمية والتصنيف.</p>`);
     $('#aT').addEventListener('input', preview); preview(true);
     if (voice) setTimeout(startVoice, 350); else setTimeout(() => $('#aT').focus(), 350);
   }
